@@ -1,0 +1,9 @@
+command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+env:
+  - name: "LAKEBASE_INSTANCE"
+    value: "balatro-base"
+  - name: "EMBED_ENDPOINT"
+    value: "databricks-gte-large-en"
+  - name: "STRATEGIST_ENDPOINT"
+    value: "databricks-meta-llama-3-3-70b-instruct"

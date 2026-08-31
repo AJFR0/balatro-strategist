@@ -1,0 +1,6 @@
+fastapi>=0.110
+uvicorn>=0.29
+pandas>=2.0
+numpy>=1.26
+databricks-sdk>=0.50
+psycopg2-binary>=2.9
