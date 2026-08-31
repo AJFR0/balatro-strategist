@@ -125,6 +125,22 @@ class OptimizeReq(BaseModel):
     ancient: Optional[str] = None    # e.g. "H"
 
 
+_CANON = {n.lower(): n for n in SUPPORTED}
+_EDS = {"none": "none", "foil": "foil", "holo": "holo",
+        "holographic": "holo", "polychrome": "polychrome", "poly": "polychrome"}
+
+
+def _canon_joker(name: str) -> str:
+    """Forgive case and a missing 'The ' prefix for API callers."""
+    n = name.strip()
+    low = n.lower()
+    return _CANON.get(low) or _CANON.get("the " + low) or n
+
+
+def _canon_edition(ed: str) -> str:
+    return _EDS.get((ed or "none").strip().lower(), "none")
+
+
 @app.post("/api/optimize")
 def optimize(req: OptimizeReq) -> dict:
     try:
@@ -139,7 +155,8 @@ def optimize(req: OptimizeReq) -> dict:
         extra["idol_suit"] = req.idol[-1]
     if req.ancient:
         extra["ancient_suit"] = req.ancient
-    jokers = [JokerState(i.name, i.value, i.edition) for i in req.lineup]
+    jokers = [JokerState(_canon_joker(i.name), i.value,
+                         _canon_edition(i.edition)) for i in req.lineup]
     plays = best_plays(cards, jokers, req.levels, Rules(optimist=req.optimist),
                        extra, top_n=5)
     out = []
