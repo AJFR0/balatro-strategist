@@ -1,0 +1,13 @@
+name,hand,chips_per_level,mult_per_level
+Ceres,Flush House,40,4
+Earth,Full House,25,2
+Eris,Flush Five,50,3
+Jupiter,Flush,15,2
+Mars,Four of a Kind,30,3
+Mercury,Pair,15,1
+Neptune,Straight Flush,40,4
+Planet X,Five of a Kind,35,3
+Pluto,High Card,10,1
+Saturn,Straight,30,3
+Uranus,Two Pair,20,1
+Venus,Three of a Kind,20,2

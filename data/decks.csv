@@ -1,0 +1,22 @@
+name,cost,effect
+,,
+Abandoned,,Start run with no Face Cards in your deck
+Anaglyph,,"After defeating each Boss Blind, gain a Double Tag"
+Black,,+1 Joker slot.  -1 hand every round
+Blue,,+1 hand every round
+Braided,,Most Played hand starts at lvl.3
+Checkered,,Start run with 26 Spades and 26 Hearts in deck
+Erratic,,All Ranks and Suits in deck are randomized
+Foil,,Add Foil to 3 random cards in deck
+Ghost,,"Spectral cards may appear in the shop, start with a Hex card"
+Green,,"At the end of each Round: $2 per remaining Hand, $1 per remaining Discard, Earn no Interest"
+Holographic,,Add Holographic to 2 random cards in deck
+Magic,,Start run with the Crystal Ball voucher active and two copies of The Fool
+Nebula,,"Start run with the Telescope voucher active, -1 consumable slot"
+Painted,,"+2 hand size, -1 Joker slot"
+Plasma,,"Balance Chips and Mult when calculating score for played hand, X2 base Blind size"
+Polychrome,,Add Polychrome to 1 random card in deck
+Red,,+1 discard every round
+Silver,,Start run with one Joker
+Yellow,,Start with extra $10
+Zodiac,,"Start run with Tarot Merchant, Planet Merchant, and Overstock"

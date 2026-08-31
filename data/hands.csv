@@ -1,0 +1,13 @@
+hand,base_chips,base_mult,planet,chips_per_level,mult_per_level,secret
+High Card,5,1,Pluto,10,1,False
+Pair,10,2,Mercury,15,1,False
+Two Pair,20,2,Uranus,20,1,False
+Three of a Kind,30,3,Venus,20,2,False
+Straight,30,4,Saturn,30,3,False
+Flush,35,4,Jupiter,15,2,False
+Full House,40,4,Earth,25,2,False
+Four of a Kind,60,7,Mars,30,3,False
+Straight Flush,100,8,Neptune,40,4,False
+Five of a Kind,120,12,Planet X,35,3,True
+Flush House,140,14,Ceres,40,4,True
+Flush Five,160,16,Eris,50,3,True

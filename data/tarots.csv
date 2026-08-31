@@ -1,0 +1,23 @@
+name,cost,effect
+Death,,"Select 2 cards, convert the left card into the right cardDrag to rearrange"
+Judgement,,"Spawns a random Joker card , Must have room"
+Justice,,Enhances 1 selected card into a Glass Card
+Strength,,Increases rank of up to 2 selected cards by 1
+Temperance,,"Gives the total sell value of all current Jokers , Max of $50"
+The Chariot,,Enhances 1 selected card into a Steel Card
+The Devil,,Enhances 1 selected card into a Gold Card
+The Emperor,,"Creates up to 2 random Tarot cards , Must have room"
+The Empress,,Enhances up to 2 selected cards to Mult Cards
+The Fool,,"Spawns the last Tarot or Planet card used during this run, Excludes The Fool"
+The Hanged Man,,Destroys up to 2 selected cards
+The Hermit,,"Doubles money, Max of $20"
+The Hierophant,,Enhances up to 2 selected cards to Bonus Cards
+The High Priestess,,"Spawns up to 2 random Planet cards , Must have room"
+The Lovers,,Enhances 1 selected card into a Wild Card
+The Magician,,Enhances 1 selected card into a Lucky Card
+The Moon,,Converts up to 3 selected cards to Clubs
+The Star,,Converts up to 3 selected cards to Diamonds
+The Sun,,Converts up to 3 selected cards to Hearts
+The Tower,,Enhances 1 selected card into a Stone Card
+The Wheel of Fortune,,"1 in 4 chance to add Foil, Holographic, or Polychrome edition to a random Joker"
+The World,,Converts up to 3 selected cards to Spades

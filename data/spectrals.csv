@@ -1,0 +1,19 @@
+name,cost,effect
+Ankh,,"Create a copy of a random Joker, destroy all other Jokers"
+Aura,,"Add Foil, Holographic, or Polychrome effect to 1 selected card in hand"
+Black Hole,,Upgrade every poker hand by 1 level
+Cryptid,,Create 2 copies of 1 selected card in your hand
+Déjà Vu,,Add a Red Seal to 1 selected card in your hand
+Ectoplasm,,"Add Negative to a random Joker, -1 hand size"
+Familiar,,"Destroy 1 random card in your hand, add 3 random Enhanced face cards to your hand"
+Grim,,"Destroy 1 random card in your hand, add 2 random Enhanced Aces to your hand"
+Hex,,"Add Polychrome to a random Joker, destroy all other Jokers"
+Immolate,,"Destroys 5 random cards in hand, gain $20"
+Incantation,,"Destroy 1 random card in your hand, add 4 random Enhanced numbered cards to your hand"
+Medium,,Add a Purple Seal to 1 selected card in your hand
+Ouija,,Converts all cards in hand to a single random rank -1 hand size
+Sigil,,Converts all cards in hand to a single random suit
+Soul,,Creates a Legendary Joker
+Talisman,,Add Gold Seal to 1 selected card in your hand
+Trance,,Add a Blue Seal to 1 selected card in your hand
+Wraith,,"Creates a random Rare Joker, sets money to $0"
