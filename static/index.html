@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c231b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Balatro Strategist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --felt1:#2a5a40; --felt2:#12352a; --felt3:#081a13;
+  --ink:#f5f1e6; --fade:#9fc2b0; --soft:#c8ddd0;
+  --gold:#ffd54a; --chip:#4fa8ff; --chipD:#1c6fd4; --mult:#ff5c50; --multD:#d43a30;
+  --common:#4fa8ff; --uncommon:#3fd08a; --rare:#ff5c50; --legendary:#c47ae0;
+  --card:#faf7ef; --panel:rgba(0,0,0,.38); --panel2:rgba(255,255,255,.06);
+  --line:rgba(255,255,255,.10);
+  --px:'Press Start 2P',monospace; --body:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--body);color:var(--ink);min-height:100vh;
+  background:
+    radial-gradient(ellipse 120% 60% at 50% -10%, var(--felt1) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 100% at 50% 120%, #071510 0%, transparent 60%),
+    linear-gradient(180deg, var(--felt2) 0%, #0c231b 45%, var(--felt3) 100%);
+  background-attachment:fixed;
+  padding-bottom:calc(74px + env(safe-area-inset-bottom));
+}
+header{padding:18px 16px 6px;text-align:center}
+.title{font-family:var(--px);font-size:clamp(15px,4.2vw,26px);letter-spacing:1px;
+  text-shadow:0 3px 0 rgba(0,0,0,.45),0 0 24px rgba(255,213,74,.25)}
+.title .j{color:var(--gold)}
+.sub{color:var(--fade);font-size:12px;margin-top:6px}
+main{max-width:1180px;margin:0 auto;padding:8px 14px}
+section{display:none}
+section.on{display:block;animation:fadein .18s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+h2{font-size:15px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin:18px 0 8px}
+.hint{color:var(--fade);font-size:12.5px;line-height:1.45;margin:2px 0 10px}
+
+/* ---- nav ---- */
+nav{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;
+  background:rgba(6,18,13,.92);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--fade);font-family:var(--body);
+  font-size:10.5px;font-weight:600;padding:9px 2px 8px;cursor:pointer}
+nav button .ico{display:block;font-size:20px;margin-bottom:2px}
+nav button.on{color:var(--gold)}
+@media(min-width:820px){
+  body{padding-bottom:20px}
+  nav{position:static;max-width:1180px;margin:6px auto 0;background:none;border:0;
+    backdrop-filter:none;gap:6px;padding:0 14px}
+  nav button{flex:0 0 auto;display:flex;gap:7px;align-items:center;font-size:13.5px;
+    padding:9px 16px;border-radius:10px;background:var(--panel)}
+  nav button.on{background:rgba(255,213,74,.12);color:var(--gold)}
+  nav button .ico{display:inline;font-size:16px;margin:0}
+}
+
+/* ---- shared bits ---- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button.b{font-family:var(--body);font-weight:800;border:0;border-radius:10px;cursor:pointer;
+  padding:10px 14px;background:var(--panel2);color:var(--ink);font-size:14px}
+button.b:active{transform:translateY(1px)}
+button.primary{background:linear-gradient(180deg,#e8483d,#c93227);color:#fff;
+  box-shadow:0 4px 0 #8f231c;letter-spacing:.5px;width:100%;padding:14px;font-size:15px}
+button.gold{background:linear-gradient(180deg,#ffd54a,#e2b32e);color:#221a02;box-shadow:0 3px 0 #99751a}
+input,select,textarea{font-family:var(--body);font-size:14px;color:var(--ink);
+  background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:0}
+input:focus,select:focus,textarea:focus{border-color:rgba(255,213,74,.5)}
+label.f{display:block;color:var(--fade);font-size:11px;text-transform:uppercase;
+  letter-spacing:1px;margin:0 0 4px 2px}
+.pill{display:inline-block;padding:2px 10px;border-radius:10px;margin:2px 3px 0 0;
+  background:rgba(36,68,58,.9);color:#9fe0c0;font-size:11px}
+.pill.rar{color:#08131b;font-weight:800}
+.pill.arch{background:rgba(79,168,255,.15);color:#9cc8f5}
+.chipbtn{padding:7px 13px;border-radius:20px;border:1px solid var(--line);background:var(--panel2);
+  color:var(--soft);font-size:12.5px;font-weight:600;cursor:pointer}
+.chipbtn.on{background:rgba(255,213,74,.16);border-color:rgba(255,213,74,.5);color:var(--gold)}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--fade);
+  border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-3px}
+@keyframes sp{to{transform:rotate(360deg)}}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));
+  background:#2a1214;color:#ffb3ac;border:1px solid #7a2d28;padding:10px 16px;border-radius:12px;
+  font-size:13px;z-index:99;display:none;max-width:90vw}
+@media(min-width:820px){#toast{bottom:24px}}
+
+/* ---- mini playing cards ---- */
+.tray{display:flex;flex-wrap:wrap;gap:7px;min-height:74px;padding:10px;border-radius:12px;
+  background:rgba(0,0,0,.25);border:1px dashed rgba(255,255,255,.16)}
+.mcard{position:relative;width:46px;height:64px;border-radius:7px;background:var(--card);
+  box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;font-weight:800;border:2px solid transparent}
+.mcard .r{font-size:17px;line-height:1}
+.mcard .s{font-size:15px;line-height:1.2}
+.mcard.enh::after{content:attr(data-enh);position:absolute;bottom:1px;left:3px;font-size:8px;
+  font-weight:800;color:#333;letter-spacing:.3px}
+.mcard.ed-foil{border-color:#7fd4ff}.mcard.ed-holo{border-color:#ff8ae0}.mcard.ed-polychrome{border-color:#ffd54a}
+.mcard .seal{position:absolute;top:2px;right:3px;width:8px;height:8px;border-radius:50%}
+.suit-H{color:#d6342c}.suit-D{color:#e07f16}.suit-S{color:#3b4a8f}.suit-C{color:#1e6e4e}
+.picker .suits{display:flex;gap:8px;margin-bottom:8px}
+.picker .suits button{flex:1;font-size:22px;padding:9px 0;border-radius:10px;border:2px solid var(--line);
+  background:var(--card);cursor:pointer}
+.picker .suits button.on{border-color:var(--gold);box-shadow:0 0 0 2px rgba(255,213,74,.35)}
+.picker .ranks{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+@media(min-width:560px){.picker .ranks{grid-template-columns:repeat(13,1fr)}}
+.picker .ranks button{padding:10px 0;border-radius:9px;border:1px solid var(--line);
+  background:var(--panel2);color:var(--ink);font-weight:800;font-size:15px;cursor:pointer}
+
+/* ---- bottom sheet ---- */
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:80;display:none;align-items:flex-end}
+#sheet.on{display:flex}
+#sheet .body{background:#0e2a20;border-radius:18px 18px 0 0;width:100%;max-width:560px;margin:0 auto;
+  padding:18px 18px calc(18px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+#sheet .grip{width:44px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+
+/* ---- lineup ---- */
+.jrow{display:flex;gap:8px;align-items:center;background:var(--panel2);border-left:4px solid var(--rar,#4fa8ff);
+  border-radius:10px;padding:8px 10px;margin-bottom:7px}
+.jrow .nm{font-weight:800;font-size:13.5px}
+.jrow .eff{color:var(--fade);font-size:11px;line-height:1.3}
+.jrow .grow{flex:1;min-width:0}
+.jrow select,.jrow input{padding:6px 8px;font-size:12px}
+.jrow .mv{display:flex;flex-direction:column;gap:2px}
+.jrow .mv button{background:none;border:0;color:var(--fade);cursor:pointer;font-size:11px;padding:1px 5px}
+.acwrap{position:relative}
+.aclist{position:absolute;top:100%;left:0;right:0;z-index:40;background:#0e2a20;
+  border:1px solid var(--line);border-radius:0 0 12px 12px;max-height:260px;overflow:auto;display:none}
+.aclist div{padding:10px 12px;font-size:13.5px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05)}
+.aclist div:hover{background:rgba(255,213,74,.08)}
+.aclist .r{font-size:11px;margin-left:6px}
+
+/* ---- score banner ---- */
+.score{background:linear-gradient(160deg,rgba(0,0,0,.55),rgba(0,0,0,.25));
+  border:1px solid rgba(255,213,74,.35);border-radius:14px;padding:16px 18px;margin:12px 0;
+  box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.score .hand{font-weight:800;text-transform:uppercase;letter-spacing:2px;font-size:14px}
+.score .math{margin:8px 0 2px}
+.score .cchip,.score .cmult{display:inline-block;padding:4px 14px;border-radius:8px;
+  font-weight:800;font-size:17px;color:#fff}
+.score .cchip{background:var(--chipD);box-shadow:0 3px 0 #114a90}
+.score .cmult{background:var(--multD);box-shadow:0 3px 0 #8f231c}
+.score .x{font-weight:800;margin:0 7px}
+.score .total{font-family:var(--px);color:var(--gold);font-size:clamp(20px,6vw,30px);
+  line-height:1.7;text-shadow:0 0 18px rgba(255,213,74,.45)}
+.vok{color:#3fd08a;font-weight:700;font-size:13px}.vno{color:var(--mult);font-weight:700;font-size:13px}
+details.play{background:var(--panel2);border-radius:10px;margin-bottom:7px;border:1px solid var(--line)}
+details.play summary{padding:10px 12px;cursor:pointer;font-size:13.5px;font-weight:600;list-style:none}
+details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;line-height:1.5;
+  color:#cfe3d7;background:rgba(0,0,0,.3);border-radius:0 0 10px 10px}
+.quicklog{display:flex;gap:8px;align-items:center;margin-top:10px}
+
+/* ---- codex tiles ---- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:11px}
+.tile{border-radius:12px;padding:12px 14px;position:relative;
+  background:linear-gradient(165deg,rgba(255,255,255,.07),rgba(0,0,0,.35));
+  border:1px solid var(--line);border-top:3px solid var(--rar,#4fa8ff);
+  box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.tile .cost{position:absolute;top:9px;right:12px;color:var(--gold);font-weight:800}
+.tile .nm{font-weight:800;font-size:15px}
+.tile .sim{color:var(--gold);font-size:11px;font-weight:700;margin-right:5px}
+.tile .eff{color:var(--soft);font-size:12.5px;line-height:1.4;margin-top:4px}
+.tile details{margin-top:8px}
+.tile summary{cursor:pointer;color:var(--gold);font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;list-style:none}
+.tile summary::before{content:"▸ "}.tile details[open] summary::before{content:"▾ "}
+.tile .strat{color:#cfe3d7;font-size:12.5px;line-height:1.45;margin-top:5px}
+.tile .test{color:#9fe0c0;font-size:12px;line-height:1.45;margin-top:6px;padding:6px 9px;
+  border-left:3px solid var(--gold);background:rgba(255,213,74,.06);border-radius:0 8px 8px 0}
+.filters{display:flex;gap:7px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+
+/* ---- synergy ---- */
+.syn-svg{width:100%;height:auto;display:block}
+.syn-list .nrow{display:flex;align-items:center;gap:10px;background:var(--panel2);
+  border-left:4px solid var(--rar);border-radius:10px;padding:10px 12px;margin-bottom:7px}
+.syn-list .w{min-width:26px;height:26px;border-radius:50%;background:var(--rar);color:#08131b;
+  font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px}
+@media(max-width:699px){.syn-svg{display:none}}
+@media(min-width:700px){.syn-list{display:none}}
+
+/* ---- runs ---- */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:12px}
+@media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stat .v{font-family:var(--px);color:var(--gold);font-size:15px;line-height:2}
+.stat .k{color:var(--fade);font-size:10.5px;text-transform:uppercase;letter-spacing:1px}
+.runrow{background:var(--panel2);border-radius:10px;padding:10px 12px;margin-bottom:7px;font-size:13px}
+.runrow .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.runrow .meta{color:var(--fade);font-size:11.5px;margin-top:3px}
+.won{color:#3fd08a;font-weight:800}.lost{color:var(--mult);font-weight:800}
+
+/* ---- coach ---- */
+.ctxgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+@media(min-width:700px){.ctxgrid{grid-template-columns:repeat(4,1fr)}}
+#answer{white-space:pre-wrap;line-height:1.55;font-size:14px;color:#e6f0e9}
+#answer b{color:var(--gold)}
+</style>
+</head>
+<body>
+<header>
+  <div class="title">🃏 <span class="j">BALATRO</span> STRATEGIST</div>
+  <div class="sub">math is deterministic · strategy talk is AI · blunders are yours ·
+    Databricks Apps + Lakebase + Model Serving</div>
+</header>
+
+<nav id="nav">
+  <button data-t="play" class="on"><span class="ico">🎯</span>Play</button>
+  <button data-t="codex"><span class="ico">📖</span>Codex</button>
+  <button data-t="web"><span class="ico">🕸️</span>Web</button>
+  <button data-t="runs"><span class="ico">📒</span>Runs</button>
+  <button data-t="coach"><span class="ico">🧠</span>Coach</button>
+</nav>
+
+<main>
+<!-- ============================ PLAY ============================ -->
+<section id="t-play" class="on">
+  <div class="panel">
+    <h2>Your hand</h2>
+    <div class="hint">Pick a suit, tap ranks to add cards. Tap a card to enhance or remove it.</div>
+    <div class="tray" id="tray"></div>
+    <div class="picker" style="margin-top:10px">
+      <div class="suits" id="suits">
+        <button data-s="H" class="suit-H on">♥</button>
+        <button data-s="D" class="suit-D">♦</button>
+        <button data-s="S" class="suit-S">♠</button>
+        <button data-s="C" class="suit-C">♣</button>
+      </div>
+      <div class="ranks" id="ranks"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="b" id="clearHand">Clear hand</button>
+      <button class="b" id="demoHand">Demo hand</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Jokers <span style="color:var(--fade);font-size:11px;letter-spacing:0">(order matters — left to right)</span></h2>
+    <div class="acwrap">
+      <input id="jsearch" placeholder="Add a joker — type to search…" autocomplete="off" style="width:100%">
+      <div class="aclist" id="aclist"></div>
+    </div>
+    <div id="lineup" style="margin-top:10px"></div>
+  </div>
+
+  <div class="panel">
+    <details><summary style="cursor:pointer;color:var(--gold);font-weight:700;font-size:13px">⚙️ Hand levels & run context</summary>
+      <div id="levels" class="ctxgrid" style="margin-top:10px"></div>
+      <div class="row" style="margin-top:12px">
+        <div><label class="f">Blind target</label><input id="blind" type="number" min="0" value="0" style="width:110px"></div>
+        <label style="font-size:13px"><input type="checkbox" id="optimist"> Optimist mode</label>
+        <label style="font-size:13px"><input type="checkbox" id="finalHand"> Final hand</label>
+      </div>
+    </details>
+  </div>
+
+  <button class="b primary" id="go">🎰 FIND MY BEST PLAY</button>
+  <div id="result"></div>
+</section>
+
+<!-- ============================ CODEX ============================ -->
+<section id="t-codex">
+  <div class="panel">
+    <div class="row">
+      <input id="csearch" placeholder="try: jokers that punish discards…" style="flex:1;min-width:200px">
+      <button class="chipbtn on" id="semTog">🧠 semantic</button>
+    </div>
+    <div class="hint" id="searchNote"></div>
+    <div class="filters" id="rarF"></div>
+    <div class="filters" id="archF"></div>
+  </div>
+  <div class="hint" id="codexCount"></div>
+  <div class="grid" id="codexGrid"></div>
+</section>
+
+<!-- ============================ WEB ============================ -->
+<section id="t-web">
+  <div class="panel">
+    <h2>Who plays well with whom</h2>
+    <div class="row">
+      <div class="acwrap" style="flex:1;min-width:200px">
+        <input id="wsearch" placeholder="Center the web on…" autocomplete="off" style="width:100%">
+        <div class="aclist" id="waclist"></div>
+      </div>
+      <select id="wn"><option>6</option><option selected>10</option><option>14</option><option>20</option></select>
+    </div>
+  </div>
+  <div id="webOut"></div>
+</section>
+
+<!-- ============================ RUNS ============================ -->
+<section id="t-runs">
+  <div class="stats" id="runStats"></div>
+  <div class="panel">
+    <h2>Log a run</h2>
+    <div class="ctxgrid">
+      <div><label class="f">Ante reached</label><input id="rAnte" type="number" min="1" max="39" value="8" style="width:100%"></div>
+      <div><label class="f">Outcome</label><select id="rOut" style="width:100%"><option>lost</option><option>won</option><option>in-progress</option></select></div>
+      <div><label class="f">Deck</label><select id="rDeck" style="width:100%"></select></div>
+      <div><label class="f">Stake</label><select id="rStake" style="width:100%">
+        <option>White</option><option>Red</option><option>Green</option><option>Black</option>
+        <option>Blue</option><option>Purple</option><option>Orange</option><option>Gold</option></select></div>
+    </div>
+    <input id="rNotes" placeholder="what killed you / what carried you" style="width:100%;margin-top:9px">
+    <label style="font-size:12.5px;display:block;margin:9px 0"><input type="checkbox" id="rLineup" checked> attach current joker lineup</label>
+    <button class="b gold" id="rSave">📒 Log this run</button>
+    <span class="hint" id="rStatus"></span>
+  </div>
+  <div id="runList"></div>
+</section>
+
+<!-- ============================ COACH ============================ -->
+<section id="t-coach">
+  <div class="panel">
+    <div class="filters" id="modes"></div>
+    <div class="ctxgrid" style="margin-top:6px">
+      <div><label class="f">Ante</label><input id="cAnte" type="number" value="4" min="1" style="width:100%"></div>
+      <div><label class="f">Money $</label><input id="cMoney" type="number" value="12" min="0" style="width:100%"></div>
+      <div><label class="f">Hands left</label><input id="cHands" type="number" value="3" min="0" style="width:100%"></div>
+      <div><label class="f">Discards left</label><input id="cDisc" type="number" value="2" min="0" style="width:100%"></div>
+    </div>
+    <input id="cShop" placeholder="what's in the shop (optional)" style="width:100%;margin-top:9px">
+    <textarea id="cQ" rows="4" style="width:100%;margin-top:9px"></textarea>
+    <button class="b primary" id="cAsk" style="margin-top:9px">🧠 ASK THE STRATEGIST</button>
+  </div>
+  <div class="panel" id="answerWrap" style="display:none">
+    <div id="answer"></div>
+    <details style="margin-top:10px"><summary style="cursor:pointer;color:var(--fade);font-size:12px">what the model saw</summary>
+      <pre id="promptView" style="white-space:pre-wrap;font-size:11px;color:var(--fade)"></pre></details>
+  </div>
+  <div class="panel">
+    <details><summary style="cursor:pointer;color:var(--gold);font-weight:700;font-size:13px">🔌 Diagnostics — what this app is wired to</summary>
+      <pre id="diagView" style="white-space:pre-wrap;font-size:12px;color:var(--soft)"></pre></details>
+  </div>
+</section>
+</main>
+
+<div id="sheet"><div class="body" id="sheetBody"></div></div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const RAR={Common:"var(--common)",Uncommon:"var(--uncommon)",Rare:"var(--rare)",Legendary:"var(--legendary)"};
+const SUITG={H:"♥",D:"♦",S:"♠",C:"♣"};
+const RANKS=["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
+const ENH=["none","bonus","mult","wild","glass","steel","stone","gold","lucky"];
+const EDS=["none","foil","holo","polychrome"];
+const SEALS=["none","red","gold","blue","purple"];
+const S={jokers:[],byName:{},hand:[],lineup:[],suit:"H",levels:{},lastPlays:null,lastCtx:{},
+  boot:{},rarSel:new Set(),archSel:new Set(),semantic:true};
+
+function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";
+  clearTimeout(t._h);t._h=setTimeout(()=>t.style.display="none",3500)}
+async function api(path,opts){const r=await fetch(path,opts?{headers:{"Content-Type":"application/json"},...opts}:undefined);
+  if(!r.ok){let m="request failed";try{m=(await r.json()).detail||m}catch(e){}throw new Error(m)}return r.json()}
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function save(){try{localStorage.setItem("bs",JSON.stringify({hand:S.hand,lineup:S.lineup,levels:S.levels}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem("bs")||"{}");
+  S.hand=d.hand||[];S.lineup=d.lineup||[];S.levels=d.levels||{}}catch(e){}}
+
+/* ---------------- nav ---------------- */
+$("#nav").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  $$("#nav button").forEach(x=>x.classList.toggle("on",x===b));
+  $$("main section").forEach(x=>x.classList.toggle("on",x.id==="t-"+b.dataset.t));
+  window.scrollTo({top:0})});
+
+/* ---------------- card tray + picker ---------------- */
+function cardToken(c){const mods=[c.enh,c.ed,c.seal].filter(x=>x&&x!=="none");
+  return c.rank+c.suit+(mods.length?"("+mods.join(",")+")":"")}
+const ENHB={bonus:"BON",mult:"MLT",wild:"WLD",glass:"GLS",steel:"STL",stone:"STN",gold:"GLD",lucky:"LKY"};
+const SEALC={red:"#e04b3a",gold:"#e2b32e",blue:"#4fa8ff",purple:"#a06bd8"};
+function renderTray(){const t=$("#tray");
+  t.innerHTML=S.hand.map((c,i)=>{
+    const enh=c.enh&&c.enh!=="none"?` enh" data-enh="${ENHB[c.enh]||c.enh}`:"";
+    const ed=c.ed&&c.ed!=="none"?` ed-${c.ed}`:"";
+    const seal=c.seal&&c.seal!=="none"?`<span class="seal" style="background:${SEALC[c.seal]}"></span>`:"";
+    return `<div class="mcard suit-${c.suit}${ed}${enh}" data-i="${i}">
+      <span class="r">${c.rank}</span><span class="s">${SUITG[c.suit]}</span>${seal}</div>`}).join("")
+    ||`<span style="color:var(--fade);font-size:12.5px;align-self:center">tap ranks below to add your 8 cards</span>`;
+  save()}
+$("#suits").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  S.suit=b.dataset.s;$$("#suits button").forEach(x=>x.classList.toggle("on",x===b))});
+$("#ranks").innerHTML=RANKS.map(r=>`<button data-r="${r}">${r}</button>`).join("");
+$("#ranks").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(S.hand.length>=12)return toast("12 cards max");
+  S.hand.push({rank:b.dataset.r,suit:S.suit,enh:"none",ed:"none",seal:"none"});renderTray()});
+$("#tray").addEventListener("click",e=>{const c=e.target.closest(".mcard");if(!c)return;openCardSheet(+c.dataset.i)});
+$("#clearHand").onclick=()=>{S.hand=[];renderTray()};
+$("#demoHand").onclick=()=>{S.hand=[["A","H"],["K","H"],["9","H"],["5","H"],["2","H"],["A","S"],["3","C"],["7","D"]]
+  .map(([r,s])=>({rank:r,suit:s,enh:"none",ed:"none",seal:"none"}));renderTray()};
+
+function openCardSheet(i){const c=S.hand[i];
+  const opt=(list,cur)=>list.map(v=>`<option ${v===cur?"selected":""}>${v}</option>`).join("");
+  $("#sheetBody").innerHTML=`<div class="grip"></div>
+    <div style="font-weight:800;font-size:16px;margin-bottom:10px">${c.rank}${SUITG[c.suit]} — modifiers</div>
+    <div class="ctxgrid">
+      <div><label class="f">Enhancement</label><select id="shEnh" style="width:100%">${opt(ENH,c.enh)}</select></div>
+      <div><label class="f">Edition</label><select id="shEd" style="width:100%">${opt(EDS,c.ed)}</select></div>
+      <div><label class="f">Seal</label><select id="shSeal" style="width:100%">${opt(SEALS,c.seal)}</select></div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="b gold" id="shOk" style="flex:1">Done</button>
+      <button class="b" id="shDel" style="background:#5b1f1a;color:#ffb3ac">Remove card</button>
+    </div>`;
+  $("#sheet").classList.add("on");
+  $("#shOk").onclick=()=>{c.enh=$("#shEnh").value;c.ed=$("#shEd").value;c.seal=$("#shSeal").value;
+    closeSheet();renderTray()};
+  $("#shDel").onclick=()=>{S.hand.splice(i,1);closeSheet();renderTray()}}
+function closeSheet(){$("#sheet").classList.remove("on")}
+$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
+
+/* ---------------- joker autocomplete + lineup ---------------- */
+function acSetup(inputSel,listSel,onPick){const inp=$(inputSel),list=$(listSel);
+  inp.addEventListener("input",()=>{const q=inp.value.toLowerCase().trim();
+    if(!q){list.style.display="none";return}
+    const hits=S.jokers.filter(j=>j.name.toLowerCase().includes(q)||String(j.effect).toLowerCase().includes(q)).slice(0,8);
+    list.innerHTML=hits.map(j=>`<div data-n="${esc(j.name)}"><b>${esc(j.name)}</b>
+      <span class="r" style="color:${RAR[j.rarity]}">${j.rarity}</span></div>`).join("");
+    list.style.display=hits.length?"block":"none"});
+  list.addEventListener("mousedown",e=>{const d=e.target.closest("div[data-n]");if(!d)return;
+    e.preventDefault();inp.value="";list.style.display="none";onPick(d.dataset.n)});
+  inp.addEventListener("blur",()=>setTimeout(()=>list.style.display="none",150))}
+
+function renderLineup(){const el=$("#lineup");
+  el.innerHTML=S.lineup.map((d,i)=>{const j=S.byName[d.name]||{};
+    const ctrl = j.kind==="state"
+      ? `<div><label class="f">current ${j.stat==="xmult"?"×Mult":j.stat==="mult"?"+Mult":"+Chips"}</label>
+         <input type="number" step="${j.stat==="xmult"?"0.25":"1"}" value="${d.value??(j.stat==="xmult"?1:0)}"
+           data-i="${i}" class="jval" style="width:86px"></div>`
+      : `<div><label class="f">edition</label><select data-i="${i}" class="jed">
+         ${EDS.map(e=>`<option ${e===d.ed?"selected":""}>${e}</option>`).join("")}</select></div>`;
+    return `<div class="jrow" style="--rar:${RAR[j.rarity]||"#4fa8ff"}">
+      <div class="mv"><button data-i="${i}" class="jup">▲</button><button data-i="${i}" class="jdn">▼</button></div>
+      <div class="grow"><div class="nm">${i+1}. ${esc(d.name)}</div>
+        <div class="eff">${esc(String(j.effect||"").slice(0,90))}</div>
+        ${j.supported?"":'<div class="eff" style="color:#8aa">ℹ️ not score-affecting — synergy only</div>'}</div>
+      ${ctrl}
+      <button class="b jdel" data-i="${i}" style="padding:6px 10px">✖</button></div>`}).join("");
+  save()}
+$("#lineup").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  const i=+b.dataset.i;
+  if(b.classList.contains("jdel"))S.lineup.splice(i,1);
+  else if(b.classList.contains("jup")&&i>0)[S.lineup[i-1],S.lineup[i]]=[S.lineup[i],S.lineup[i-1]];
+  else if(b.classList.contains("jdn")&&i<S.lineup.length-1)[S.lineup[i+1],S.lineup[i]]=[S.lineup[i],S.lineup[i+1]];
+  renderLineup()});
+$("#lineup").addEventListener("change",e=>{const t=e.target,i=+t.dataset.i;
+  if(t.classList.contains("jval"))S.lineup[i].value=parseFloat(t.value)||0;
+  if(t.classList.contains("jed"))S.lineup[i].ed=t.value;save()});
+
+/* ---------------- optimizer ---------------- */
+function levelsUI(){const hands=S.boot.hands||[];
+  $("#levels").innerHTML=hands.map(h=>`<div><label class="f">${h.hand}</label>
+    <input type="number" min="1" max="30" value="${S.levels[h.hand]||1}" data-h="${esc(h.hand)}"
+      class="lvl" style="width:100%"></div>`).join("")}
+$("#levels").addEventListener("change",e=>{if(e.target.classList.contains("lvl"))
+  S.levels[e.target.dataset.h]=+e.target.value||1;save()});
+
+$("#go").onclick=async()=>{
+  if(!S.hand.length)return toast("Add some cards first");
+  $("#go").innerHTML='<span class="spin"></span> computing 218 plays…';
+  try{
+    const body={hand:S.hand.map(cardToken).join(" "),
+      lineup:S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"})),
+      levels:S.levels,optimist:$("#optimist").checked,final_hand:$("#finalHand").checked,
+      blind_req:+$("#blind").value||0};
+    const r=await api("/api/optimize",{method:"POST",body:JSON.stringify(body)});
+    S.lastPlays=r.plays;S.lastCtx={hand_text:body.hand,blind_req:body.blind_req};
+    const b=r.plays[0];
+    const v=r.verdict==="ok"?'<span class="vok"> ✔ beats the blind</span>'
+          :r.verdict?`<span class="vno"> ✘ ${r.verdict}</span>`:"";
+    $("#result").innerHTML=`
+      <div class="score"><div class="hand">${b.hand}${v}</div>
+        <div class="math"><span class="cchip">${+b.chips.toFixed(1)}</span><span class="x">×</span>
+        <span class="cmult">${+b.mult.toFixed(1)}</span></div>
+        <div class="total">= ${b.total.toLocaleString()}</div>
+        ${b.unknown.length?`<div class="hint">not in the math (economy/utility): ${b.unknown.join(", ")}</div>`:""}
+        <div class="quicklog"><span style="color:var(--fade);font-size:12px">log outcome:</span>
+          <button class="b" id="qWin" style="color:#3fd08a">🏆 Won</button>
+          <button class="b" id="qLose" style="color:var(--mult)">💀 Lost</button>
+          <input id="qAnte" type="number" min="1" max="39" value="8" style="width:70px" title="ante"></div>
+      </div>`+
+      r.plays.map((p,i)=>`<details class="play" ${i===0?"open":""}>
+        <summary>#${i+1} ${p.hand} — play ${p.played.join(" ")} → <b>${p.total.toLocaleString()}</b></summary>
+        <pre>${esc(p.steps.join("\n"))}</pre></details>`).join("");
+    $("#qWin").onclick=()=>quickLog("won");$("#qLose").onclick=()=>quickLog("lost");
+  }catch(e){toast(e.message)}
+  $("#go").innerHTML="🎰 FIND MY BEST PLAY"};
+
+async function quickLog(outcome){const b=S.lastPlays&&S.lastPlays[0];
+  try{await api("/api/runs",{method:"POST",body:JSON.stringify({
+    ante:+$("#qAnte").value||8,outcome,deck:"Red",stake:"White",
+    lineup:S.lineup.map(d=>d.name),best_hand:b?b.hand:null,best_score:b?b.total:null,notes:"quick-logged from optimizer"})});
+    toast(outcome==="won"?"🏆 logged":"💀 logged — field research continues");loadRuns()}
+  catch(e){toast(e.message)}}
+
+/* ---------------- codex ---------------- */
+function tile(j,sim){const cost=j.cost!==""&&j.cost!=null&&!isNaN(+j.cost)?"$"+Math.round(+j.cost):"";
+  const tags=String(j.tags||"").split("|").filter(t=>t&&t!=="nan").slice(0,4);
+  return `<div class="tile" style="--rar:${RAR[j.rarity]}">
+    <div class="cost">${cost}</div>
+    <div class="nm">${sim!=null?`<span class="sim">${Math.round(sim*100)}%</span>`:""}${esc(j.name)}</div>
+    <div class="eff">${esc(j.effect)}</div>
+    <div style="margin-top:7px"><span class="pill rar" style="background:${RAR[j.rarity]}">${j.rarity}</span>
+      <span class="pill arch">${esc(j.archetype||"")}</span>
+      ${tags.map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</div>
+    ${j.strategy?`<details><summary>Strategy</summary>
+      <div class="strat">${esc(j.strategy)}</div>
+      ${j.test_idea?`<div class="test">🧪 ${esc(j.test_idea)}</div>`:""}</details>`:""}</div>`}
+
+let codexHits=null;
+async function renderCodex(){let list=S.jokers,sims=null;
+  const q=$("#csearch").value.trim();
+  if(q&&codexHits){sims={};codexHits.forEach(h=>sims[h.name]=h.sim);
+    list=codexHits.map(h=>S.byName[h.name]).filter(Boolean)}
+  else if(q){const ql=q.toLowerCase();
+    list=S.jokers.filter(j=>(j.name+" "+j.effect+" "+(j.strategy||"")).toLowerCase().includes(ql))}
+  if(S.rarSel.size)list=list.filter(j=>S.rarSel.has(j.rarity));
+  if(S.archSel.size)list=list.filter(j=>S.archSel.has(j.archetype));
+  $("#codexCount").textContent=`${list.length} / 150 jokers`;
+  $("#codexGrid").innerHTML=list.slice(0,60).map(j=>tile(j,sims?sims[j.name]:null)).join("")}
+let searchT;
+$("#csearch").addEventListener("input",()=>{clearTimeout(searchT);
+  searchT=setTimeout(async()=>{const q=$("#csearch").value.trim();
+    if(!q){codexHits=null;$("#searchNote").textContent="";renderCodex();return}
+    try{const r=await api("/api/search",{method:"POST",
+      body:JSON.stringify({q,semantic:S.semantic&&S.boot.semantic_ok})});
+      codexHits=r.hits;$("#searchNote").textContent=r.note;renderCodex()}
+    catch(e){codexHits=null;renderCodex()}},350)});
+$("#semTog").onclick=()=>{S.semantic=!S.semantic;$("#semTog").classList.toggle("on",S.semantic);
+  $("#csearch").dispatchEvent(new Event("input"))};
+function filterChips(){const rars=["Common","Uncommon","Rare","Legendary"];
+  $("#rarF").innerHTML=rars.map(r=>`<button class="chipbtn" data-r="${r}">${r}</button>`).join("");
+  const archs=[...new Set(S.jokers.map(j=>j.archetype).filter(Boolean))].sort();
+  $("#archF").innerHTML=archs.map(a=>`<button class="chipbtn" data-a="${esc(a)}">${esc(a)}</button>`).join("");
+  $("#rarF").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+    b.classList.toggle("on");b.classList.contains("on")?S.rarSel.add(b.dataset.r):S.rarSel.delete(b.dataset.r);renderCodex()};
+  $("#archF").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+    b.classList.toggle("on");b.classList.contains("on")?S.archSel.add(b.dataset.a):S.archSel.delete(b.dataset.a);renderCodex()}}
+
+/* ---------------- synergy web ---------------- */
+async function renderWeb(center){try{
+  const n=+$("#wn").value||10;
+  const r=await api(`/api/synergy?center=${encodeURIComponent(center)}&n=${n}`);
+  const H=Math.max(400,r.neighbors.length*62+80),W=1180,cx=205,cy=H/2,nx=840,cw=270,ch=64,nw=300,nh=46;
+  let svg=`<svg class="syn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  r.neighbors.forEach((nb,i)=>{const y=40+i*62+nh/2,x1=cx+cw/2,x2=nx-6,mx=(x1+x2)/2;
+    const w=1+Math.min(nb.w,4),op=(0.3+0.14*Math.min(nb.w,4)).toFixed(2);
+    svg+=`<path d="M ${x1} ${cy} C ${mx} ${cy}, ${mx} ${y}, ${x2} ${y}" fill="none"
+      stroke="#9fe0c0" stroke-opacity="${op}" stroke-width="${w}" stroke-linecap="round"/>
+      <text x="${mx}" y="${(cy+y)/2-7}" fill="#ffd54a" font-size="13" text-anchor="middle"
+        opacity=".95">${esc(nb.shared.slice(0,2).join(" · "))}</text>`});
+  r.neighbors.forEach((nb,i)=>{const y=40+i*62,col=RAR[nb.rarity]||"#4fa8ff";
+    svg+=`<rect x="${nx}" y="${y}" rx="10" width="${nw}" height="${nh}" fill="rgba(0,0,0,.45)"
+      stroke="${col.startsWith("var")?varColor(nb.rarity):col}" stroke-width="2"/>
+      <text x="${nx+16}" y="${y+nh/2+5}" fill="#f5f1e6" font-size="17" font-weight="700">${esc(nb.name)}</text>
+      <circle cx="${nx+nw-24}" cy="${y+nh/2}" r="13" fill="${varColor(nb.rarity)}" opacity=".9"/>
+      <text x="${nx+nw-24}" y="${y+nh/2+5}" fill="#08131b" font-size="14" font-weight="800"
+        text-anchor="middle">${nb.w}</text>`});
+  svg+=`<rect x="${cx-cw/2}" y="${cy-ch/2}" rx="12" width="${cw}" height="${ch}" fill="rgba(0,0,0,.6)"
+    stroke="#ffd54a" stroke-width="3"/>
+    <rect x="${cx-cw/2}" y="${cy-ch/2}" rx="12" width="${cw}" height="6" fill="${varColor(r.center.rarity)}"/>
+    <text x="${cx}" y="${cy+7}" fill="#ffd54a" font-size="20" font-weight="800"
+      text-anchor="middle">${esc(r.center.name)}</text></svg>`;
+  const list=`<div class="syn-list">${r.neighbors.map(nb=>`
+    <div class="nrow" style="--rar:${varColor(nb.rarity)}"><div class="w">${nb.w}</div>
+      <div><b>${esc(nb.name)}</b><div style="margin-top:2px">${nb.shared.slice(0,3)
+        .map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</div></div></div>`).join("")}</div>`;
+  $("#webOut").innerHTML=`<div class="panel">${svg}${list}
+    <div class="hint">edge thickness & badge = shared synergy tags · border = rarity</div></div>`
+    +`<div class="grid">${tile(S.byName[center])}</div>`}
+  catch(e){toast(e.message)}}
+function varColor(r){return{Common:"#4fa8ff",Uncommon:"#3fd08a",Rare:"#ff5c50",Legendary:"#c47ae0"}[r]||"#4fa8ff"}
+$("#wn").onchange=()=>{if(S._webCenter)renderWeb(S._webCenter)};
+
+/* ---------------- runs ---------------- */
+async function loadRuns(){try{
+  const r=await api("/api/runs");const el=$("#runList");
+  if(!r.ok){el.innerHTML=`<div class="panel hint">Lakebase unreachable — ${esc(r.reason||"")}</div>`;return}
+  const runs=r.runs,n=runs.length;
+  const wins=runs.filter(x=>x.outcome==="won").length;
+  const antes=runs.map(x=>x.ante).filter(Boolean);
+  const tops=runs.map(x=>x.best_score).filter(Boolean);
+  $("#runStats").innerHTML=[[n,"runs logged"],[n?Math.round(wins/n*100)+"%":"—","win rate"],
+    [antes.length?(antes.reduce((a,b)=>a+b,0)/antes.length).toFixed(1):"—","avg ante"],
+    [tops.length?Math.max(...tops).toLocaleString():"—","best hand"]]
+    .map(([v,k])=>`<div class="stat"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("");
+  el.innerHTML=runs.map(x=>`<div class="runrow"><div class="top">
+      <span><span class="${x.outcome==="won"?"won":"lost"}">${x.outcome==="won"?"🏆 WON":x.outcome==="lost"?"💀 LOST":"⏳ …"}
+      </span> · ante ${x.ante} · ${esc(x.deck)} / ${esc(x.stake)}</span>
+      <button class="b rdel" data-id="${x.id}" style="padding:4px 9px;font-size:12px">✖</button></div>
+    <div class="meta">${(x.lineup||[]).join(" · ")||"no lineup"}${x.best_hand?` · best: ${esc(x.best_hand)} ${(+x.best_score).toLocaleString()}`:""}
+      ${x.notes?` · ${esc(x.notes)}`:""}</div></div>`).join("")||'<div class="hint">No runs yet. Lose one for science.</div>';
+  el.onclick=async e=>{const b=e.target.closest(".rdel");if(!b)return;
+    if(b.dataset.arm){await api("/api/runs/"+b.dataset.id,{method:"DELETE"});loadRuns()}
+    else{b.dataset.arm="1";b.textContent="sure?";setTimeout(()=>{b.dataset.arm="";b.textContent="✖"},2500)}}}
+  catch(e){toast(e.message)}}
+$("#rSave").onclick=async()=>{try{
+  await api("/api/runs",{method:"POST",body:JSON.stringify({
+    ante:+$("#rAnte").value,outcome:$("#rOut").value,deck:$("#rDeck").value,stake:$("#rStake").value,
+    lineup:$("#rLineup").checked?S.lineup.map(d=>d.name):[],notes:$("#rNotes").value,
+    best_hand:S.lastPlays?S.lastPlays[0].hand:null,best_score:S.lastPlays?S.lastPlays[0].total:null})});
+  $("#rStatus").textContent="logged ✓";$("#rNotes").value="";loadRuns()}
+  catch(e){toast(e.message)}};
+
+/* ---------------- coach ---------------- */
+const MODES={"🎯 Best line":"What's my strongest line for this blind, and what should I be shopping for to make this build compound?",
+"🧪 Test a theory":"My theory: [e.g. 'held Kings with Baron beat playing real hands past ante 5']. Use the engine output and my run history to confirm, refute, or design the experiment that would settle it.",
+"🛒 Shop coach":"Given my lineup's archetypes and what's in the shop, what's the buy/skip/sell call — and what am I hoping to see in the next shop?",
+"🪦 Post-mortem":"Look at my run history: what pattern keeps killing me, and what would you change about my default build path?"};
+$("#modes").innerHTML=Object.keys(MODES).map((m,i)=>
+  `<button class="chipbtn ${i===0?"on":""}" data-m="${esc(m)}">${esc(m)}</button>`).join("");
+$("#cQ").value=MODES["🎯 Best line"];
+$("#modes").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  $$("#modes button").forEach(x=>x.classList.toggle("on",x===b));$("#cQ").value=MODES[b.dataset.m]};
+$("#cAsk").onclick=async()=>{
+  $("#cAsk").innerHTML='<span class="spin"></span> consulting…';
+  try{const r=await api("/api/chat",{method:"POST",body:JSON.stringify({
+    question:$("#cQ").value,ante:+$("#cAnte").value,money:+$("#cMoney").value,
+    hands_left:+$("#cHands").value,discards_left:+$("#cDisc").value,shop:$("#cShop").value,
+    lineup:S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"})),
+    last_plays:S.lastPlays||[],hand_text:S.lastCtx.hand_text||"",blind_req:S.lastCtx.blind_req||0})});
+    $("#answerWrap").style.display="block";
+    $("#answer").innerHTML=(r.answer||"").replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+    $("#promptView").textContent=r.prompt||"";
+    if(!r.ok&&r.error)toast("endpoint: "+r.error)}
+  catch(e){toast(e.message)}
+  $("#cAsk").innerHTML="🧠 ASK THE STRATEGIST"};
+
+/* ---------------- boot ---------------- */
+(async function(){
+  load();
+  try{S.boot=await api("/api/bootstrap")}catch(e){toast("backend unreachable: "+e.message);return}
+  S.jokers=S.boot.jokers;S.jokers.forEach(j=>S.byName[j.name]=j);
+  renderTray();renderLineup();levelsUI();filterChips();renderCodex();
+  $("#rDeck").innerHTML=["Red",...S.boot.decks.filter(d=>d!=="Red")].map(d=>`<option>${esc(d)}</option>`).join("");
+  $("#diagView").textContent=JSON.stringify(S.boot.diag,null,2)
+    +`\n\ninstance: ${S.boot.instance}\nchat: ${S.boot.endpoints.chat}\nembed: ${S.boot.endpoints.embed}`;
+  acSetup("#jsearch","#aclist",n=>{S.lineup.push({name:n,value:null,ed:"none"});renderLineup()});
+  acSetup("#wsearch","#waclist",n=>{S._webCenter=n;renderWeb(n)});
+  S._webCenter="Blueprint";renderWeb("Blueprint");
+  loadRuns();
+})();
+</script>
+</body>
+</html>
