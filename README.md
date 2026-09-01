@@ -59,11 +59,15 @@ SQLite file and the coach answers from the deterministic playbook. Without the
 flag, the app expects Databricks App credentials and lights up Lakebase
 (Postgres + pgvector), semantic search, and the Llama coach.
 
-## Deploy a review copy on AWS App Runner
+## Deploy a review copy on AWS
 
-`apprunner.yaml` is included — point an App Runner service at this repo
-(Python 3.11 managed runtime, port 8080) and it builds and serves demo mode
-straight from `main`, auto-deploying on push.
+The live review copy runs demo mode on **Lambda + CloudFront** at
+[balatro.ajf.codes](https://balatro.ajf.codes): `lambda_handler.py` wraps the
+FastAPI app with Mangum, dependencies ride the AWS SDK for pandas managed
+layer, and each release's `balatro-lambda.zip` asset is the deployable
+artifact (fetched into S3 by a tiny bootstrap function, then
+`update-function-code`). `apprunner.yaml` is also included if you prefer App
+Runner's build-from-repo flow.
 
 ## Deploy on Databricks Free Edition
 
