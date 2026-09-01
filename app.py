@@ -97,6 +97,7 @@ def bootstrap() -> dict:
         "hands": TABLES["hands"].to_dict(orient="records"),
         "decks": [d for d in TABLES["decks"]["name"].dropna().tolist() if str(d).strip()],
         "diag": DIAG,
+        "demo": db.DEMO,
         "lakebase_ok": _lakebase_ok(),
         "semantic_ok": _lakebase_ok() and str(DIAG.get("embeddings", "")).startswith("OK"),
         "instance": db.INSTANCE,

@@ -49,9 +49,21 @@ run context ─────────► foundation model on Databricks ──
 
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
-python tests/test_engine.py   # 25 tests, verified against known game math
+DEMO_MODE=1 uvicorn app:app --port 8000
+python tests/test_engine.py   # 26 tests, verified against known game math
 ```
+
+`DEMO_MODE=1` runs with zero Databricks dependencies: the optimizer, codex,
+synergy web and keyword search are fully local; the run log lands in a local
+SQLite file and the coach answers from the deterministic playbook. Without the
+flag, the app expects Databricks App credentials and lights up Lakebase
+(Postgres + pgvector), semantic search, and the Llama coach.
+
+## Deploy a review copy on AWS App Runner
+
+`apprunner.yaml` is included — point an App Runner service at this repo
+(Python 3.11 managed runtime, port 8080) and it builds and serves demo mode
+straight from `main`, auto-deploying on push.
 
 ## Deploy on Databricks Free Edition
 
@@ -68,11 +80,14 @@ load the CSVs into Unity Catalog, then create a Genie space over
 ## Files
 
 ```
-app.py               Streamlit UI (4 tabs)
+app.py               FastAPI backend (optimizer, codex, search, runs, coach)
+static/index.html    hand-built SPA (5 tabs, mobile-first)
 engine.py            deterministic scoring engine + joker effect registry
+db.py                Lakebase/pgvector/model-serving layer + demo-mode fallbacks
 data/*.csv           150 jokers (tagged), hands, planets, tarots, spectrals,
                      vouchers, decks, tags
-tests/test_engine.py 25 unit tests
+tests/test_engine.py 26 unit tests
 setup_uc_tables.py   optional: load data/ into Unity Catalog for Genie
 app.yaml             Databricks Apps entry point
+apprunner.yaml       AWS App Runner entry point (demo mode)
 ```

@@ -29,6 +29,14 @@ CHAT_ENDPOINT = os.environ.get("STRATEGIST_ENDPOINT", "databricks-meta-llama-3-3
 SCHEMA = "balatro"
 TOKEN_TTL_S = 45 * 60
 
+# Demo mode: run anywhere with zero Databricks dependencies. The engine,
+# codex, synergy web and TF-IDF search are fully local already; this flag
+# swaps the run log to a local SQLite file and skips every Databricks call.
+DEMO = os.environ.get("DEMO_MODE", "").strip().lower() in ("1", "true", "yes")
+DEMO_DB = os.environ.get(
+    "DEMO_DB_PATH",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo_runs.sqlite3"))
+
 
 # ---------------------------------------------------------------------------
 # Connection management
@@ -63,6 +71,8 @@ def _fresh_conn():
 
 def get_conn():
     """Cached connection; re-minted before the OAuth token expires."""
+    if DEMO:
+        return None
     c = _state["conn"]
     if c is not None and (time.time() - _state["born"]) < TOKEN_TTL_S and not c.closed:
         return c
@@ -158,10 +168,29 @@ def init_schema() -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Run log
+# Run log  (Lakebase Postgres normally; local SQLite in demo mode)
 # ---------------------------------------------------------------------------
 
+def _sqlite():
+    import sqlite3
+    conn = sqlite3.connect(DEMO_DB)
+    conn.execute("""CREATE TABLE IF NOT EXISTS runs (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts         TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+        ante       INTEGER, deck TEXT, stake TEXT, lineup TEXT,
+        best_hand  TEXT, best_score INTEGER, outcome TEXT, notes TEXT)""")
+    return conn
+
+
 def save_run(ante, deck, stake, lineup, best_hand, best_score, outcome, notes) -> bool:
+    if DEMO:
+        with _sqlite() as c:
+            c.execute("""INSERT INTO runs (ante, deck, stake, lineup, best_hand,
+                                           best_score, outcome, notes)
+                         VALUES (?,?,?,?,?,?,?,?)""",
+                      (ante, deck, stake, json.dumps(lineup), best_hand,
+                       best_score, outcome, notes))
+        return True
     _exec(f"""INSERT INTO {SCHEMA}.runs
               (ante, deck, stake, lineup, best_hand, best_score, outcome, notes)
               VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""",
@@ -170,16 +199,30 @@ def save_run(ante, deck, stake, lineup, best_hand, best_score, outcome, notes) -
 
 
 def list_runs(limit: int = 100):
+    cols = ["id", "ts", "ante", "deck", "stake", "lineup", "best_hand",
+            "best_score", "outcome", "notes"]
+    if DEMO:
+        with _sqlite() as c:
+            rows = c.execute("""SELECT id, ts, ante, deck, stake, lineup, best_hand,
+                                       best_score, outcome, notes
+                                FROM runs ORDER BY ts DESC, id DESC LIMIT ?""",
+                             (limit,)).fetchall()
+        return [dict(zip(cols, r)) for r in rows]
     rows = _exec(f"""SELECT id, ts, ante, deck, stake, lineup, best_hand,
                             best_score, outcome, notes
                      FROM {SCHEMA}.runs ORDER BY ts DESC LIMIT %s""",
                  (limit,), fetch=True)
-    cols = ["id", "ts", "ante", "deck", "stake", "lineup", "best_hand",
-            "best_score", "outcome", "notes"]
     return [dict(zip(cols, r)) for r in rows]
 
 
 def run_stats():
+    if DEMO:
+        with _sqlite() as c:
+            rows = c.execute("""SELECT outcome, count(*), coalesce(avg(ante),0),
+                                       coalesce(max(best_score),0)
+                                FROM runs GROUP BY outcome""").fetchall()
+        return {r[0]: {"count": int(r[1]), "avg_ante": float(r[2]),
+                       "top_score": int(r[3])} for r in rows}
     rows = _exec(f"""SELECT outcome, count(*), coalesce(avg(ante),0),
                             coalesce(max(best_score),0)
                      FROM {SCHEMA}.runs GROUP BY outcome""", fetch=True)
@@ -188,6 +231,10 @@ def run_stats():
 
 
 def delete_run(run_id: int):
+    if DEMO:
+        with _sqlite() as c:
+            c.execute("DELETE FROM runs WHERE id = ?", (run_id,))
+        return
     _exec(f"DELETE FROM {SCHEMA}.runs WHERE id = %s", (run_id,))
 
 
@@ -329,6 +376,8 @@ def tfidf_search(query: str, top_n: int = 12):
 # ---------------------------------------------------------------------------
 
 def chat(prompt: str, max_tokens: int = 900, temperature: float = 0.4) -> str:
+    if DEMO:
+        raise RuntimeError("demo mode — the AI coach runs on the Databricks deployment")
     from databricks.sdk.service.serving import ChatMessage, ChatMessageRole
     w = _workspace_client()
     resp = w.serving_endpoints.query(
@@ -343,6 +392,14 @@ def chat(prompt: str, max_tokens: int = 900, temperature: float = 0.4) -> str:
 # ---------------------------------------------------------------------------
 
 def diagnostics(run_chat_test: bool = True) -> dict:
+    if DEMO:
+        return {
+            "mode": "demo — running without Databricks (review copy)",
+            "lakebase": "OK (demo: run log in local SQLite)",
+            "pgvector": "off (demo)",
+            "embeddings": "off (demo — keyword TF-IDF search)",
+            "chat": "off (demo — deterministic playbook coach)",
+        }
     d: dict = {}
     s = init_schema()
     d["lakebase"] = "OK" if s["lakebase"] else f"FAIL ({s['error']})"

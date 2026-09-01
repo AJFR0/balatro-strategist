@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 .venv/
 .DS_Store
+demo_runs.sqlite3
