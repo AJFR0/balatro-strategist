@@ -37,6 +37,23 @@ DEMO_DB = os.environ.get(
     "DEMO_DB_PATH",
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo_runs.sqlite3"))
 
+# Hybrid mode: a demo deployment (e.g. the AWS review copy) with Databricks
+# credentials supplied via the standard SDK env vars lights the AI back up —
+# chat, embeddings, semantic search and Genie — while the run log stays in
+# local SQLite so public visitors never write into the owner's Lakebase.
+CONNECTED = bool(os.environ.get("DATABRICKS_HOST")) and bool(
+    os.environ.get("DATABRICKS_TOKEN") or os.environ.get("DATABRICKS_CLIENT_ID"))
+GENIE_SPACE_ID = os.environ.get("GENIE_SPACE_ID", "")
+
+
+def ai_ok() -> bool:
+    """AI features (chat/embeddings/Genie) are available."""
+    return CONNECTED or not DEMO
+
+
+def genie_ok() -> bool:
+    return ai_ok() and bool(GENIE_SPACE_ID)
+
 
 # ---------------------------------------------------------------------------
 # Connection management
@@ -71,7 +88,7 @@ def _fresh_conn():
 
 def get_conn():
     """Cached connection; re-minted before the OAuth token expires."""
-    if DEMO:
+    if DEMO and not CONNECTED:
         return None
     c = _state["conn"]
     if c is not None and (time.time() - _state["born"]) < TOKEN_TTL_S and not c.closed:
@@ -376,7 +393,7 @@ def tfidf_search(query: str, top_n: int = 12):
 # ---------------------------------------------------------------------------
 
 def chat(prompt: str, max_tokens: int = 900, temperature: float = 0.4) -> str:
-    if DEMO:
+    if not ai_ok():
         raise RuntimeError("demo mode — the AI coach runs on the Databricks deployment")
     from databricks.sdk.service.serving import ChatMessage, ChatMessageRole
     w = _workspace_client()
@@ -388,11 +405,60 @@ def chat(prompt: str, max_tokens: int = 900, temperature: float = 0.4) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Genie — natural-language questions over the workspace.balatro tables
+# ---------------------------------------------------------------------------
+
+def _genie_do(method: str, path: str, body: dict | None = None) -> dict:
+    w = _workspace_client()
+    return w.api_client.do(method, path, body=body) or {}
+
+
+def genie_start(question: str) -> dict:
+    """Kick off a Genie conversation; returns ids for polling."""
+    r = _genie_do("POST", f"/api/2.0/genie/spaces/{GENIE_SPACE_ID}/start-conversation",
+                  {"content": question[:1000]})
+    return {"conversation_id": r.get("conversation_id"),
+            "message_id": r.get("message_id")}
+
+
+def genie_poll(conversation_id: str, message_id: str) -> dict:
+    """One poll step: status plus, when COMPLETED, text/sql/result rows."""
+    base = f"/api/2.0/genie/spaces/{GENIE_SPACE_ID}/conversations/{conversation_id}/messages/{message_id}"
+    m = _genie_do("GET", base)
+    out: dict = {"status": m.get("status", "UNKNOWN")}
+    if out["status"] != "COMPLETED":
+        return out
+    texts, sql, attach_id = [], "", None
+    for a in m.get("attachments", []):
+        if a.get("text"):
+            texts.append(a["text"].get("content", ""))
+        if a.get("query"):
+            sql = a["query"].get("query", "")
+            attach_id = a.get("attachment_id")
+            if a["query"].get("description"):
+                texts.append(a["query"]["description"])
+    out["text"] = "\n\n".join(t for t in texts if t)
+    out["sql"] = sql
+    if attach_id:
+        try:
+            qr = _genie_do("GET", f"{base}/attachments/{attach_id}/query-result")
+            sr = qr.get("statement_response", {})
+            cols = [c.get("name", "") for c in
+                    sr.get("manifest", {}).get("schema", {}).get("columns", [])]
+            rows = sr.get("result", {}).get("data_array", []) or []
+            out["columns"] = cols
+            out["rows"] = rows[:50]
+        except Exception as e:
+            out["result_error"] = str(e)[:120]
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Diagnostics — printed to app logs at startup
 # ---------------------------------------------------------------------------
 
 def diagnostics(run_chat_test: bool = True) -> dict:
-    if DEMO:
+    if DEMO and not CONNECTED:
         return {
             "mode": "demo — running without Databricks (review copy)",
             "lakebase": "OK (demo: run log in local SQLite)",
@@ -401,6 +467,8 @@ def diagnostics(run_chat_test: bool = True) -> dict:
             "chat": "off (demo — deterministic playbook coach)",
         }
     d: dict = {}
+    if DEMO and CONNECTED:
+        d["mode"] = "hybrid — AI via Databricks, run log in local SQLite"
     s = init_schema()
     d["lakebase"] = "OK" if s["lakebase"] else f"FAIL ({s['error']})"
     d["pgvector"] = "OK" if s["pgvector"] else "unavailable (JSONB fallback)"

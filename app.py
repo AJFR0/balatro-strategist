@@ -13,7 +13,7 @@ import threading
 from typing import Any, Optional
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
@@ -98,6 +98,8 @@ def bootstrap() -> dict:
         "decks": [d for d in TABLES["decks"]["name"].dropna().tolist() if str(d).strip()],
         "diag": DIAG,
         "demo": db.DEMO,
+        "genie_ok": db.genie_ok(),
+        "ai_ok": db.ai_ok(),
         "lakebase_ok": _lakebase_ok(),
         "semantic_ok": _lakebase_ok() and str(DIAG.get("embeddings", "")).startswith("OK"),
         "instance": db.INSTANCE,
@@ -296,7 +298,9 @@ class ChatReq(BaseModel):
 
 
 @app.post("/api/chat")
-def chat(req: ChatReq) -> dict:
+def chat(req: ChatReq, request: Request) -> dict:
+    if db.ai_ok() and db.DEMO:
+        _ai_throttle(request)
     df = TABLES["jokers"]
     lines = ["You are a Balatro strategy coach and theorycrafting partner. Be concrete "
              "and terse; think in builds, synergies, and expected value. NEVER recompute "
@@ -364,6 +368,60 @@ def chat(req: ChatReq) -> dict:
                         "so a second ×Mult usually beats a third +Mult.")
         return {"ok": False, "answer": fallback,
                 "error": str(e)[:200], "prompt": prompt}
+
+
+# ---------------------------------------------------------------------------
+# Genie — ask-the-data (async start/poll so front-door timeouts never bite)
+# ---------------------------------------------------------------------------
+import time as _time
+
+_AI_BUDGET: dict[str, list] = {}          # ip -> [window_start, count]
+_AI_MAX_PER_HOUR = 30
+
+
+def _ai_throttle(request: Request) -> None:
+    """Cheap per-IP budget so an open review site can't drain the
+    owner's Databricks Free Edition quota. Per-container, best-effort."""
+    ip = (request.headers.get("x-forwarded-for", "") or "?").split(",")[0].strip()
+    now = _time.time()
+    win = _AI_BUDGET.get(ip)
+    if not win or now - win[0] > 3600:
+        _AI_BUDGET[ip] = [now, 1]
+        return
+    win[1] += 1
+    if win[1] > _AI_MAX_PER_HOUR:
+        raise HTTPException(429, "AI budget for this hour is spent — try later.")
+
+
+class GenieReq(BaseModel):
+    question: str
+
+
+@app.post("/api/genie/start")
+def genie_start(req: GenieReq, request: Request) -> dict:
+    if not db.genie_ok():
+        return {"ok": False, "error": "Genie is not wired up on this deployment"}
+    q = req.question.strip()
+    if not q:
+        return {"ok": False, "error": "ask something"}
+    _ai_throttle(request)
+    try:
+        ids = db.genie_start(q)
+        if not ids.get("conversation_id"):
+            return {"ok": False, "error": "Genie did not accept the question"}
+        return {"ok": True, **ids}
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:200]}
+
+
+@app.get("/api/genie/poll")
+def genie_poll(cid: str, mid: str) -> dict:
+    if not db.genie_ok():
+        return {"status": "FAILED", "error": "Genie is not wired up"}
+    try:
+        return db.genie_poll(cid, mid)
+    except Exception as e:
+        return {"status": "FAILED", "error": str(e)[:200]}
 
 
 @app.get("/api/diag")

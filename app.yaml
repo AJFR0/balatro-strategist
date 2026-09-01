@@ -7,3 +7,5 @@ env:
     value: "databricks-gte-large-en"
   - name: "STRATEGIST_ENDPOINT"
     value: "databricks-meta-llama-3-3-70b-instruct"
+  - name: "GENIE_SPACE_ID"
+    value: "01f1a563eed61caba218b541b4a16388"
