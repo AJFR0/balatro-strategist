@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Balatro Strategist</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -222,6 +225,18 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
 @media(min-width:700px){.ctxgrid{grid-template-columns:repeat(4,1fr)}}
 #answer{white-space:pre-wrap;line-height:1.55;font-size:14px;color:#e6f0e9}
 #answer b{color:var(--gold)}
+/* ---- run mode ---- */
+#runbar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:10px;
+  flex-wrap:wrap;background:linear-gradient(180deg,#1a4a38,#12352a);
+  border-bottom:2px solid var(--gold);padding:9px 14px;font-size:13px}
+#runbar .seg{display:flex;align-items:baseline;gap:5px;white-space:nowrap}
+#runbar .k{color:var(--fade);font-size:10.5px;text-transform:uppercase;letter-spacing:1px}
+#runbar .v{font-family:var(--px);color:var(--gold);font-size:13px}
+#runbar .v.boss{color:var(--mult)}
+#runbar input{width:64px;padding:4px 6px}
+#runbar .b{padding:7px 12px;font-size:12.5px}
+#runbar .grow{flex:1}
+
 /* mobile ergonomics — must stay last to win the cascade */
 @media(max-width:819px){
   input,select,textarea{font-size:16px}
@@ -229,7 +244,8 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
   .jrow .mv button{font-size:15px;padding:6px 10px}
   .aclist div{padding:13px 12px}
   .b.jdel{padding:10px 13px}
-  #clearHand,#demoHand{padding:12px 18px}
+  #clearHand,#demoHand,#runStart{padding:12px 18px}
+  #runbar .b{padding:11px 14px}
 }
 </style>
 </head>
@@ -247,6 +263,8 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
   <button data-t="runs"><span class="ico">📒</span>Runs</button>
   <button data-t="coach"><span class="ico">🧠</span>Coach</button>
 </nav>
+
+<div id="runbar" style="display:none"></div>
 
 <main>
 <!-- ============================ PLAY ============================ -->
@@ -267,6 +285,7 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
     <div class="row" style="margin-top:10px">
       <button class="b" id="clearHand">Clear hand</button>
       <button class="b" id="demoHand">Demo hand</button>
+      <button class="b gold" id="runStart">🎮 Start run</button>
     </div>
   </div>
 
@@ -292,6 +311,10 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
 
   <button class="b primary" id="go">🎰 FIND MY BEST PLAY</button>
   <div id="result"></div>
+  <div id="discPanel" style="display:none;margin-top:12px">
+    <button class="b gold" id="discGo" style="width:100%">🗑️ DISCARD ADVISOR — what should I toss?</button>
+    <div id="discOut"></div>
+  </div>
 </section>
 
 <!-- ============================ CODEX ============================ -->
@@ -398,9 +421,53 @@ function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";
 async function api(path,opts){const r=await fetch(path,opts?{headers:{"Content-Type":"application/json"},...opts}:undefined);
   if(!r.ok){let m="request failed";try{m=(await r.json()).detail||m}catch(e){}throw new Error(m)}return r.json()}
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
-function save(){try{localStorage.setItem("bs",JSON.stringify({hand:S.hand,lineup:S.lineup,levels:S.levels}))}catch(e){}}
+function save(){try{localStorage.setItem("bs",JSON.stringify({hand:S.hand,lineup:S.lineup,levels:S.levels,run:S.run||null}))}catch(e){}}
 function load(){try{const d=JSON.parse(localStorage.getItem("bs")||"{}");
-  S.hand=d.hand||[];S.lineup=d.lineup||[];S.levels=d.levels||{}}catch(e){}}
+  S.hand=d.hand||[];S.lineup=d.lineup||[];S.levels=d.levels||{};S.run=d.run||null}catch(e){}}
+
+/* ---------------- run mode ---------------- */
+const BLINDS={1:[300,450,600],2:[800,1200,1600],3:[2000,3000,4000],4:[5000,7500,10000],
+  5:[11000,16500,22000],6:[20000,30000,40000],7:[35000,52500,70000],8:[50000,75000,100000]};
+const BLIND_NAMES=["Small Blind","Big Blind","BOSS"];
+function runTarget(){if(!S.run)return 0;const a=Math.min(S.run.ante,8);
+  return (BLINDS[a]||BLINDS[8])[S.run.blind]}
+function renderRunbar(){const bar=$("#runbar");
+  if(!S.run){bar.style.display="none";$("#runStart").textContent="🎮 Start run";return}
+  $("#runStart").textContent="🎮 Run active";
+  const won=S.run.ante>8, tgt=runTarget();
+  bar.style.display="flex";
+  bar.innerHTML=`
+    <div class="seg"><span class="k">Ante</span><span class="v">${Math.min(S.run.ante,8)}${won?"+":""}</span></div>
+    <div class="seg"><span class="v ${S.run.blind===2?"boss":""}">${won?"🏆 ENDLESS":BLIND_NAMES[S.run.blind]}</span></div>
+    <div class="seg"><span class="k">Target</span><span class="v">${tgt.toLocaleString()}</span></div>
+    <div class="seg"><span class="k">Best</span><span class="v">${(S.run.best||0).toLocaleString()}</span></div>
+    <div class="seg"><span class="k">$</span><input id="runMoney" type="number" min="0" value="${S.run.money}" aria-label="money"></div>
+    <div class="grow"></div>
+    <button class="b gold" id="runNext">${S.run.blind<2?"Next blind ▸":"Beat boss ▸ ante "+Math.min(S.run.ante+1,9)}</button>
+    <button class="b" id="runEnd" style="background:#5b1f1a;color:#ffb3ac">🏁 End run</button>`;
+  $("#blind").value=won?0:tgt;
+  $("#cAnte").value=Math.min(S.run.ante,8);$("#cMoney").value=S.run.money;
+  $("#runMoney").onchange=e=>{S.run.money=Math.max(0,+e.target.value||0);save()};
+  $("#runNext").onclick=()=>{S.run.cleared=(S.run.cleared||0)+1;
+    if(S.run.blind<2)S.run.blind++;else{S.run.ante++;S.run.blind=0;
+      if(S.run.ante>8)toast("🏆 Ante 8 beaten — that's the win. Endless awaits.")}
+    save();renderRunbar()};
+  $("#runEnd").onclick=endRun}
+async function endRun(){const r=S.run;if(!r)return;
+  const won=r.ante>8, ante=Math.min(r.ante,won?39:8);
+  const notes=`Run Mode: ${won?"WON — into endless":"ended"} at ante ${Math.min(r.ante,9)} `+
+    `${won?"":BLIND_NAMES[r.blind].toLowerCase()+" "}· ${r.cleared||0} blinds cleared · $${r.money}`;
+  S.run=null;save();renderRunbar();$("#blind").value=0;
+  try{await api("/api/runs",{method:"POST",body:JSON.stringify({
+    ante,outcome:won?"won":"lost",deck:($("#rDeck").value||"Red"),stake:($("#rStake").value||"White"),
+    lineup:S.lineup.map(d=>d.name),best_hand:S.lastPlays&&S.lastPlays[0]?S.lastPlays[0].hand:null,
+    best_score:r.best||null,notes})});
+    toast(won?"🏆 run logged — a winner is you":"📒 run logged");loadRuns()}
+  catch(e){toast("run over, but logging failed: "+e.message)}}
+$("#runStart").onclick=()=>{
+  if(S.run){$("#runbar").scrollIntoView({behavior:"smooth"});return}
+  S.run={ante:1,blind:0,money:4,best:0,cleared:0};save();renderRunbar();
+  toast("🎮 Run started — ante 1 small blind. The bar tracks your targets.")};
 
 /* ---------------- nav ---------------- */
 $("#nav").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
@@ -527,10 +594,37 @@ $("#go").onclick=async()=>{
         <summary>#${i+1} ${p.hand} — play ${p.played.join(" ")} → <b>${p.total.toLocaleString()}</b></summary>
         <pre>${esc(p.steps.join("\n"))}</pre></details>`).join("");
     $("#qWin").onclick=()=>quickLog("won");$("#qLose").onclick=()=>quickLog("lost");
+    if(S.run&&b.total>(S.run.best||0)){S.run.best=b.total;save();renderRunbar()}
+    $("#discPanel").style.display=S.hand.length>=2?"":"none";$("#discOut").innerHTML="";
     $("#result").scrollIntoView({behavior:"smooth",block:"start"});
     const sc=$("#result .score");if(sc){sc.classList.add("flash");setTimeout(()=>sc.classList.remove("flash"),900)}
   }catch(e){toast(e.message)}
   $("#go").innerHTML="🎰 FIND MY BEST PLAY"};
+
+$("#discGo").onclick=async()=>{
+  if(S.hand.length<2)return toast("Add at least 2 cards");
+  $("#discGo").innerHTML='<span class="spin"></span> simulating draws…';
+  try{
+    const body={hand:S.hand.map(cardToken).join(" "),
+      lineup:S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"})),
+      levels:S.levels,optimist:$("#optimist").checked};
+    const r=await api("/api/discard",{method:"POST",body:JSON.stringify(body)});
+    const fmt=n=>Math.round(n).toLocaleString();
+    const row=(o,i)=>{const up=o.delta>0;
+      return `<div class="play" style="padding:10px 12px;display:block">
+        <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <div><b>#${i+1}</b> toss <b style="color:var(--mult)">${o.discard.join(" ")}</b>
+            <span style="color:var(--fade)">· keep ${o.keep.join(" ")}</span></div>
+          <div>EV <b>${fmt(o.ev)}</b> <span style="color:var(--fade)">±${fmt(o.ci95)}</span>
+            <b style="color:${up?"#3fd08a":"var(--mult)"}">${up?"▲":"▼"} ${fmt(Math.abs(o.delta))}</b></div>
+        </div></div>`};
+    $("#discOut").innerHTML=`
+      <div class="hint" style="margin:8px 0 6px">stand pat scores <b>${fmt(r.stand_pat)}</b> now —
+        options ranked by expected best-play score after redraw (Δ vs standing pat):</div>
+      ${r.options.map(row).join("")}
+      <div class="hint" style="margin-top:6px">🎲 ${esc(r.assumption)}</div>`;
+  }catch(e){toast(e.message)}
+  $("#discGo").innerHTML="🗑️ DISCARD ADVISOR — what should I toss?"};
 
 async function quickLog(outcome){const b=S.lastPlays&&S.lastPlays[0];
   try{await api("/api/runs",{method:"POST",body:JSON.stringify({
@@ -725,11 +819,16 @@ $("#cAsk").onclick=async()=>{
   try{const r=await api("/api/chat",{method:"POST",body:JSON.stringify({
     question:$("#cQ").value,ante:+$("#cAnte").value,money:+$("#cMoney").value,
     hands_left:+$("#cHands").value,discards_left:+$("#cDisc").value,shop:$("#cShop").value,
-    lineup:S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"})),
+    lineup:S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"})),levels:S.levels,
     last_plays:S.lastPlays||[],hand_text:S.lastCtx.hand_text||"",blind_req:S.lastCtx.blind_req||0})});
     $("#answerWrap").style.display="block";
-    $("#answer").innerHTML=(r.answer||"").replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    let html=(r.answer||"").replace(/&/g,"&amp;").replace(/</g,"&lt;")
       .replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+    if(r.tool_trace&&r.tool_trace.length){
+      const tt=r.tool_trace.map(t=>`▸ ${t.tool}(${esc(JSON.stringify(t.args))})\n${esc(JSON.stringify(t.result,null,1).slice(0,900))}`).join("\n\n");
+      html+=`<details style="margin-top:12px"><summary style="cursor:pointer;color:var(--gold);font-size:12.5px">🔧 what the engine computed (${r.tool_trace.length} tool call${r.tool_trace.length>1?"s":""})</summary>
+        <pre style="white-space:pre-wrap;font-size:11px;color:var(--soft)">${tt}</pre></details>`}
+    $("#answer").innerHTML=html;
     $("#promptView").textContent=r.prompt||"";
     if(!r.ok&&r.error)toast("endpoint: "+r.error)}
   catch(e){toast(e.message)}
@@ -770,7 +869,7 @@ $("#gQ").addEventListener("keydown",e=>{if(e.key==="Enter")askGenie()});
   load();
   try{S.boot=await api("/api/bootstrap")}catch(e){toast("backend unreachable: "+e.message);return}
   S.jokers=S.boot.jokers;S.jokers.forEach(j=>S.byName[j.name]=j);
-  renderTray();renderLineup();levelsUI();filterChips();renderCodex();
+  renderTray();renderLineup();levelsUI();filterChips();renderCodex();renderRunbar();
   $("#rDeck").innerHTML=["Red",...S.boot.decks.filter(d=>d!=="Red")].map(d=>`<option>${esc(d)}</option>`).join("");
   $("#diagView").textContent=JSON.stringify(S.boot.diag,null,2)
     +`\n\ninstance: ${S.boot.instance}\nchat: ${S.boot.endpoints.chat}\nembed: ${S.boot.endpoints.embed}`;
@@ -779,6 +878,8 @@ $("#gQ").addEventListener("keydown",e=>{if(e.key==="Enter")askGenie()});
   acSetup("#wsearch","#waclist",n=>{S._webCenter=n;renderWeb(n)});
   S._webCenter="Blueprint";renderWeb("Blueprint");
   loadRuns();
+  if("serviceWorker" in navigator)
+    navigator.serviceWorker.register("/sw.js").catch(()=>{});
 })();
 </script>
 </body>
