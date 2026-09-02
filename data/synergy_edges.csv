@@ -1,0 +1,2409 @@
+joker_a,joker_b,weight,shared_tags
+8-Ball,Astronomer,1,planet
+8-Ball,Constellation,1,planet
+8-Ball,Satellite,1,planet
+8-Ball,Showman,1,planet
+Abstract Joker,Baseball Card,1,joker-synergy
+Abstract Joker,Blueprint,1,joker-synergy
+Abstract Joker,Bootstraps,1,+mult
+Abstract Joker,Brainstorm,1,joker-synergy
+Abstract Joker,Campfire,1,joker-synergy
+Abstract Joker,Castle,1,joker-synergy
+Abstract Joker,Crazy Joker,1,+mult
+Abstract Joker,Droll Joker,1,+mult
+Abstract Joker,Erosion,1,+mult
+Abstract Joker,Even Steven,1,+mult
+Abstract Joker,Fibonacci,1,+mult
+Abstract Joker,Flash Card,1,+mult
+Abstract Joker,Fortune Teller,1,+mult
+Abstract Joker,Gift Card,1,joker-synergy
+Abstract Joker,Gluttonous Joker,1,+mult
+Abstract Joker,Greedy Joker,1,+mult
+Abstract Joker,Green Joker,1,+mult
+Abstract Joker,Gros Michel,1,+mult
+Abstract Joker,Half Joker,1,+mult
+Abstract Joker,Invisible Joker,1,joker-synergy
+Abstract Joker,Joker,1,+mult
+Abstract Joker,Joker Stencil,1,joker-synergy
+Abstract Joker,Jolly Joker,1,+mult
+Abstract Joker,Lusty Joker,1,+mult
+Abstract Joker,Mad Joker,1,+mult
+Abstract Joker,Madness,1,joker-synergy
+Abstract Joker,Mystic Summit,1,+mult
+Abstract Joker,Onyx Agate,1,+mult
+Abstract Joker,Popcorn,1,+mult
+Abstract Joker,Red Card,1,+mult
+Abstract Joker,Ride the Bus,1,+mult
+Abstract Joker,Riff-raff,1,joker-synergy
+Abstract Joker,Scholar,1,+mult
+Abstract Joker,Shoot the Moon,1,+mult
+Abstract Joker,Showman,1,joker-synergy
+Abstract Joker,Smiley Face,1,+mult
+Abstract Joker,Spare Trousers,1,+mult
+Abstract Joker,Steel Joker,1,joker-synergy
+Abstract Joker,Stone Joker,1,joker-synergy
+Abstract Joker,Swashbuckler,1,joker-synergy
+Abstract Joker,Walkie Talkie,1,+mult
+Abstract Joker,Wee Joker,1,joker-synergy
+Abstract Joker,Wrathful Joker,1,+mult
+Abstract Joker,Zany Joker,1,+mult
+Acrobat,Ancient Joker,1,xmult
+Acrobat,Baron,1,xmult
+Acrobat,Baseball Card,1,xmult
+Acrobat,Blackboard,1,xmult
+Acrobat,Bloodstone,1,xmult
+Acrobat,Campfire,1,xmult
+Acrobat,Canio,1,xmult
+Acrobat,Card Sharp,1,xmult
+Acrobat,Cavendish,1,xmult
+Acrobat,Constellation,1,xmult
+Acrobat,DNA,1,hand-timing
+Acrobat,Driver's License,1,xmult
+Acrobat,Dusk,1,hand-timing
+Acrobat,Flower Pot,1,xmult
+Acrobat,Glass Joker,1,xmult
+Acrobat,Hit the Road,1,xmult
+Acrobat,Hologram,1,xmult
+Acrobat,Joker Stencil,1,xmult
+Acrobat,Loyalty Card,1,xmult
+Acrobat,Lucky Cat,1,xmult
+Acrobat,Madness,1,xmult
+Acrobat,Obelisk,1,xmult
+Acrobat,Photograph,1,xmult
+Acrobat,Ramen,1,xmult
+Acrobat,Seeing Double,1,xmult
+Acrobat,Sixth Sense,1,hand-timing
+Acrobat,Steel Joker,1,xmult
+Acrobat,The Duo,1,xmult
+Acrobat,The Family,1,xmult
+Acrobat,The Idol,1,xmult
+Acrobat,The Order,1,xmult
+Acrobat,The Tribe,1,xmult
+Acrobat,The Trio,1,xmult
+Acrobat,Throwback,1,xmult
+Acrobat,Triboulet,1,xmult
+Acrobat,Vampire,1,xmult
+Acrobat,Yorick,1,xmult
+Ancient Joker,Baron,1,xmult
+Ancient Joker,Baseball Card,1,xmult
+Ancient Joker,Blackboard,1,xmult
+Ancient Joker,Bloodstone,1,xmult
+Ancient Joker,Campfire,1,xmult
+Ancient Joker,Canio,1,xmult
+Ancient Joker,Card Sharp,1,xmult
+Ancient Joker,Cavendish,1,xmult
+Ancient Joker,Constellation,1,xmult
+Ancient Joker,Driver's License,1,xmult
+Ancient Joker,Flower Pot,1,xmult
+Ancient Joker,Glass Joker,1,xmult
+Ancient Joker,Hit the Road,1,xmult
+Ancient Joker,Hologram,1,xmult
+Ancient Joker,Joker Stencil,1,xmult
+Ancient Joker,Loyalty Card,1,xmult
+Ancient Joker,Lucky Cat,1,xmult
+Ancient Joker,Madness,1,xmult
+Ancient Joker,Obelisk,1,xmult
+Ancient Joker,Photograph,1,xmult
+Ancient Joker,Ramen,1,xmult
+Ancient Joker,Seeing Double,1,xmult
+Ancient Joker,Steel Joker,1,xmult
+Ancient Joker,The Duo,1,xmult
+Ancient Joker,The Family,1,xmult
+Ancient Joker,The Idol,1,xmult
+Ancient Joker,The Order,1,xmult
+Ancient Joker,The Tribe,1,xmult
+Ancient Joker,The Trio,1,xmult
+Ancient Joker,Throwback,1,xmult
+Ancient Joker,Triboulet,1,xmult
+Ancient Joker,Vampire,1,xmult
+Ancient Joker,Yorick,1,xmult
+Arrowhead,Banner,1,+chips
+Arrowhead,Blackboard,1,suit:Spades
+Arrowhead,Blue Joker,1,+chips
+Arrowhead,Bull,1,+chips
+Arrowhead,Castle,2,+chips|suit:Spades
+Arrowhead,Clever Joker,1,+chips
+Arrowhead,Crafty Joker,1,+chips
+Arrowhead,Devious Joker,1,+chips
+Arrowhead,Flower Pot,1,suit:Spades
+Arrowhead,Hiker,1,+chips
+Arrowhead,Ice Cream,1,+chips
+Arrowhead,Odd Todd,1,+chips
+Arrowhead,Runner,1,+chips
+Arrowhead,Scary Face,1,+chips
+Arrowhead,Scholar,1,+chips
+Arrowhead,Sly Joker,1,+chips
+Arrowhead,Smeared Joker,1,suit:Spades
+Arrowhead,Square Joker,1,+chips
+Arrowhead,Stone Joker,1,+chips
+Arrowhead,Stuntman,1,+chips
+Arrowhead,Walkie Talkie,1,+chips
+Arrowhead,Wee Joker,1,+chips
+Arrowhead,Wily Joker,1,+chips
+Arrowhead,Wrathful Joker,1,suit:Spades
+Astronomer,Chaos the Clown,1,shop
+Astronomer,Constellation,1,planet
+Astronomer,Flash Card,1,shop
+Astronomer,Perkeo,1,shop
+Astronomer,Satellite,1,planet
+Astronomer,Showman,1,planet
+Banner,Blue Joker,1,+chips
+Banner,Bull,1,+chips
+Banner,Burglar,1,discards
+Banner,Burnt Joker,1,discards
+Banner,Castle,2,+chips|discards
+Banner,Clever Joker,1,+chips
+Banner,Crafty Joker,1,+chips
+Banner,Delayed Gratification,1,discards
+Banner,Devious Joker,1,+chips
+Banner,Drunkard,1,discards
+Banner,Faceless Joker,1,discards
+Banner,Green Joker,1,discards
+Banner,Hiker,1,+chips
+Banner,Hit the Road,1,discards
+Banner,Ice Cream,1,+chips
+Banner,Mail-In Rebate,1,discards
+Banner,Merry Andy,1,discards
+Banner,Mystic Summit,1,discards
+Banner,Odd Todd,1,+chips
+Banner,Ramen,1,discards
+Banner,Runner,1,+chips
+Banner,Scary Face,1,+chips
+Banner,Scholar,1,+chips
+Banner,Sly Joker,1,+chips
+Banner,Square Joker,1,+chips
+Banner,Stone Joker,1,+chips
+Banner,Stuntman,1,+chips
+Banner,Trading Card,1,discards
+Banner,Walkie Talkie,1,+chips
+Banner,Wee Joker,1,+chips
+Banner,Wily Joker,1,+chips
+Banner,Yorick,1,discards
+Baron,Baseball Card,1,xmult
+Baron,Blackboard,2,held-in-hand|xmult
+Baron,Bloodstone,1,xmult
+Baron,Business Card,1,face-cards
+Baron,Campfire,1,xmult
+Baron,Canio,2,face-cards|xmult
+Baron,Card Sharp,1,xmult
+Baron,Cavendish,1,xmult
+Baron,Constellation,1,xmult
+Baron,Driver's License,1,xmult
+Baron,Faceless Joker,1,face-cards
+Baron,Flower Pot,1,xmult
+Baron,Glass Joker,1,xmult
+Baron,Hit the Road,2,face-cards|xmult
+Baron,Hologram,1,xmult
+Baron,Joker Stencil,1,xmult
+Baron,Loyalty Card,1,xmult
+Baron,Lucky Cat,1,xmult
+Baron,Madness,1,xmult
+Baron,Midas Mask,1,face-cards
+Baron,Mime,1,held-in-hand
+Baron,Obelisk,1,xmult
+Baron,Pareidolia,1,face-cards
+Baron,Photograph,2,face-cards|xmult
+Baron,Raised Fist,1,held-in-hand
+Baron,Ramen,1,xmult
+Baron,Reserved Parking,2,face-cards|held-in-hand
+Baron,Ride the Bus,1,face-cards
+Baron,Scary Face,1,face-cards
+Baron,Seeing Double,1,xmult
+Baron,Shoot the Moon,2,face-cards|held-in-hand
+Baron,Smiley Face,1,face-cards
+Baron,Sock and Buskin,1,face-cards
+Baron,Steel Joker,1,xmult
+Baron,The Duo,1,xmult
+Baron,The Family,1,xmult
+Baron,The Idol,1,xmult
+Baron,The Order,1,xmult
+Baron,The Tribe,1,xmult
+Baron,The Trio,1,xmult
+Baron,Throwback,1,xmult
+Baron,Triboulet,2,face-cards|xmult
+Baron,Vampire,1,xmult
+Baron,Yorick,1,xmult
+Baseball Card,Blackboard,1,xmult
+Baseball Card,Bloodstone,1,xmult
+Baseball Card,Blueprint,1,joker-synergy
+Baseball Card,Brainstorm,1,joker-synergy
+Baseball Card,Campfire,2,joker-synergy|xmult
+Baseball Card,Canio,1,xmult
+Baseball Card,Card Sharp,1,xmult
+Baseball Card,Castle,1,joker-synergy
+Baseball Card,Cavendish,1,xmult
+Baseball Card,Constellation,1,xmult
+Baseball Card,Driver's License,1,xmult
+Baseball Card,Flower Pot,1,xmult
+Baseball Card,Gift Card,1,joker-synergy
+Baseball Card,Glass Joker,1,xmult
+Baseball Card,Hit the Road,1,xmult
+Baseball Card,Hologram,1,xmult
+Baseball Card,Invisible Joker,1,joker-synergy
+Baseball Card,Joker Stencil,2,joker-synergy|xmult
+Baseball Card,Loyalty Card,1,xmult
+Baseball Card,Lucky Cat,1,xmult
+Baseball Card,Madness,2,joker-synergy|xmult
+Baseball Card,Obelisk,1,xmult
+Baseball Card,Photograph,1,xmult
+Baseball Card,Ramen,1,xmult
+Baseball Card,Riff-raff,1,joker-synergy
+Baseball Card,Seeing Double,1,xmult
+Baseball Card,Showman,1,joker-synergy
+Baseball Card,Steel Joker,2,joker-synergy|xmult
+Baseball Card,Stone Joker,1,joker-synergy
+Baseball Card,Swashbuckler,1,joker-synergy
+Baseball Card,The Duo,1,xmult
+Baseball Card,The Family,1,xmult
+Baseball Card,The Idol,1,xmult
+Baseball Card,The Order,1,xmult
+Baseball Card,The Tribe,1,xmult
+Baseball Card,The Trio,1,xmult
+Baseball Card,Throwback,1,xmult
+Baseball Card,Triboulet,1,xmult
+Baseball Card,Vampire,1,xmult
+Baseball Card,Wee Joker,1,joker-synergy
+Baseball Card,Yorick,1,xmult
+Blackboard,Bloodstone,1,xmult
+Blackboard,Campfire,1,xmult
+Blackboard,Canio,1,xmult
+Blackboard,Card Sharp,1,xmult
+Blackboard,Castle,1,suit:Spades
+Blackboard,Cavendish,1,xmult
+Blackboard,Constellation,1,xmult
+Blackboard,Driver's License,1,xmult
+Blackboard,Flower Pot,3,suit:Clubs|suit:Spades|xmult
+Blackboard,Glass Joker,1,xmult
+Blackboard,Gluttonous Joker,1,suit:Clubs
+Blackboard,Hit the Road,1,xmult
+Blackboard,Hologram,1,xmult
+Blackboard,Joker Stencil,1,xmult
+Blackboard,Loyalty Card,1,xmult
+Blackboard,Lucky Cat,1,xmult
+Blackboard,Madness,1,xmult
+Blackboard,Mime,1,held-in-hand
+Blackboard,Obelisk,1,xmult
+Blackboard,Onyx Agate,1,suit:Clubs
+Blackboard,Photograph,1,xmult
+Blackboard,Raised Fist,1,held-in-hand
+Blackboard,Ramen,1,xmult
+Blackboard,Reserved Parking,1,held-in-hand
+Blackboard,Seeing Double,2,suit:Clubs|xmult
+Blackboard,Shoot the Moon,1,held-in-hand
+Blackboard,Smeared Joker,2,suit:Clubs|suit:Spades
+Blackboard,Steel Joker,1,xmult
+Blackboard,The Duo,1,xmult
+Blackboard,The Family,1,xmult
+Blackboard,The Idol,1,xmult
+Blackboard,The Order,1,xmult
+Blackboard,The Tribe,1,xmult
+Blackboard,The Trio,1,xmult
+Blackboard,Throwback,1,xmult
+Blackboard,Triboulet,1,xmult
+Blackboard,Vampire,1,xmult
+Blackboard,Wrathful Joker,1,suit:Spades
+Blackboard,Yorick,1,xmult
+Bloodstone,Business Card,1,probability
+Bloodstone,Campfire,1,xmult
+Bloodstone,Canio,1,xmult
+Bloodstone,Card Sharp,1,xmult
+Bloodstone,Cavendish,2,probability|xmult
+Bloodstone,Constellation,1,xmult
+Bloodstone,Driver's License,1,xmult
+Bloodstone,Flower Pot,2,suit:Hearts|xmult
+Bloodstone,Glass Joker,1,xmult
+Bloodstone,Gros Michel,1,probability
+Bloodstone,Hallucination,1,probability
+Bloodstone,Hit the Road,1,xmult
+Bloodstone,Hologram,1,xmult
+Bloodstone,Joker Stencil,1,xmult
+Bloodstone,Loyalty Card,1,xmult
+Bloodstone,Lucky Cat,1,xmult
+Bloodstone,Lusty Joker,1,suit:Hearts
+Bloodstone,Madness,1,xmult
+Bloodstone,Obelisk,1,xmult
+Bloodstone,Photograph,1,xmult
+Bloodstone,Ramen,1,xmult
+Bloodstone,Reserved Parking,1,probability
+Bloodstone,Seeing Double,1,xmult
+Bloodstone,Smeared Joker,1,suit:Hearts
+Bloodstone,Space Joker,1,probability
+Bloodstone,Steel Joker,1,xmult
+Bloodstone,The Duo,1,xmult
+Bloodstone,The Family,1,xmult
+Bloodstone,The Idol,1,xmult
+Bloodstone,The Order,1,xmult
+Bloodstone,The Tribe,1,xmult
+Bloodstone,The Trio,1,xmult
+Bloodstone,Throwback,1,xmult
+Bloodstone,Triboulet,1,xmult
+Bloodstone,Vampire,1,xmult
+Bloodstone,Yorick,1,xmult
+Blue Joker,Bull,1,+chips
+Blue Joker,Castle,1,+chips
+Blue Joker,Clever Joker,1,+chips
+Blue Joker,Cloud 9,1,deck-size
+Blue Joker,Crafty Joker,1,+chips
+Blue Joker,DNA,1,deck-size
+Blue Joker,Devious Joker,1,+chips
+Blue Joker,Driver's License,1,deck-size
+Blue Joker,Erosion,1,deck-size
+Blue Joker,Hiker,1,+chips
+Blue Joker,Hologram,1,deck-size
+Blue Joker,Ice Cream,1,+chips
+Blue Joker,Marble Joker,1,deck-size
+Blue Joker,Odd Todd,1,+chips
+Blue Joker,Runner,1,+chips
+Blue Joker,Scary Face,1,+chips
+Blue Joker,Scholar,1,+chips
+Blue Joker,Sly Joker,1,+chips
+Blue Joker,Square Joker,1,+chips
+Blue Joker,Steel Joker,1,deck-size
+Blue Joker,Stone Joker,2,+chips|deck-size
+Blue Joker,Stuntman,1,+chips
+Blue Joker,Walkie Talkie,1,+chips
+Blue Joker,Wee Joker,1,+chips
+Blue Joker,Wily Joker,1,+chips
+Blueprint,Brainstorm,2,copycat|joker-synergy
+Blueprint,Campfire,1,joker-synergy
+Blueprint,Castle,1,joker-synergy
+Blueprint,DNA,1,copycat
+Blueprint,Gift Card,1,joker-synergy
+Blueprint,Invisible Joker,1,joker-synergy
+Blueprint,Joker Stencil,1,joker-synergy
+Blueprint,Madness,1,joker-synergy
+Blueprint,Perkeo,1,copycat
+Blueprint,Riff-raff,1,joker-synergy
+Blueprint,Showman,1,joker-synergy
+Blueprint,Steel Joker,1,joker-synergy
+Blueprint,Stone Joker,1,joker-synergy
+Blueprint,Swashbuckler,1,joker-synergy
+Blueprint,Wee Joker,1,joker-synergy
+Bootstraps,Bull,1,economy
+Bootstraps,Business Card,1,economy
+Bootstraps,Ceremonial Dagger,1,economy
+Bootstraps,Cloud 9,1,economy
+Bootstraps,Crazy Joker,1,+mult
+Bootstraps,Credit Card,1,economy
+Bootstraps,Delayed Gratification,1,economy
+Bootstraps,Droll Joker,1,+mult
+Bootstraps,Egg,1,economy
+Bootstraps,Erosion,1,+mult
+Bootstraps,Even Steven,1,+mult
+Bootstraps,Faceless Joker,1,economy
+Bootstraps,Fibonacci,1,+mult
+Bootstraps,Flash Card,1,+mult
+Bootstraps,Fortune Teller,1,+mult
+Bootstraps,Gift Card,1,economy
+Bootstraps,Gluttonous Joker,1,+mult
+Bootstraps,Golden Joker,1,economy
+Bootstraps,Golden Ticket,1,economy
+Bootstraps,Greedy Joker,1,+mult
+Bootstraps,Green Joker,1,+mult
+Bootstraps,Gros Michel,1,+mult
+Bootstraps,Half Joker,1,+mult
+Bootstraps,Joker,1,+mult
+Bootstraps,Jolly Joker,1,+mult
+Bootstraps,Lusty Joker,1,+mult
+Bootstraps,Mad Joker,1,+mult
+Bootstraps,Mail-In Rebate,1,economy
+Bootstraps,Matador,1,economy
+Bootstraps,Mystic Summit,1,+mult
+Bootstraps,Onyx Agate,1,+mult
+Bootstraps,Popcorn,1,+mult
+Bootstraps,Red Card,1,+mult
+Bootstraps,Reserved Parking,1,economy
+Bootstraps,Ride the Bus,1,+mult
+Bootstraps,Rocket,1,economy
+Bootstraps,Rough Gem,1,economy
+Bootstraps,Satellite,1,economy
+Bootstraps,Scholar,1,+mult
+Bootstraps,Shoot the Moon,1,+mult
+Bootstraps,Smiley Face,1,+mult
+Bootstraps,Spare Trousers,1,+mult
+Bootstraps,Swashbuckler,1,economy
+Bootstraps,To Do List,1,economy
+Bootstraps,To the Moon,1,economy
+Bootstraps,Trading Card,1,economy
+Bootstraps,Vagabond,1,economy
+Bootstraps,Walkie Talkie,1,+mult
+Bootstraps,Wrathful Joker,1,+mult
+Bootstraps,Zany Joker,1,+mult
+Brainstorm,Campfire,1,joker-synergy
+Brainstorm,Castle,1,joker-synergy
+Brainstorm,DNA,1,copycat
+Brainstorm,Gift Card,1,joker-synergy
+Brainstorm,Invisible Joker,1,joker-synergy
+Brainstorm,Joker Stencil,1,joker-synergy
+Brainstorm,Madness,1,joker-synergy
+Brainstorm,Perkeo,1,copycat
+Brainstorm,Riff-raff,1,joker-synergy
+Brainstorm,Showman,1,joker-synergy
+Brainstorm,Steel Joker,1,joker-synergy
+Brainstorm,Stone Joker,1,joker-synergy
+Brainstorm,Swashbuckler,1,joker-synergy
+Brainstorm,Wee Joker,1,joker-synergy
+Bull,Business Card,1,economy
+Bull,Castle,1,+chips
+Bull,Ceremonial Dagger,1,economy
+Bull,Clever Joker,1,+chips
+Bull,Cloud 9,1,economy
+Bull,Crafty Joker,1,+chips
+Bull,Credit Card,1,economy
+Bull,Delayed Gratification,1,economy
+Bull,Devious Joker,1,+chips
+Bull,Egg,1,economy
+Bull,Faceless Joker,1,economy
+Bull,Gift Card,1,economy
+Bull,Golden Joker,1,economy
+Bull,Golden Ticket,1,economy
+Bull,Hiker,1,+chips
+Bull,Ice Cream,1,+chips
+Bull,Mail-In Rebate,1,economy
+Bull,Matador,1,economy
+Bull,Odd Todd,1,+chips
+Bull,Reserved Parking,1,economy
+Bull,Rocket,1,economy
+Bull,Rough Gem,1,economy
+Bull,Runner,1,+chips
+Bull,Satellite,1,economy
+Bull,Scary Face,1,+chips
+Bull,Scholar,1,+chips
+Bull,Sly Joker,1,+chips
+Bull,Square Joker,1,+chips
+Bull,Stone Joker,1,+chips
+Bull,Stuntman,1,+chips
+Bull,Swashbuckler,1,economy
+Bull,To Do List,1,economy
+Bull,To the Moon,1,economy
+Bull,Trading Card,1,economy
+Bull,Vagabond,1,economy
+Bull,Walkie Talkie,1,+chips
+Bull,Wee Joker,1,+chips
+Bull,Wily Joker,1,+chips
+Burglar,Burnt Joker,1,discards
+Burglar,Campfire,1,blind-aware
+Burglar,Cartomancer,1,blind-aware
+Burglar,Castle,1,discards
+Burglar,Ceremonial Dagger,1,blind-aware
+Burglar,Chicot,1,blind-aware
+Burglar,Delayed Gratification,1,discards
+Burglar,Drunkard,1,discards
+Burglar,Faceless Joker,1,discards
+Burglar,Green Joker,1,discards
+Burglar,Hit the Road,1,discards
+Burglar,Luchador,1,blind-aware
+Burglar,Madness,1,blind-aware
+Burglar,Mail-In Rebate,1,discards
+Burglar,Matador,1,blind-aware
+Burglar,Merry Andy,1,discards
+Burglar,Mystic Summit,1,discards
+Burglar,Ramen,1,discards
+Burglar,Riff-raff,1,blind-aware
+Burglar,Rocket,1,blind-aware
+Burglar,Throwback,1,blind-aware
+Burglar,Trading Card,1,discards
+Burglar,Yorick,1,discards
+Burnt Joker,Castle,1,discards
+Burnt Joker,Delayed Gratification,1,discards
+Burnt Joker,Drunkard,1,discards
+Burnt Joker,Faceless Joker,1,discards
+Burnt Joker,Green Joker,1,discards
+Burnt Joker,Hit the Road,1,discards
+Burnt Joker,Mail-In Rebate,1,discards
+Burnt Joker,Merry Andy,1,discards
+Burnt Joker,Mystic Summit,1,discards
+Burnt Joker,Ramen,1,discards
+Burnt Joker,Trading Card,1,discards
+Burnt Joker,Yorick,1,discards
+Business Card,Canio,2,aces|face-cards
+Business Card,Cavendish,1,probability
+Business Card,Ceremonial Dagger,1,economy
+Business Card,Cloud 9,1,economy
+Business Card,Credit Card,1,economy
+Business Card,Delayed Gratification,1,economy
+Business Card,Egg,1,economy
+Business Card,Faceless Joker,3,aces|economy|face-cards
+Business Card,Fibonacci,1,aces
+Business Card,Gift Card,1,economy
+Business Card,Golden Joker,1,economy
+Business Card,Golden Ticket,1,economy
+Business Card,Gros Michel,1,probability
+Business Card,Hallucination,1,probability
+Business Card,Hit the Road,1,face-cards
+Business Card,Mail-In Rebate,2,aces|economy
+Business Card,Matador,1,economy
+Business Card,Midas Mask,2,aces|face-cards
+Business Card,Pareidolia,2,aces|face-cards
+Business Card,Photograph,2,aces|face-cards
+Business Card,Reserved Parking,4,aces|economy|face-cards|probability
+Business Card,Ride the Bus,2,aces|face-cards
+Business Card,Rocket,1,economy
+Business Card,Rough Gem,1,economy
+Business Card,Satellite,1,economy
+Business Card,Scary Face,2,aces|face-cards
+Business Card,Scholar,1,aces
+Business Card,Shoot the Moon,1,face-cards
+Business Card,Smiley Face,2,aces|face-cards
+Business Card,Sock and Buskin,2,aces|face-cards
+Business Card,Space Joker,1,probability
+Business Card,Superposition,1,aces
+Business Card,Swashbuckler,1,economy
+Business Card,To Do List,1,economy
+Business Card,To the Moon,1,economy
+Business Card,Trading Card,1,economy
+Business Card,Triboulet,1,face-cards
+Business Card,Vagabond,1,economy
+Campfire,Canio,1,xmult
+Campfire,Card Sharp,1,xmult
+Campfire,Cartomancer,1,blind-aware
+Campfire,Castle,2,joker-synergy|scaling
+Campfire,Cavendish,1,xmult
+Campfire,Ceremonial Dagger,1,blind-aware
+Campfire,Chaos the Clown,1,scaling
+Campfire,Chicot,1,blind-aware
+Campfire,Constellation,2,scaling|xmult
+Campfire,Delayed Gratification,1,scaling
+Campfire,Driver's License,1,xmult
+Campfire,Egg,1,scaling
+Campfire,Flash Card,1,scaling
+Campfire,Flower Pot,1,xmult
+Campfire,Fortune Teller,1,scaling
+Campfire,Gift Card,1,joker-synergy
+Campfire,Glass Joker,2,scaling|xmult
+Campfire,Green Joker,1,scaling
+Campfire,Hiker,1,scaling
+Campfire,Hit the Road,2,scaling|xmult
+Campfire,Hologram,2,scaling|xmult
+Campfire,Invisible Joker,1,joker-synergy
+Campfire,Joker Stencil,2,joker-synergy|xmult
+Campfire,Loyalty Card,1,xmult
+Campfire,Luchador,1,blind-aware
+Campfire,Lucky Cat,2,scaling|xmult
+Campfire,Madness,3,blind-aware|joker-synergy|xmult
+Campfire,Matador,1,blind-aware
+Campfire,Obelisk,2,scaling|xmult
+Campfire,Photograph,1,xmult
+Campfire,Popcorn,1,scaling
+Campfire,Ramen,2,scaling|xmult
+Campfire,Red Card,1,scaling
+Campfire,Ride the Bus,1,scaling
+Campfire,Riff-raff,2,blind-aware|joker-synergy
+Campfire,Rocket,2,blind-aware|scaling
+Campfire,Runner,1,scaling
+Campfire,Satellite,1,scaling
+Campfire,Seeing Double,1,xmult
+Campfire,Showman,1,joker-synergy
+Campfire,Spare Trousers,1,scaling
+Campfire,Square Joker,1,scaling
+Campfire,Steel Joker,3,joker-synergy|scaling|xmult
+Campfire,Stone Joker,2,joker-synergy|scaling
+Campfire,Swashbuckler,1,joker-synergy
+Campfire,The Duo,1,xmult
+Campfire,The Family,1,xmult
+Campfire,The Idol,1,xmult
+Campfire,The Order,1,xmult
+Campfire,The Tribe,1,xmult
+Campfire,The Trio,1,xmult
+Campfire,Throwback,2,blind-aware|xmult
+Campfire,Triboulet,1,xmult
+Campfire,Troubadour,1,scaling
+Campfire,Vampire,2,scaling|xmult
+Campfire,Wee Joker,2,joker-synergy|scaling
+Campfire,Yorick,1,xmult
+Canio,Card Sharp,1,xmult
+Canio,Cavendish,2,destruction|xmult
+Canio,Ceremonial Dagger,1,destruction
+Canio,Constellation,1,xmult
+Canio,Driver's License,1,xmult
+Canio,Faceless Joker,2,aces|face-cards
+Canio,Fibonacci,1,aces
+Canio,Flower Pot,1,xmult
+Canio,Glass Joker,2,destruction|xmult
+Canio,Gros Michel,1,destruction
+Canio,Hit the Road,2,face-cards|xmult
+Canio,Hologram,1,xmult
+Canio,Joker Stencil,1,xmult
+Canio,Loyalty Card,1,xmult
+Canio,Lucky Cat,1,xmult
+Canio,Madness,2,destruction|xmult
+Canio,Mail-In Rebate,1,aces
+Canio,Midas Mask,2,aces|face-cards
+Canio,Obelisk,1,xmult
+Canio,Pareidolia,2,aces|face-cards
+Canio,Photograph,3,aces|face-cards|xmult
+Canio,Ramen,1,xmult
+Canio,Reserved Parking,2,aces|face-cards
+Canio,Ride the Bus,2,aces|face-cards
+Canio,Scary Face,2,aces|face-cards
+Canio,Scholar,1,aces
+Canio,Seeing Double,1,xmult
+Canio,Shoot the Moon,1,face-cards
+Canio,Sixth Sense,1,destruction
+Canio,Smiley Face,2,aces|face-cards
+Canio,Sock and Buskin,2,aces|face-cards
+Canio,Steel Joker,1,xmult
+Canio,Superposition,1,aces
+Canio,The Duo,1,xmult
+Canio,The Family,1,xmult
+Canio,The Idol,1,xmult
+Canio,The Order,1,xmult
+Canio,The Tribe,1,xmult
+Canio,The Trio,1,xmult
+Canio,Throwback,1,xmult
+Canio,Trading Card,1,destruction
+Canio,Triboulet,2,face-cards|xmult
+Canio,Vampire,1,xmult
+Canio,Yorick,1,xmult
+Card Sharp,Cavendish,1,xmult
+Card Sharp,Constellation,1,xmult
+Card Sharp,Driver's License,1,xmult
+Card Sharp,Flower Pot,1,xmult
+Card Sharp,Glass Joker,1,xmult
+Card Sharp,Hit the Road,1,xmult
+Card Sharp,Hologram,1,xmult
+Card Sharp,Joker Stencil,1,xmult
+Card Sharp,Loyalty Card,1,xmult
+Card Sharp,Lucky Cat,1,xmult
+Card Sharp,Madness,1,xmult
+Card Sharp,Obelisk,1,xmult
+Card Sharp,Photograph,1,xmult
+Card Sharp,Ramen,1,xmult
+Card Sharp,Seeing Double,1,xmult
+Card Sharp,Steel Joker,1,xmult
+Card Sharp,The Duo,1,xmult
+Card Sharp,The Family,1,xmult
+Card Sharp,The Idol,1,xmult
+Card Sharp,The Order,1,xmult
+Card Sharp,The Tribe,1,xmult
+Card Sharp,The Trio,1,xmult
+Card Sharp,Throwback,1,xmult
+Card Sharp,Triboulet,1,xmult
+Card Sharp,Vampire,1,xmult
+Card Sharp,Yorick,1,xmult
+Cartomancer,Ceremonial Dagger,1,blind-aware
+Cartomancer,Chicot,1,blind-aware
+Cartomancer,Fortune Teller,1,tarot
+Cartomancer,Hallucination,1,tarot
+Cartomancer,Luchador,1,blind-aware
+Cartomancer,Madness,1,blind-aware
+Cartomancer,Matador,1,blind-aware
+Cartomancer,Riff-raff,1,blind-aware
+Cartomancer,Rocket,1,blind-aware
+Cartomancer,Showman,1,tarot
+Cartomancer,Superposition,1,tarot
+Cartomancer,Throwback,1,blind-aware
+Cartomancer,Vagabond,1,tarot
+Castle,Chaos the Clown,1,scaling
+Castle,Clever Joker,1,+chips
+Castle,Constellation,1,scaling
+Castle,Crafty Joker,1,+chips
+Castle,Delayed Gratification,2,discards|scaling
+Castle,Devious Joker,1,+chips
+Castle,Drunkard,1,discards
+Castle,Egg,1,scaling
+Castle,Faceless Joker,1,discards
+Castle,Flash Card,1,scaling
+Castle,Flower Pot,1,suit:Spades
+Castle,Fortune Teller,1,scaling
+Castle,Gift Card,1,joker-synergy
+Castle,Glass Joker,1,scaling
+Castle,Green Joker,2,discards|scaling
+Castle,Hiker,2,+chips|scaling
+Castle,Hit the Road,2,discards|scaling
+Castle,Hologram,1,scaling
+Castle,Ice Cream,1,+chips
+Castle,Invisible Joker,1,joker-synergy
+Castle,Joker Stencil,1,joker-synergy
+Castle,Lucky Cat,1,scaling
+Castle,Madness,1,joker-synergy
+Castle,Mail-In Rebate,1,discards
+Castle,Merry Andy,1,discards
+Castle,Mystic Summit,1,discards
+Castle,Obelisk,1,scaling
+Castle,Odd Todd,1,+chips
+Castle,Popcorn,1,scaling
+Castle,Ramen,2,discards|scaling
+Castle,Red Card,1,scaling
+Castle,Ride the Bus,1,scaling
+Castle,Riff-raff,1,joker-synergy
+Castle,Rocket,1,scaling
+Castle,Runner,2,+chips|scaling
+Castle,Satellite,1,scaling
+Castle,Scary Face,1,+chips
+Castle,Scholar,1,+chips
+Castle,Showman,1,joker-synergy
+Castle,Sly Joker,1,+chips
+Castle,Smeared Joker,1,suit:Spades
+Castle,Spare Trousers,1,scaling
+Castle,Square Joker,2,+chips|scaling
+Castle,Steel Joker,2,joker-synergy|scaling
+Castle,Stone Joker,3,+chips|joker-synergy|scaling
+Castle,Stuntman,1,+chips
+Castle,Swashbuckler,1,joker-synergy
+Castle,Trading Card,1,discards
+Castle,Troubadour,1,scaling
+Castle,Vampire,1,scaling
+Castle,Walkie Talkie,1,+chips
+Castle,Wee Joker,3,+chips|joker-synergy|scaling
+Castle,Wily Joker,1,+chips
+Castle,Wrathful Joker,1,suit:Spades
+Castle,Yorick,1,discards
+Cavendish,Ceremonial Dagger,1,destruction
+Cavendish,Constellation,1,xmult
+Cavendish,Driver's License,1,xmult
+Cavendish,Flower Pot,1,xmult
+Cavendish,Glass Joker,2,destruction|xmult
+Cavendish,Gros Michel,2,destruction|probability
+Cavendish,Hallucination,1,probability
+Cavendish,Hit the Road,1,xmult
+Cavendish,Hologram,1,xmult
+Cavendish,Joker Stencil,1,xmult
+Cavendish,Loyalty Card,1,xmult
+Cavendish,Lucky Cat,1,xmult
+Cavendish,Madness,2,destruction|xmult
+Cavendish,Obelisk,1,xmult
+Cavendish,Photograph,1,xmult
+Cavendish,Ramen,1,xmult
+Cavendish,Reserved Parking,1,probability
+Cavendish,Seeing Double,1,xmult
+Cavendish,Sixth Sense,1,destruction
+Cavendish,Space Joker,1,probability
+Cavendish,Steel Joker,1,xmult
+Cavendish,The Duo,1,xmult
+Cavendish,The Family,1,xmult
+Cavendish,The Idol,1,xmult
+Cavendish,The Order,1,xmult
+Cavendish,The Tribe,1,xmult
+Cavendish,The Trio,1,xmult
+Cavendish,Throwback,1,xmult
+Cavendish,Trading Card,1,destruction
+Cavendish,Triboulet,1,xmult
+Cavendish,Vampire,1,xmult
+Cavendish,Yorick,1,xmult
+Ceremonial Dagger,Chicot,1,blind-aware
+Ceremonial Dagger,Cloud 9,1,economy
+Ceremonial Dagger,Credit Card,1,economy
+Ceremonial Dagger,Delayed Gratification,1,economy
+Ceremonial Dagger,Egg,1,economy
+Ceremonial Dagger,Faceless Joker,1,economy
+Ceremonial Dagger,Gift Card,1,economy
+Ceremonial Dagger,Glass Joker,1,destruction
+Ceremonial Dagger,Golden Joker,1,economy
+Ceremonial Dagger,Golden Ticket,1,economy
+Ceremonial Dagger,Gros Michel,1,destruction
+Ceremonial Dagger,Luchador,1,blind-aware
+Ceremonial Dagger,Madness,2,blind-aware|destruction
+Ceremonial Dagger,Mail-In Rebate,1,economy
+Ceremonial Dagger,Matador,2,blind-aware|economy
+Ceremonial Dagger,Reserved Parking,1,economy
+Ceremonial Dagger,Riff-raff,1,blind-aware
+Ceremonial Dagger,Rocket,2,blind-aware|economy
+Ceremonial Dagger,Rough Gem,1,economy
+Ceremonial Dagger,Satellite,1,economy
+Ceremonial Dagger,Sixth Sense,1,destruction
+Ceremonial Dagger,Swashbuckler,1,economy
+Ceremonial Dagger,Throwback,1,blind-aware
+Ceremonial Dagger,To Do List,1,economy
+Ceremonial Dagger,To the Moon,1,economy
+Ceremonial Dagger,Trading Card,2,destruction|economy
+Ceremonial Dagger,Vagabond,1,economy
+Chaos the Clown,Constellation,1,scaling
+Chaos the Clown,Delayed Gratification,1,scaling
+Chaos the Clown,Egg,1,scaling
+Chaos the Clown,Flash Card,2,scaling|shop
+Chaos the Clown,Fortune Teller,1,scaling
+Chaos the Clown,Glass Joker,1,scaling
+Chaos the Clown,Green Joker,1,scaling
+Chaos the Clown,Hiker,1,scaling
+Chaos the Clown,Hit the Road,1,scaling
+Chaos the Clown,Hologram,1,scaling
+Chaos the Clown,Lucky Cat,1,scaling
+Chaos the Clown,Obelisk,1,scaling
+Chaos the Clown,Perkeo,1,shop
+Chaos the Clown,Popcorn,1,scaling
+Chaos the Clown,Ramen,1,scaling
+Chaos the Clown,Red Card,1,scaling
+Chaos the Clown,Ride the Bus,1,scaling
+Chaos the Clown,Rocket,1,scaling
+Chaos the Clown,Runner,1,scaling
+Chaos the Clown,Satellite,1,scaling
+Chaos the Clown,Spare Trousers,1,scaling
+Chaos the Clown,Square Joker,1,scaling
+Chaos the Clown,Steel Joker,1,scaling
+Chaos the Clown,Stone Joker,1,scaling
+Chaos the Clown,Troubadour,1,scaling
+Chaos the Clown,Vampire,1,scaling
+Chaos the Clown,Wee Joker,1,scaling
+Chicot,Luchador,1,blind-aware
+Chicot,Madness,1,blind-aware
+Chicot,Matador,1,blind-aware
+Chicot,Riff-raff,1,blind-aware
+Chicot,Rocket,1,blind-aware
+Chicot,Throwback,1,blind-aware
+Clever Joker,Crafty Joker,1,+chips
+Clever Joker,Devious Joker,1,+chips
+Clever Joker,Hiker,1,+chips
+Clever Joker,Ice Cream,1,+chips
+Clever Joker,Mad Joker,1,hand:Four of a Kind
+Clever Joker,Odd Todd,1,+chips
+Clever Joker,Runner,1,+chips
+Clever Joker,Scary Face,1,+chips
+Clever Joker,Scholar,1,+chips
+Clever Joker,Sly Joker,1,+chips
+Clever Joker,Square Joker,1,+chips
+Clever Joker,Stone Joker,1,+chips
+Clever Joker,Stuntman,1,+chips
+Clever Joker,The Family,1,hand:Four of a Kind
+Clever Joker,Walkie Talkie,1,+chips
+Clever Joker,Wee Joker,1,+chips
+Clever Joker,Wily Joker,1,+chips
+Cloud 9,Credit Card,1,economy
+Cloud 9,DNA,1,deck-size
+Cloud 9,Delayed Gratification,1,economy
+Cloud 9,Driver's License,1,deck-size
+Cloud 9,Egg,1,economy
+Cloud 9,Erosion,1,deck-size
+Cloud 9,Faceless Joker,1,economy
+Cloud 9,Gift Card,1,economy
+Cloud 9,Golden Joker,1,economy
+Cloud 9,Golden Ticket,1,economy
+Cloud 9,Hologram,1,deck-size
+Cloud 9,Mail-In Rebate,1,economy
+Cloud 9,Marble Joker,1,deck-size
+Cloud 9,Matador,1,economy
+Cloud 9,Reserved Parking,1,economy
+Cloud 9,Rocket,1,economy
+Cloud 9,Rough Gem,1,economy
+Cloud 9,Satellite,1,economy
+Cloud 9,Steel Joker,1,deck-size
+Cloud 9,Stone Joker,1,deck-size
+Cloud 9,Swashbuckler,1,economy
+Cloud 9,To Do List,1,economy
+Cloud 9,To the Moon,1,economy
+Cloud 9,Trading Card,1,economy
+Cloud 9,Vagabond,1,economy
+Constellation,Delayed Gratification,1,scaling
+Constellation,Driver's License,1,xmult
+Constellation,Egg,1,scaling
+Constellation,Flash Card,1,scaling
+Constellation,Flower Pot,1,xmult
+Constellation,Fortune Teller,1,scaling
+Constellation,Glass Joker,2,scaling|xmult
+Constellation,Green Joker,1,scaling
+Constellation,Hiker,1,scaling
+Constellation,Hit the Road,2,scaling|xmult
+Constellation,Hologram,2,scaling|xmult
+Constellation,Joker Stencil,1,xmult
+Constellation,Loyalty Card,1,xmult
+Constellation,Lucky Cat,2,scaling|xmult
+Constellation,Madness,1,xmult
+Constellation,Obelisk,2,scaling|xmult
+Constellation,Photograph,1,xmult
+Constellation,Popcorn,1,scaling
+Constellation,Ramen,2,scaling|xmult
+Constellation,Red Card,1,scaling
+Constellation,Ride the Bus,1,scaling
+Constellation,Rocket,1,scaling
+Constellation,Runner,1,scaling
+Constellation,Satellite,2,planet|scaling
+Constellation,Seeing Double,1,xmult
+Constellation,Showman,1,planet
+Constellation,Spare Trousers,1,scaling
+Constellation,Square Joker,1,scaling
+Constellation,Steel Joker,2,scaling|xmult
+Constellation,Stone Joker,1,scaling
+Constellation,The Duo,1,xmult
+Constellation,The Family,1,xmult
+Constellation,The Idol,1,xmult
+Constellation,The Order,1,xmult
+Constellation,The Tribe,1,xmult
+Constellation,The Trio,1,xmult
+Constellation,Throwback,1,xmult
+Constellation,Triboulet,1,xmult
+Constellation,Troubadour,1,scaling
+Constellation,Vampire,2,scaling|xmult
+Constellation,Wee Joker,1,scaling
+Constellation,Yorick,1,xmult
+Crafty Joker,Devious Joker,1,+chips
+Crafty Joker,Droll Joker,1,hand:Flush
+Crafty Joker,Hiker,1,+chips
+Crafty Joker,Ice Cream,1,+chips
+Crafty Joker,Odd Todd,1,+chips
+Crafty Joker,Runner,1,+chips
+Crafty Joker,Scary Face,1,+chips
+Crafty Joker,Scholar,1,+chips
+Crafty Joker,Sly Joker,1,+chips
+Crafty Joker,Square Joker,1,+chips
+Crafty Joker,Stone Joker,1,+chips
+Crafty Joker,Stuntman,1,+chips
+Crafty Joker,The Tribe,1,hand:Flush
+Crafty Joker,Walkie Talkie,1,+chips
+Crafty Joker,Wee Joker,1,+chips
+Crafty Joker,Wily Joker,1,+chips
+Crazy Joker,Devious Joker,2,hand:Straight|straights
+Crazy Joker,Droll Joker,1,+mult
+Crazy Joker,Erosion,1,+mult
+Crazy Joker,Even Steven,1,+mult
+Crazy Joker,Fibonacci,1,+mult
+Crazy Joker,Flash Card,1,+mult
+Crazy Joker,Fortune Teller,1,+mult
+Crazy Joker,Four Fingers,2,hand:Straight|straights
+Crazy Joker,Gluttonous Joker,1,+mult
+Crazy Joker,Greedy Joker,1,+mult
+Crazy Joker,Green Joker,1,+mult
+Crazy Joker,Gros Michel,1,+mult
+Crazy Joker,Half Joker,1,+mult
+Crazy Joker,Joker,1,+mult
+Crazy Joker,Jolly Joker,1,+mult
+Crazy Joker,Lusty Joker,1,+mult
+Crazy Joker,Mad Joker,1,+mult
+Crazy Joker,Mystic Summit,1,+mult
+Crazy Joker,Onyx Agate,1,+mult
+Crazy Joker,Popcorn,1,+mult
+Crazy Joker,Red Card,1,+mult
+Crazy Joker,Ride the Bus,1,+mult
+Crazy Joker,Runner,2,hand:Straight|straights
+Crazy Joker,Scholar,1,+mult
+Crazy Joker,Shoot the Moon,1,+mult
+Crazy Joker,Shortcut,2,hand:Straight|straights
+Crazy Joker,Smiley Face,1,+mult
+Crazy Joker,Spare Trousers,1,+mult
+Crazy Joker,Superposition,2,hand:Straight|straights
+Crazy Joker,Séance,1,straights
+Crazy Joker,The Order,2,hand:Straight|straights
+Crazy Joker,Walkie Talkie,1,+mult
+Crazy Joker,Wrathful Joker,1,+mult
+Crazy Joker,Zany Joker,1,+mult
+Credit Card,Delayed Gratification,1,economy
+Credit Card,Egg,1,economy
+Credit Card,Faceless Joker,1,economy
+Credit Card,Gift Card,1,economy
+Credit Card,Golden Joker,1,economy
+Credit Card,Golden Ticket,1,economy
+Credit Card,Mail-In Rebate,1,economy
+Credit Card,Matador,1,economy
+Credit Card,Reserved Parking,1,economy
+Credit Card,Rocket,1,economy
+Credit Card,Rough Gem,1,economy
+Credit Card,Satellite,1,economy
+Credit Card,Swashbuckler,1,economy
+Credit Card,To Do List,1,economy
+Credit Card,To the Moon,1,economy
+Credit Card,Trading Card,1,economy
+Credit Card,Vagabond,1,economy
+DNA,Driver's License,1,deck-size
+DNA,Dusk,1,hand-timing
+DNA,Erosion,1,deck-size
+DNA,Hologram,1,deck-size
+DNA,Marble Joker,1,deck-size
+DNA,Perkeo,1,copycat
+DNA,Sixth Sense,1,hand-timing
+DNA,Steel Joker,1,deck-size
+DNA,Stone Joker,1,deck-size
+Delayed Gratification,Drunkard,1,discards
+Delayed Gratification,Egg,2,economy|scaling
+Delayed Gratification,Faceless Joker,2,discards|economy
+Delayed Gratification,Flash Card,1,scaling
+Delayed Gratification,Fortune Teller,1,scaling
+Delayed Gratification,Gift Card,1,economy
+Delayed Gratification,Glass Joker,1,scaling
+Delayed Gratification,Golden Joker,1,economy
+Delayed Gratification,Golden Ticket,1,economy
+Delayed Gratification,Green Joker,2,discards|scaling
+Delayed Gratification,Hiker,1,scaling
+Delayed Gratification,Hit the Road,2,discards|scaling
+Delayed Gratification,Hologram,1,scaling
+Delayed Gratification,Lucky Cat,1,scaling
+Delayed Gratification,Mail-In Rebate,2,discards|economy
+Delayed Gratification,Matador,1,economy
+Delayed Gratification,Merry Andy,1,discards
+Delayed Gratification,Mystic Summit,1,discards
+Delayed Gratification,Obelisk,1,scaling
+Delayed Gratification,Popcorn,1,scaling
+Delayed Gratification,Ramen,2,discards|scaling
+Delayed Gratification,Red Card,1,scaling
+Delayed Gratification,Reserved Parking,1,economy
+Delayed Gratification,Ride the Bus,1,scaling
+Delayed Gratification,Rocket,2,economy|scaling
+Delayed Gratification,Rough Gem,1,economy
+Delayed Gratification,Runner,1,scaling
+Delayed Gratification,Satellite,2,economy|scaling
+Delayed Gratification,Spare Trousers,1,scaling
+Delayed Gratification,Square Joker,1,scaling
+Delayed Gratification,Steel Joker,1,scaling
+Delayed Gratification,Stone Joker,1,scaling
+Delayed Gratification,Swashbuckler,1,economy
+Delayed Gratification,To Do List,1,economy
+Delayed Gratification,To the Moon,1,economy
+Delayed Gratification,Trading Card,2,discards|economy
+Delayed Gratification,Troubadour,1,scaling
+Delayed Gratification,Vagabond,1,economy
+Delayed Gratification,Vampire,1,scaling
+Delayed Gratification,Wee Joker,1,scaling
+Delayed Gratification,Yorick,1,discards
+Devious Joker,Four Fingers,2,hand:Straight|straights
+Devious Joker,Hiker,1,+chips
+Devious Joker,Ice Cream,1,+chips
+Devious Joker,Odd Todd,1,+chips
+Devious Joker,Runner,3,+chips|hand:Straight|straights
+Devious Joker,Scary Face,1,+chips
+Devious Joker,Scholar,1,+chips
+Devious Joker,Shortcut,2,hand:Straight|straights
+Devious Joker,Sly Joker,1,+chips
+Devious Joker,Square Joker,1,+chips
+Devious Joker,Stone Joker,1,+chips
+Devious Joker,Stuntman,1,+chips
+Devious Joker,Superposition,2,hand:Straight|straights
+Devious Joker,Séance,1,straights
+Devious Joker,The Order,2,hand:Straight|straights
+Devious Joker,Walkie Talkie,1,+chips
+Devious Joker,Wee Joker,1,+chips
+Devious Joker,Wily Joker,1,+chips
+Driver's License,Erosion,1,deck-size
+Driver's License,Flower Pot,1,xmult
+Driver's License,Glass Joker,2,enhancements|xmult
+Driver's License,Golden Ticket,1,enhancements
+Driver's License,Hit the Road,1,xmult
+Driver's License,Hologram,2,deck-size|xmult
+Driver's License,Joker Stencil,1,xmult
+Driver's License,Loyalty Card,1,xmult
+Driver's License,Lucky Cat,2,enhancements|xmult
+Driver's License,Madness,1,xmult
+Driver's License,Marble Joker,2,deck-size|enhancements
+Driver's License,Midas Mask,1,enhancements
+Driver's License,Obelisk,1,xmult
+Driver's License,Photograph,1,xmult
+Driver's License,Ramen,1,xmult
+Driver's License,Seeing Double,1,xmult
+Driver's License,Steel Joker,3,deck-size|enhancements|xmult
+Driver's License,Stone Joker,2,deck-size|enhancements
+Driver's License,The Duo,1,xmult
+Driver's License,The Family,1,xmult
+Driver's License,The Idol,1,xmult
+Driver's License,The Order,1,xmult
+Driver's License,The Tribe,1,xmult
+Driver's License,The Trio,1,xmult
+Driver's License,Throwback,1,xmult
+Driver's License,Triboulet,1,xmult
+Driver's License,Vampire,2,enhancements|xmult
+Driver's License,Yorick,1,xmult
+Droll Joker,Erosion,1,+mult
+Droll Joker,Even Steven,1,+mult
+Droll Joker,Fibonacci,1,+mult
+Droll Joker,Flash Card,1,+mult
+Droll Joker,Fortune Teller,1,+mult
+Droll Joker,Gluttonous Joker,1,+mult
+Droll Joker,Greedy Joker,1,+mult
+Droll Joker,Green Joker,1,+mult
+Droll Joker,Gros Michel,1,+mult
+Droll Joker,Half Joker,1,+mult
+Droll Joker,Joker,1,+mult
+Droll Joker,Jolly Joker,1,+mult
+Droll Joker,Lusty Joker,1,+mult
+Droll Joker,Mad Joker,1,+mult
+Droll Joker,Mystic Summit,1,+mult
+Droll Joker,Onyx Agate,1,+mult
+Droll Joker,Popcorn,1,+mult
+Droll Joker,Red Card,1,+mult
+Droll Joker,Ride the Bus,1,+mult
+Droll Joker,Scholar,1,+mult
+Droll Joker,Shoot the Moon,1,+mult
+Droll Joker,Smiley Face,1,+mult
+Droll Joker,Spare Trousers,1,+mult
+Droll Joker,The Tribe,1,hand:Flush
+Droll Joker,Walkie Talkie,1,+mult
+Droll Joker,Wrathful Joker,1,+mult
+Droll Joker,Zany Joker,1,+mult
+Drunkard,Faceless Joker,1,discards
+Drunkard,Green Joker,1,discards
+Drunkard,Hit the Road,1,discards
+Drunkard,Mail-In Rebate,1,discards
+Drunkard,Merry Andy,1,discards
+Drunkard,Mystic Summit,1,discards
+Drunkard,Ramen,1,discards
+Drunkard,Trading Card,1,discards
+Drunkard,Yorick,1,discards
+Dusk,Hack,1,retrigger
+Dusk,Hanging Chad,1,retrigger
+Dusk,Mime,1,retrigger
+Dusk,Seltzer,1,retrigger
+Dusk,Sixth Sense,1,hand-timing
+Dusk,Sock and Buskin,1,retrigger
+Egg,Faceless Joker,1,economy
+Egg,Flash Card,1,scaling
+Egg,Fortune Teller,1,scaling
+Egg,Gift Card,1,economy
+Egg,Glass Joker,1,scaling
+Egg,Golden Joker,1,economy
+Egg,Golden Ticket,1,economy
+Egg,Green Joker,1,scaling
+Egg,Hiker,1,scaling
+Egg,Hit the Road,1,scaling
+Egg,Hologram,1,scaling
+Egg,Lucky Cat,1,scaling
+Egg,Mail-In Rebate,1,economy
+Egg,Matador,1,economy
+Egg,Obelisk,1,scaling
+Egg,Popcorn,1,scaling
+Egg,Ramen,1,scaling
+Egg,Red Card,1,scaling
+Egg,Reserved Parking,1,economy
+Egg,Ride the Bus,1,scaling
+Egg,Rocket,2,economy|scaling
+Egg,Rough Gem,1,economy
+Egg,Runner,1,scaling
+Egg,Satellite,2,economy|scaling
+Egg,Spare Trousers,1,scaling
+Egg,Square Joker,1,scaling
+Egg,Steel Joker,1,scaling
+Egg,Stone Joker,1,scaling
+Egg,Swashbuckler,1,economy
+Egg,To Do List,1,economy
+Egg,To the Moon,1,economy
+Egg,Trading Card,1,economy
+Egg,Troubadour,1,scaling
+Egg,Vagabond,1,economy
+Egg,Vampire,1,scaling
+Egg,Wee Joker,1,scaling
+Erosion,Even Steven,1,+mult
+Erosion,Fibonacci,1,+mult
+Erosion,Flash Card,1,+mult
+Erosion,Fortune Teller,1,+mult
+Erosion,Gluttonous Joker,1,+mult
+Erosion,Greedy Joker,1,+mult
+Erosion,Green Joker,1,+mult
+Erosion,Gros Michel,1,+mult
+Erosion,Half Joker,1,+mult
+Erosion,Hologram,1,deck-size
+Erosion,Joker,1,+mult
+Erosion,Jolly Joker,1,+mult
+Erosion,Lusty Joker,1,+mult
+Erosion,Mad Joker,1,+mult
+Erosion,Marble Joker,1,deck-size
+Erosion,Mystic Summit,1,+mult
+Erosion,Onyx Agate,1,+mult
+Erosion,Popcorn,1,+mult
+Erosion,Red Card,1,+mult
+Erosion,Ride the Bus,1,+mult
+Erosion,Scholar,1,+mult
+Erosion,Shoot the Moon,1,+mult
+Erosion,Smiley Face,1,+mult
+Erosion,Spare Trousers,1,+mult
+Erosion,Steel Joker,1,deck-size
+Erosion,Stone Joker,1,deck-size
+Erosion,Walkie Talkie,1,+mult
+Erosion,Wrathful Joker,1,+mult
+Erosion,Zany Joker,1,+mult
+Even Steven,Fibonacci,1,+mult
+Even Steven,Flash Card,1,+mult
+Even Steven,Fortune Teller,1,+mult
+Even Steven,Gluttonous Joker,1,+mult
+Even Steven,Greedy Joker,1,+mult
+Even Steven,Green Joker,1,+mult
+Even Steven,Gros Michel,1,+mult
+Even Steven,Half Joker,1,+mult
+Even Steven,Joker,1,+mult
+Even Steven,Jolly Joker,1,+mult
+Even Steven,Lusty Joker,1,+mult
+Even Steven,Mad Joker,1,+mult
+Even Steven,Mystic Summit,1,+mult
+Even Steven,Onyx Agate,1,+mult
+Even Steven,Popcorn,1,+mult
+Even Steven,Red Card,1,+mult
+Even Steven,Ride the Bus,1,+mult
+Even Steven,Scholar,1,+mult
+Even Steven,Shoot the Moon,1,+mult
+Even Steven,Smiley Face,1,+mult
+Even Steven,Spare Trousers,1,+mult
+Even Steven,Walkie Talkie,1,+mult
+Even Steven,Wrathful Joker,1,+mult
+Even Steven,Zany Joker,1,+mult
+Faceless Joker,Fibonacci,1,aces
+Faceless Joker,Gift Card,1,economy
+Faceless Joker,Golden Joker,1,economy
+Faceless Joker,Golden Ticket,1,economy
+Faceless Joker,Green Joker,1,discards
+Faceless Joker,Hit the Road,2,discards|face-cards
+Faceless Joker,Mail-In Rebate,3,aces|discards|economy
+Faceless Joker,Matador,1,economy
+Faceless Joker,Merry Andy,1,discards
+Faceless Joker,Midas Mask,2,aces|face-cards
+Faceless Joker,Mystic Summit,1,discards
+Faceless Joker,Pareidolia,2,aces|face-cards
+Faceless Joker,Photograph,2,aces|face-cards
+Faceless Joker,Ramen,1,discards
+Faceless Joker,Reserved Parking,3,aces|economy|face-cards
+Faceless Joker,Ride the Bus,2,aces|face-cards
+Faceless Joker,Rocket,1,economy
+Faceless Joker,Rough Gem,1,economy
+Faceless Joker,Satellite,1,economy
+Faceless Joker,Scary Face,2,aces|face-cards
+Faceless Joker,Scholar,1,aces
+Faceless Joker,Shoot the Moon,1,face-cards
+Faceless Joker,Smiley Face,2,aces|face-cards
+Faceless Joker,Sock and Buskin,2,aces|face-cards
+Faceless Joker,Superposition,1,aces
+Faceless Joker,Swashbuckler,1,economy
+Faceless Joker,To Do List,1,economy
+Faceless Joker,To the Moon,1,economy
+Faceless Joker,Trading Card,2,discards|economy
+Faceless Joker,Triboulet,1,face-cards
+Faceless Joker,Vagabond,1,economy
+Faceless Joker,Yorick,1,discards
+Fibonacci,Flash Card,1,+mult
+Fibonacci,Fortune Teller,1,+mult
+Fibonacci,Gluttonous Joker,1,+mult
+Fibonacci,Greedy Joker,1,+mult
+Fibonacci,Green Joker,1,+mult
+Fibonacci,Gros Michel,1,+mult
+Fibonacci,Half Joker,1,+mult
+Fibonacci,Joker,1,+mult
+Fibonacci,Jolly Joker,1,+mult
+Fibonacci,Lusty Joker,1,+mult
+Fibonacci,Mad Joker,1,+mult
+Fibonacci,Mail-In Rebate,1,aces
+Fibonacci,Midas Mask,1,aces
+Fibonacci,Mystic Summit,1,+mult
+Fibonacci,Onyx Agate,1,+mult
+Fibonacci,Pareidolia,1,aces
+Fibonacci,Photograph,1,aces
+Fibonacci,Popcorn,1,+mult
+Fibonacci,Red Card,1,+mult
+Fibonacci,Reserved Parking,1,aces
+Fibonacci,Ride the Bus,2,+mult|aces
+Fibonacci,Scary Face,1,aces
+Fibonacci,Scholar,2,+mult|aces
+Fibonacci,Shoot the Moon,1,+mult
+Fibonacci,Smiley Face,2,+mult|aces
+Fibonacci,Sock and Buskin,1,aces
+Fibonacci,Spare Trousers,1,+mult
+Fibonacci,Superposition,1,aces
+Fibonacci,Walkie Talkie,1,+mult
+Fibonacci,Wrathful Joker,1,+mult
+Fibonacci,Zany Joker,1,+mult
+Flash Card,Fortune Teller,2,+mult|scaling
+Flash Card,Glass Joker,1,scaling
+Flash Card,Gluttonous Joker,1,+mult
+Flash Card,Greedy Joker,1,+mult
+Flash Card,Green Joker,2,+mult|scaling
+Flash Card,Gros Michel,1,+mult
+Flash Card,Half Joker,1,+mult
+Flash Card,Hiker,1,scaling
+Flash Card,Hit the Road,1,scaling
+Flash Card,Hologram,1,scaling
+Flash Card,Joker,1,+mult
+Flash Card,Jolly Joker,1,+mult
+Flash Card,Lucky Cat,1,scaling
+Flash Card,Lusty Joker,1,+mult
+Flash Card,Mad Joker,1,+mult
+Flash Card,Mystic Summit,1,+mult
+Flash Card,Obelisk,1,scaling
+Flash Card,Onyx Agate,1,+mult
+Flash Card,Perkeo,1,shop
+Flash Card,Popcorn,2,+mult|scaling
+Flash Card,Ramen,1,scaling
+Flash Card,Red Card,2,+mult|scaling
+Flash Card,Ride the Bus,2,+mult|scaling
+Flash Card,Rocket,1,scaling
+Flash Card,Runner,1,scaling
+Flash Card,Satellite,1,scaling
+Flash Card,Scholar,1,+mult
+Flash Card,Shoot the Moon,1,+mult
+Flash Card,Smiley Face,1,+mult
+Flash Card,Spare Trousers,2,+mult|scaling
+Flash Card,Square Joker,1,scaling
+Flash Card,Steel Joker,1,scaling
+Flash Card,Stone Joker,1,scaling
+Flash Card,Troubadour,1,scaling
+Flash Card,Vampire,1,scaling
+Flash Card,Walkie Talkie,1,+mult
+Flash Card,Wee Joker,1,scaling
+Flash Card,Wrathful Joker,1,+mult
+Flash Card,Zany Joker,1,+mult
+Flower Pot,Glass Joker,1,xmult
+Flower Pot,Gluttonous Joker,1,suit:Clubs
+Flower Pot,Greedy Joker,1,suit:Diamonds
+Flower Pot,Hit the Road,1,xmult
+Flower Pot,Hologram,1,xmult
+Flower Pot,Joker Stencil,1,xmult
+Flower Pot,Loyalty Card,1,xmult
+Flower Pot,Lucky Cat,1,xmult
+Flower Pot,Lusty Joker,1,suit:Hearts
+Flower Pot,Madness,1,xmult
+Flower Pot,Obelisk,1,xmult
+Flower Pot,Onyx Agate,1,suit:Clubs
+Flower Pot,Photograph,1,xmult
+Flower Pot,Ramen,1,xmult
+Flower Pot,Rough Gem,1,suit:Diamonds
+Flower Pot,Seeing Double,2,suit:Clubs|xmult
+Flower Pot,Smeared Joker,4,suit:Clubs|suit:Diamonds|suit:Hearts|suit:Spades
+Flower Pot,Steel Joker,1,xmult
+Flower Pot,The Duo,1,xmult
+Flower Pot,The Family,1,xmult
+Flower Pot,The Idol,1,xmult
+Flower Pot,The Order,1,xmult
+Flower Pot,The Tribe,1,xmult
+Flower Pot,The Trio,1,xmult
+Flower Pot,Throwback,1,xmult
+Flower Pot,Triboulet,1,xmult
+Flower Pot,Vampire,1,xmult
+Flower Pot,Wrathful Joker,1,suit:Spades
+Flower Pot,Yorick,1,xmult
+Fortune Teller,Glass Joker,1,scaling
+Fortune Teller,Gluttonous Joker,1,+mult
+Fortune Teller,Greedy Joker,1,+mult
+Fortune Teller,Green Joker,2,+mult|scaling
+Fortune Teller,Gros Michel,1,+mult
+Fortune Teller,Half Joker,1,+mult
+Fortune Teller,Hallucination,1,tarot
+Fortune Teller,Hiker,1,scaling
+Fortune Teller,Hit the Road,1,scaling
+Fortune Teller,Hologram,1,scaling
+Fortune Teller,Joker,1,+mult
+Fortune Teller,Jolly Joker,1,+mult
+Fortune Teller,Lucky Cat,1,scaling
+Fortune Teller,Lusty Joker,1,+mult
+Fortune Teller,Mad Joker,1,+mult
+Fortune Teller,Mystic Summit,1,+mult
+Fortune Teller,Obelisk,1,scaling
+Fortune Teller,Onyx Agate,1,+mult
+Fortune Teller,Popcorn,2,+mult|scaling
+Fortune Teller,Ramen,1,scaling
+Fortune Teller,Red Card,2,+mult|scaling
+Fortune Teller,Ride the Bus,2,+mult|scaling
+Fortune Teller,Rocket,1,scaling
+Fortune Teller,Runner,1,scaling
+Fortune Teller,Satellite,1,scaling
+Fortune Teller,Scholar,1,+mult
+Fortune Teller,Shoot the Moon,1,+mult
+Fortune Teller,Showman,1,tarot
+Fortune Teller,Smiley Face,1,+mult
+Fortune Teller,Spare Trousers,2,+mult|scaling
+Fortune Teller,Square Joker,1,scaling
+Fortune Teller,Steel Joker,1,scaling
+Fortune Teller,Stone Joker,1,scaling
+Fortune Teller,Superposition,1,tarot
+Fortune Teller,Troubadour,1,scaling
+Fortune Teller,Vagabond,1,tarot
+Fortune Teller,Vampire,1,scaling
+Fortune Teller,Walkie Talkie,1,+mult
+Fortune Teller,Wee Joker,1,scaling
+Fortune Teller,Wrathful Joker,1,+mult
+Fortune Teller,Zany Joker,1,+mult
+Four Fingers,Runner,2,hand:Straight|straights
+Four Fingers,Shortcut,2,hand:Straight|straights
+Four Fingers,Superposition,2,hand:Straight|straights
+Four Fingers,Séance,1,straights
+Four Fingers,The Order,2,hand:Straight|straights
+Gift Card,Golden Joker,1,economy
+Gift Card,Golden Ticket,1,economy
+Gift Card,Invisible Joker,1,joker-synergy
+Gift Card,Joker Stencil,1,joker-synergy
+Gift Card,Madness,1,joker-synergy
+Gift Card,Mail-In Rebate,1,economy
+Gift Card,Matador,1,economy
+Gift Card,Perkeo,1,consumables
+Gift Card,Reserved Parking,1,economy
+Gift Card,Riff-raff,1,joker-synergy
+Gift Card,Rocket,1,economy
+Gift Card,Rough Gem,1,economy
+Gift Card,Satellite,1,economy
+Gift Card,Showman,1,joker-synergy
+Gift Card,Steel Joker,1,joker-synergy
+Gift Card,Stone Joker,1,joker-synergy
+Gift Card,Swashbuckler,2,economy|joker-synergy
+Gift Card,To Do List,1,economy
+Gift Card,To the Moon,1,economy
+Gift Card,Trading Card,1,economy
+Gift Card,Vagabond,1,economy
+Gift Card,Wee Joker,1,joker-synergy
+Glass Joker,Golden Ticket,1,enhancements
+Glass Joker,Green Joker,1,scaling
+Glass Joker,Gros Michel,1,destruction
+Glass Joker,Hiker,1,scaling
+Glass Joker,Hit the Road,2,scaling|xmult
+Glass Joker,Hologram,2,scaling|xmult
+Glass Joker,Joker Stencil,1,xmult
+Glass Joker,Loyalty Card,1,xmult
+Glass Joker,Lucky Cat,3,enhancements|scaling|xmult
+Glass Joker,Madness,2,destruction|xmult
+Glass Joker,Marble Joker,1,enhancements
+Glass Joker,Midas Mask,1,enhancements
+Glass Joker,Obelisk,2,scaling|xmult
+Glass Joker,Photograph,1,xmult
+Glass Joker,Popcorn,1,scaling
+Glass Joker,Ramen,2,scaling|xmult
+Glass Joker,Red Card,1,scaling
+Glass Joker,Ride the Bus,1,scaling
+Glass Joker,Rocket,1,scaling
+Glass Joker,Runner,1,scaling
+Glass Joker,Satellite,1,scaling
+Glass Joker,Seeing Double,1,xmult
+Glass Joker,Sixth Sense,1,destruction
+Glass Joker,Spare Trousers,1,scaling
+Glass Joker,Square Joker,1,scaling
+Glass Joker,Steel Joker,3,enhancements|scaling|xmult
+Glass Joker,Stone Joker,2,enhancements|scaling
+Glass Joker,The Duo,1,xmult
+Glass Joker,The Family,1,xmult
+Glass Joker,The Idol,1,xmult
+Glass Joker,The Order,1,xmult
+Glass Joker,The Tribe,1,xmult
+Glass Joker,The Trio,1,xmult
+Glass Joker,Throwback,1,xmult
+Glass Joker,Trading Card,1,destruction
+Glass Joker,Triboulet,1,xmult
+Glass Joker,Troubadour,1,scaling
+Glass Joker,Vampire,3,enhancements|scaling|xmult
+Glass Joker,Wee Joker,1,scaling
+Glass Joker,Yorick,1,xmult
+Gluttonous Joker,Greedy Joker,1,+mult
+Gluttonous Joker,Green Joker,1,+mult
+Gluttonous Joker,Gros Michel,1,+mult
+Gluttonous Joker,Half Joker,1,+mult
+Gluttonous Joker,Joker,1,+mult
+Gluttonous Joker,Jolly Joker,1,+mult
+Gluttonous Joker,Lusty Joker,1,+mult
+Gluttonous Joker,Mad Joker,1,+mult
+Gluttonous Joker,Mystic Summit,1,+mult
+Gluttonous Joker,Onyx Agate,2,+mult|suit:Clubs
+Gluttonous Joker,Popcorn,1,+mult
+Gluttonous Joker,Red Card,1,+mult
+Gluttonous Joker,Ride the Bus,1,+mult
+Gluttonous Joker,Scholar,1,+mult
+Gluttonous Joker,Seeing Double,1,suit:Clubs
+Gluttonous Joker,Shoot the Moon,1,+mult
+Gluttonous Joker,Smeared Joker,1,suit:Clubs
+Gluttonous Joker,Smiley Face,1,+mult
+Gluttonous Joker,Spare Trousers,1,+mult
+Gluttonous Joker,Walkie Talkie,1,+mult
+Gluttonous Joker,Wrathful Joker,1,+mult
+Gluttonous Joker,Zany Joker,1,+mult
+Golden Joker,Golden Ticket,1,economy
+Golden Joker,Mail-In Rebate,1,economy
+Golden Joker,Matador,1,economy
+Golden Joker,Reserved Parking,1,economy
+Golden Joker,Rocket,1,economy
+Golden Joker,Rough Gem,1,economy
+Golden Joker,Satellite,1,economy
+Golden Joker,Swashbuckler,1,economy
+Golden Joker,To Do List,1,economy
+Golden Joker,To the Moon,1,economy
+Golden Joker,Trading Card,1,economy
+Golden Joker,Vagabond,1,economy
+Golden Ticket,Lucky Cat,1,enhancements
+Golden Ticket,Mail-In Rebate,1,economy
+Golden Ticket,Marble Joker,1,enhancements
+Golden Ticket,Matador,1,economy
+Golden Ticket,Midas Mask,1,enhancements
+Golden Ticket,Reserved Parking,1,economy
+Golden Ticket,Rocket,1,economy
+Golden Ticket,Rough Gem,1,economy
+Golden Ticket,Satellite,1,economy
+Golden Ticket,Steel Joker,1,enhancements
+Golden Ticket,Stone Joker,1,enhancements
+Golden Ticket,Swashbuckler,1,economy
+Golden Ticket,To Do List,1,economy
+Golden Ticket,To the Moon,1,economy
+Golden Ticket,Trading Card,1,economy
+Golden Ticket,Vagabond,1,economy
+Golden Ticket,Vampire,1,enhancements
+Greedy Joker,Green Joker,1,+mult
+Greedy Joker,Gros Michel,1,+mult
+Greedy Joker,Half Joker,1,+mult
+Greedy Joker,Joker,1,+mult
+Greedy Joker,Jolly Joker,1,+mult
+Greedy Joker,Lusty Joker,1,+mult
+Greedy Joker,Mad Joker,1,+mult
+Greedy Joker,Mystic Summit,1,+mult
+Greedy Joker,Onyx Agate,1,+mult
+Greedy Joker,Popcorn,1,+mult
+Greedy Joker,Red Card,1,+mult
+Greedy Joker,Ride the Bus,1,+mult
+Greedy Joker,Rough Gem,1,suit:Diamonds
+Greedy Joker,Scholar,1,+mult
+Greedy Joker,Shoot the Moon,1,+mult
+Greedy Joker,Smeared Joker,1,suit:Diamonds
+Greedy Joker,Smiley Face,1,+mult
+Greedy Joker,Spare Trousers,1,+mult
+Greedy Joker,Walkie Talkie,1,+mult
+Greedy Joker,Wrathful Joker,1,+mult
+Greedy Joker,Zany Joker,1,+mult
+Green Joker,Gros Michel,1,+mult
+Green Joker,Half Joker,1,+mult
+Green Joker,Hiker,1,scaling
+Green Joker,Hit the Road,2,discards|scaling
+Green Joker,Hologram,1,scaling
+Green Joker,Joker,1,+mult
+Green Joker,Jolly Joker,1,+mult
+Green Joker,Lucky Cat,1,scaling
+Green Joker,Lusty Joker,1,+mult
+Green Joker,Mad Joker,1,+mult
+Green Joker,Mail-In Rebate,1,discards
+Green Joker,Merry Andy,1,discards
+Green Joker,Mystic Summit,2,+mult|discards
+Green Joker,Obelisk,1,scaling
+Green Joker,Onyx Agate,1,+mult
+Green Joker,Popcorn,2,+mult|scaling
+Green Joker,Ramen,2,discards|scaling
+Green Joker,Red Card,2,+mult|scaling
+Green Joker,Ride the Bus,2,+mult|scaling
+Green Joker,Rocket,1,scaling
+Green Joker,Runner,1,scaling
+Green Joker,Satellite,1,scaling
+Green Joker,Scholar,1,+mult
+Green Joker,Shoot the Moon,1,+mult
+Green Joker,Smiley Face,1,+mult
+Green Joker,Spare Trousers,2,+mult|scaling
+Green Joker,Square Joker,1,scaling
+Green Joker,Steel Joker,1,scaling
+Green Joker,Stone Joker,1,scaling
+Green Joker,Trading Card,1,discards
+Green Joker,Troubadour,1,scaling
+Green Joker,Vampire,1,scaling
+Green Joker,Walkie Talkie,1,+mult
+Green Joker,Wee Joker,1,scaling
+Green Joker,Wrathful Joker,1,+mult
+Green Joker,Yorick,1,discards
+Green Joker,Zany Joker,1,+mult
+Gros Michel,Half Joker,1,+mult
+Gros Michel,Hallucination,1,probability
+Gros Michel,Joker,1,+mult
+Gros Michel,Jolly Joker,1,+mult
+Gros Michel,Lusty Joker,1,+mult
+Gros Michel,Mad Joker,1,+mult
+Gros Michel,Madness,1,destruction
+Gros Michel,Mystic Summit,1,+mult
+Gros Michel,Onyx Agate,1,+mult
+Gros Michel,Popcorn,1,+mult
+Gros Michel,Red Card,1,+mult
+Gros Michel,Reserved Parking,1,probability
+Gros Michel,Ride the Bus,1,+mult
+Gros Michel,Scholar,1,+mult
+Gros Michel,Shoot the Moon,1,+mult
+Gros Michel,Sixth Sense,1,destruction
+Gros Michel,Smiley Face,1,+mult
+Gros Michel,Space Joker,1,probability
+Gros Michel,Spare Trousers,1,+mult
+Gros Michel,Trading Card,1,destruction
+Gros Michel,Walkie Talkie,1,+mult
+Gros Michel,Wrathful Joker,1,+mult
+Gros Michel,Zany Joker,1,+mult
+Hack,Hanging Chad,1,retrigger
+Hack,Mime,1,retrigger
+Hack,Seltzer,1,retrigger
+Hack,Sock and Buskin,1,retrigger
+Half Joker,Joker,1,+mult
+Half Joker,Jolly Joker,1,+mult
+Half Joker,Lusty Joker,1,+mult
+Half Joker,Mad Joker,1,+mult
+Half Joker,Mystic Summit,1,+mult
+Half Joker,Onyx Agate,1,+mult
+Half Joker,Popcorn,1,+mult
+Half Joker,Red Card,1,+mult
+Half Joker,Ride the Bus,1,+mult
+Half Joker,Scholar,1,+mult
+Half Joker,Shoot the Moon,1,+mult
+Half Joker,Smiley Face,1,+mult
+Half Joker,Spare Trousers,1,+mult
+Half Joker,Walkie Talkie,1,+mult
+Half Joker,Wrathful Joker,1,+mult
+Half Joker,Zany Joker,1,+mult
+Hallucination,Reserved Parking,1,probability
+Hallucination,Showman,1,tarot
+Hallucination,Space Joker,1,probability
+Hallucination,Superposition,1,tarot
+Hallucination,Vagabond,1,tarot
+Hanging Chad,Mime,1,retrigger
+Hanging Chad,Seltzer,1,retrigger
+Hanging Chad,Sock and Buskin,1,retrigger
+Hiker,Hit the Road,1,scaling
+Hiker,Hologram,1,scaling
+Hiker,Ice Cream,1,+chips
+Hiker,Lucky Cat,1,scaling
+Hiker,Obelisk,1,scaling
+Hiker,Odd Todd,1,+chips
+Hiker,Popcorn,1,scaling
+Hiker,Ramen,1,scaling
+Hiker,Red Card,1,scaling
+Hiker,Ride the Bus,1,scaling
+Hiker,Rocket,1,scaling
+Hiker,Runner,2,+chips|scaling
+Hiker,Satellite,1,scaling
+Hiker,Scary Face,1,+chips
+Hiker,Scholar,1,+chips
+Hiker,Sly Joker,1,+chips
+Hiker,Spare Trousers,1,scaling
+Hiker,Square Joker,2,+chips|scaling
+Hiker,Steel Joker,1,scaling
+Hiker,Stone Joker,2,+chips|scaling
+Hiker,Stuntman,1,+chips
+Hiker,Troubadour,1,scaling
+Hiker,Vampire,1,scaling
+Hiker,Walkie Talkie,1,+chips
+Hiker,Wee Joker,2,+chips|scaling
+Hiker,Wily Joker,1,+chips
+Hit the Road,Hologram,2,scaling|xmult
+Hit the Road,Joker Stencil,1,xmult
+Hit the Road,Loyalty Card,1,xmult
+Hit the Road,Lucky Cat,2,scaling|xmult
+Hit the Road,Madness,1,xmult
+Hit the Road,Mail-In Rebate,1,discards
+Hit the Road,Merry Andy,1,discards
+Hit the Road,Midas Mask,1,face-cards
+Hit the Road,Mystic Summit,1,discards
+Hit the Road,Obelisk,2,scaling|xmult
+Hit the Road,Pareidolia,1,face-cards
+Hit the Road,Photograph,2,face-cards|xmult
+Hit the Road,Popcorn,1,scaling
+Hit the Road,Ramen,3,discards|scaling|xmult
+Hit the Road,Red Card,1,scaling
+Hit the Road,Reserved Parking,1,face-cards
+Hit the Road,Ride the Bus,2,face-cards|scaling
+Hit the Road,Rocket,1,scaling
+Hit the Road,Runner,1,scaling
+Hit the Road,Satellite,1,scaling
+Hit the Road,Scary Face,1,face-cards
+Hit the Road,Seeing Double,1,xmult
+Hit the Road,Shoot the Moon,1,face-cards
+Hit the Road,Smiley Face,1,face-cards
+Hit the Road,Sock and Buskin,1,face-cards
+Hit the Road,Spare Trousers,1,scaling
+Hit the Road,Square Joker,1,scaling
+Hit the Road,Steel Joker,2,scaling|xmult
+Hit the Road,Stone Joker,1,scaling
+Hit the Road,The Duo,1,xmult
+Hit the Road,The Family,1,xmult
+Hit the Road,The Idol,1,xmult
+Hit the Road,The Order,1,xmult
+Hit the Road,The Tribe,1,xmult
+Hit the Road,The Trio,1,xmult
+Hit the Road,Throwback,1,xmult
+Hit the Road,Trading Card,1,discards
+Hit the Road,Triboulet,2,face-cards|xmult
+Hit the Road,Troubadour,1,scaling
+Hit the Road,Vampire,2,scaling|xmult
+Hit the Road,Wee Joker,1,scaling
+Hit the Road,Yorick,2,discards|xmult
+Hologram,Joker Stencil,1,xmult
+Hologram,Loyalty Card,1,xmult
+Hologram,Lucky Cat,2,scaling|xmult
+Hologram,Madness,1,xmult
+Hologram,Marble Joker,1,deck-size
+Hologram,Obelisk,2,scaling|xmult
+Hologram,Photograph,1,xmult
+Hologram,Popcorn,1,scaling
+Hologram,Ramen,2,scaling|xmult
+Hologram,Red Card,1,scaling
+Hologram,Ride the Bus,1,scaling
+Hologram,Rocket,1,scaling
+Hologram,Runner,1,scaling
+Hologram,Satellite,1,scaling
+Hologram,Seeing Double,1,xmult
+Hologram,Spare Trousers,1,scaling
+Hologram,Square Joker,1,scaling
+Hologram,Steel Joker,3,deck-size|scaling|xmult
+Hologram,Stone Joker,2,deck-size|scaling
+Hologram,The Duo,1,xmult
+Hologram,The Family,1,xmult
+Hologram,The Idol,1,xmult
+Hologram,The Order,1,xmult
+Hologram,The Tribe,1,xmult
+Hologram,The Trio,1,xmult
+Hologram,Throwback,1,xmult
+Hologram,Triboulet,1,xmult
+Hologram,Troubadour,1,scaling
+Hologram,Vampire,2,scaling|xmult
+Hologram,Wee Joker,1,scaling
+Hologram,Yorick,1,xmult
+Ice Cream,Odd Todd,1,+chips
+Ice Cream,Runner,1,+chips
+Ice Cream,Scary Face,1,+chips
+Ice Cream,Scholar,1,+chips
+Ice Cream,Sly Joker,1,+chips
+Ice Cream,Square Joker,1,+chips
+Ice Cream,Stone Joker,1,+chips
+Ice Cream,Stuntman,1,+chips
+Ice Cream,Walkie Talkie,1,+chips
+Ice Cream,Wee Joker,1,+chips
+Ice Cream,Wily Joker,1,+chips
+Invisible Joker,Joker Stencil,1,joker-synergy
+Invisible Joker,Madness,1,joker-synergy
+Invisible Joker,Riff-raff,1,joker-synergy
+Invisible Joker,Showman,1,joker-synergy
+Invisible Joker,Steel Joker,1,joker-synergy
+Invisible Joker,Stone Joker,1,joker-synergy
+Invisible Joker,Swashbuckler,1,joker-synergy
+Invisible Joker,Wee Joker,1,joker-synergy
+Joker,Jolly Joker,1,+mult
+Joker,Lusty Joker,1,+mult
+Joker,Mad Joker,1,+mult
+Joker,Mystic Summit,1,+mult
+Joker,Onyx Agate,1,+mult
+Joker,Popcorn,1,+mult
+Joker,Red Card,1,+mult
+Joker,Ride the Bus,1,+mult
+Joker,Scholar,1,+mult
+Joker,Shoot the Moon,1,+mult
+Joker,Smiley Face,1,+mult
+Joker,Spare Trousers,1,+mult
+Joker,Walkie Talkie,1,+mult
+Joker,Wrathful Joker,1,+mult
+Joker,Zany Joker,1,+mult
+Joker Stencil,Loyalty Card,1,xmult
+Joker Stencil,Lucky Cat,1,xmult
+Joker Stencil,Madness,2,joker-synergy|xmult
+Joker Stencil,Obelisk,1,xmult
+Joker Stencil,Photograph,1,xmult
+Joker Stencil,Ramen,1,xmult
+Joker Stencil,Riff-raff,1,joker-synergy
+Joker Stencil,Seeing Double,1,xmult
+Joker Stencil,Showman,1,joker-synergy
+Joker Stencil,Steel Joker,2,joker-synergy|xmult
+Joker Stencil,Stone Joker,1,joker-synergy
+Joker Stencil,Swashbuckler,1,joker-synergy
+Joker Stencil,The Duo,1,xmult
+Joker Stencil,The Family,1,xmult
+Joker Stencil,The Idol,1,xmult
+Joker Stencil,The Order,1,xmult
+Joker Stencil,The Tribe,1,xmult
+Joker Stencil,The Trio,1,xmult
+Joker Stencil,Throwback,1,xmult
+Joker Stencil,Triboulet,1,xmult
+Joker Stencil,Vampire,1,xmult
+Joker Stencil,Wee Joker,1,joker-synergy
+Joker Stencil,Yorick,1,xmult
+Jolly Joker,Lusty Joker,1,+mult
+Jolly Joker,Mad Joker,1,+mult
+Jolly Joker,Mystic Summit,1,+mult
+Jolly Joker,Onyx Agate,1,+mult
+Jolly Joker,Popcorn,1,+mult
+Jolly Joker,Red Card,1,+mult
+Jolly Joker,Ride the Bus,1,+mult
+Jolly Joker,Scholar,1,+mult
+Jolly Joker,Shoot the Moon,1,+mult
+Jolly Joker,Sly Joker,1,hand:Pair
+Jolly Joker,Smiley Face,1,+mult
+Jolly Joker,Spare Trousers,2,+mult|hand:Pair
+Jolly Joker,The Duo,1,hand:Pair
+Jolly Joker,Walkie Talkie,1,+mult
+Jolly Joker,Wrathful Joker,1,+mult
+Jolly Joker,Zany Joker,1,+mult
+Juggler,Merry Andy,1,hand-size
+Juggler,Stuntman,1,hand-size
+Juggler,Troubadour,1,hand-size
+Juggler,Turtle Bean,1,hand-size
+Loyalty Card,Lucky Cat,1,xmult
+Loyalty Card,Madness,1,xmult
+Loyalty Card,Obelisk,1,xmult
+Loyalty Card,Photograph,1,xmult
+Loyalty Card,Ramen,1,xmult
+Loyalty Card,Seeing Double,1,xmult
+Loyalty Card,Steel Joker,1,xmult
+Loyalty Card,The Duo,1,xmult
+Loyalty Card,The Family,1,xmult
+Loyalty Card,The Idol,1,xmult
+Loyalty Card,The Order,1,xmult
+Loyalty Card,The Tribe,1,xmult
+Loyalty Card,The Trio,1,xmult
+Loyalty Card,Throwback,1,xmult
+Loyalty Card,Triboulet,1,xmult
+Loyalty Card,Vampire,1,xmult
+Loyalty Card,Yorick,1,xmult
+Luchador,Madness,1,blind-aware
+Luchador,Matador,1,blind-aware
+Luchador,Riff-raff,1,blind-aware
+Luchador,Rocket,1,blind-aware
+Luchador,Throwback,1,blind-aware
+Lucky Cat,Madness,1,xmult
+Lucky Cat,Marble Joker,1,enhancements
+Lucky Cat,Midas Mask,1,enhancements
+Lucky Cat,Obelisk,2,scaling|xmult
+Lucky Cat,Photograph,1,xmult
+Lucky Cat,Popcorn,1,scaling
+Lucky Cat,Ramen,2,scaling|xmult
+Lucky Cat,Red Card,1,scaling
+Lucky Cat,Ride the Bus,1,scaling
+Lucky Cat,Rocket,1,scaling
+Lucky Cat,Runner,1,scaling
+Lucky Cat,Satellite,1,scaling
+Lucky Cat,Seeing Double,1,xmult
+Lucky Cat,Spare Trousers,1,scaling
+Lucky Cat,Square Joker,1,scaling
+Lucky Cat,Steel Joker,3,enhancements|scaling|xmult
+Lucky Cat,Stone Joker,2,enhancements|scaling
+Lucky Cat,The Duo,1,xmult
+Lucky Cat,The Family,1,xmult
+Lucky Cat,The Idol,1,xmult
+Lucky Cat,The Order,1,xmult
+Lucky Cat,The Tribe,1,xmult
+Lucky Cat,The Trio,1,xmult
+Lucky Cat,Throwback,1,xmult
+Lucky Cat,Triboulet,1,xmult
+Lucky Cat,Troubadour,1,scaling
+Lucky Cat,Vampire,3,enhancements|scaling|xmult
+Lucky Cat,Wee Joker,1,scaling
+Lucky Cat,Yorick,1,xmult
+Lusty Joker,Mad Joker,1,+mult
+Lusty Joker,Mystic Summit,1,+mult
+Lusty Joker,Onyx Agate,1,+mult
+Lusty Joker,Popcorn,1,+mult
+Lusty Joker,Red Card,1,+mult
+Lusty Joker,Ride the Bus,1,+mult
+Lusty Joker,Scholar,1,+mult
+Lusty Joker,Shoot the Moon,1,+mult
+Lusty Joker,Smeared Joker,1,suit:Hearts
+Lusty Joker,Smiley Face,1,+mult
+Lusty Joker,Spare Trousers,1,+mult
+Lusty Joker,Walkie Talkie,1,+mult
+Lusty Joker,Wrathful Joker,1,+mult
+Lusty Joker,Zany Joker,1,+mult
+Mad Joker,Mystic Summit,1,+mult
+Mad Joker,Onyx Agate,1,+mult
+Mad Joker,Popcorn,1,+mult
+Mad Joker,Red Card,1,+mult
+Mad Joker,Ride the Bus,1,+mult
+Mad Joker,Scholar,1,+mult
+Mad Joker,Shoot the Moon,1,+mult
+Mad Joker,Smiley Face,1,+mult
+Mad Joker,Spare Trousers,1,+mult
+Mad Joker,The Family,1,hand:Four of a Kind
+Mad Joker,Walkie Talkie,1,+mult
+Mad Joker,Wrathful Joker,1,+mult
+Mad Joker,Zany Joker,1,+mult
+Madness,Matador,1,blind-aware
+Madness,Obelisk,1,xmult
+Madness,Photograph,1,xmult
+Madness,Ramen,1,xmult
+Madness,Riff-raff,2,blind-aware|joker-synergy
+Madness,Rocket,1,blind-aware
+Madness,Seeing Double,1,xmult
+Madness,Showman,1,joker-synergy
+Madness,Sixth Sense,1,destruction
+Madness,Steel Joker,2,joker-synergy|xmult
+Madness,Stone Joker,1,joker-synergy
+Madness,Swashbuckler,1,joker-synergy
+Madness,The Duo,1,xmult
+Madness,The Family,1,xmult
+Madness,The Idol,1,xmult
+Madness,The Order,1,xmult
+Madness,The Tribe,1,xmult
+Madness,The Trio,1,xmult
+Madness,Throwback,2,blind-aware|xmult
+Madness,Trading Card,1,destruction
+Madness,Triboulet,1,xmult
+Madness,Vampire,1,xmult
+Madness,Wee Joker,1,joker-synergy
+Madness,Yorick,1,xmult
+Mail-In Rebate,Matador,1,economy
+Mail-In Rebate,Merry Andy,1,discards
+Mail-In Rebate,Midas Mask,1,aces
+Mail-In Rebate,Mystic Summit,1,discards
+Mail-In Rebate,Pareidolia,1,aces
+Mail-In Rebate,Photograph,1,aces
+Mail-In Rebate,Ramen,1,discards
+Mail-In Rebate,Reserved Parking,2,aces|economy
+Mail-In Rebate,Ride the Bus,1,aces
+Mail-In Rebate,Rocket,1,economy
+Mail-In Rebate,Rough Gem,1,economy
+Mail-In Rebate,Satellite,1,economy
+Mail-In Rebate,Scary Face,1,aces
+Mail-In Rebate,Scholar,1,aces
+Mail-In Rebate,Smiley Face,1,aces
+Mail-In Rebate,Sock and Buskin,1,aces
+Mail-In Rebate,Superposition,1,aces
+Mail-In Rebate,Swashbuckler,1,economy
+Mail-In Rebate,To Do List,1,economy
+Mail-In Rebate,To the Moon,1,economy
+Mail-In Rebate,Trading Card,2,discards|economy
+Mail-In Rebate,Vagabond,1,economy
+Mail-In Rebate,Yorick,1,discards
+Marble Joker,Midas Mask,1,enhancements
+Marble Joker,Steel Joker,2,deck-size|enhancements
+Marble Joker,Stone Joker,2,deck-size|enhancements
+Marble Joker,Vampire,1,enhancements
+Matador,Reserved Parking,1,economy
+Matador,Riff-raff,1,blind-aware
+Matador,Rocket,2,blind-aware|economy
+Matador,Rough Gem,1,economy
+Matador,Satellite,1,economy
+Matador,Swashbuckler,1,economy
+Matador,Throwback,1,blind-aware
+Matador,To Do List,1,economy
+Matador,To the Moon,1,economy
+Matador,Trading Card,1,economy
+Matador,Vagabond,1,economy
+Merry Andy,Mystic Summit,1,discards
+Merry Andy,Ramen,1,discards
+Merry Andy,Stuntman,1,hand-size
+Merry Andy,Trading Card,1,discards
+Merry Andy,Troubadour,1,hand-size
+Merry Andy,Turtle Bean,1,hand-size
+Merry Andy,Yorick,1,discards
+Midas Mask,Pareidolia,2,aces|face-cards
+Midas Mask,Photograph,2,aces|face-cards
+Midas Mask,Reserved Parking,2,aces|face-cards
+Midas Mask,Ride the Bus,2,aces|face-cards
+Midas Mask,Scary Face,2,aces|face-cards
+Midas Mask,Scholar,1,aces
+Midas Mask,Shoot the Moon,1,face-cards
+Midas Mask,Smiley Face,2,aces|face-cards
+Midas Mask,Sock and Buskin,2,aces|face-cards
+Midas Mask,Steel Joker,1,enhancements
+Midas Mask,Stone Joker,1,enhancements
+Midas Mask,Superposition,1,aces
+Midas Mask,Triboulet,1,face-cards
+Midas Mask,Vampire,1,enhancements
+Mime,Raised Fist,1,held-in-hand
+Mime,Reserved Parking,1,held-in-hand
+Mime,Seltzer,1,retrigger
+Mime,Shoot the Moon,1,held-in-hand
+Mime,Sock and Buskin,1,retrigger
+Mystic Summit,Onyx Agate,1,+mult
+Mystic Summit,Popcorn,1,+mult
+Mystic Summit,Ramen,1,discards
+Mystic Summit,Red Card,1,+mult
+Mystic Summit,Ride the Bus,1,+mult
+Mystic Summit,Scholar,1,+mult
+Mystic Summit,Shoot the Moon,1,+mult
+Mystic Summit,Smiley Face,1,+mult
+Mystic Summit,Spare Trousers,1,+mult
+Mystic Summit,Trading Card,1,discards
+Mystic Summit,Walkie Talkie,1,+mult
+Mystic Summit,Wrathful Joker,1,+mult
+Mystic Summit,Yorick,1,discards
+Mystic Summit,Zany Joker,1,+mult
+Obelisk,Photograph,1,xmult
+Obelisk,Popcorn,1,scaling
+Obelisk,Ramen,2,scaling|xmult
+Obelisk,Red Card,1,scaling
+Obelisk,Ride the Bus,1,scaling
+Obelisk,Rocket,1,scaling
+Obelisk,Runner,1,scaling
+Obelisk,Satellite,1,scaling
+Obelisk,Seeing Double,1,xmult
+Obelisk,Spare Trousers,1,scaling
+Obelisk,Square Joker,1,scaling
+Obelisk,Steel Joker,2,scaling|xmult
+Obelisk,Stone Joker,1,scaling
+Obelisk,The Duo,1,xmult
+Obelisk,The Family,1,xmult
+Obelisk,The Idol,1,xmult
+Obelisk,The Order,1,xmult
+Obelisk,The Tribe,1,xmult
+Obelisk,The Trio,1,xmult
+Obelisk,Throwback,1,xmult
+Obelisk,Triboulet,1,xmult
+Obelisk,Troubadour,1,scaling
+Obelisk,Vampire,2,scaling|xmult
+Obelisk,Wee Joker,1,scaling
+Obelisk,Yorick,1,xmult
+Odd Todd,Runner,1,+chips
+Odd Todd,Scary Face,1,+chips
+Odd Todd,Scholar,1,+chips
+Odd Todd,Sly Joker,1,+chips
+Odd Todd,Square Joker,1,+chips
+Odd Todd,Stone Joker,1,+chips
+Odd Todd,Stuntman,1,+chips
+Odd Todd,Walkie Talkie,1,+chips
+Odd Todd,Wee Joker,1,+chips
+Odd Todd,Wily Joker,1,+chips
+Onyx Agate,Popcorn,1,+mult
+Onyx Agate,Red Card,1,+mult
+Onyx Agate,Ride the Bus,1,+mult
+Onyx Agate,Scholar,1,+mult
+Onyx Agate,Seeing Double,1,suit:Clubs
+Onyx Agate,Shoot the Moon,1,+mult
+Onyx Agate,Smeared Joker,1,suit:Clubs
+Onyx Agate,Smiley Face,1,+mult
+Onyx Agate,Spare Trousers,1,+mult
+Onyx Agate,Walkie Talkie,1,+mult
+Onyx Agate,Wrathful Joker,1,+mult
+Onyx Agate,Zany Joker,1,+mult
+Pareidolia,Photograph,2,aces|face-cards
+Pareidolia,Reserved Parking,2,aces|face-cards
+Pareidolia,Ride the Bus,2,aces|face-cards
+Pareidolia,Scary Face,2,aces|face-cards
+Pareidolia,Scholar,1,aces
+Pareidolia,Shoot the Moon,1,face-cards
+Pareidolia,Smiley Face,2,aces|face-cards
+Pareidolia,Sock and Buskin,2,aces|face-cards
+Pareidolia,Superposition,1,aces
+Pareidolia,Triboulet,1,face-cards
+Photograph,Ramen,1,xmult
+Photograph,Reserved Parking,2,aces|face-cards
+Photograph,Ride the Bus,2,aces|face-cards
+Photograph,Scary Face,2,aces|face-cards
+Photograph,Scholar,1,aces
+Photograph,Seeing Double,1,xmult
+Photograph,Shoot the Moon,1,face-cards
+Photograph,Smiley Face,2,aces|face-cards
+Photograph,Sock and Buskin,2,aces|face-cards
+Photograph,Steel Joker,1,xmult
+Photograph,Superposition,1,aces
+Photograph,The Duo,1,xmult
+Photograph,The Family,1,xmult
+Photograph,The Idol,1,xmult
+Photograph,The Order,1,xmult
+Photograph,The Tribe,1,xmult
+Photograph,The Trio,1,xmult
+Photograph,Throwback,1,xmult
+Photograph,Triboulet,2,face-cards|xmult
+Photograph,Vampire,1,xmult
+Photograph,Yorick,1,xmult
+Popcorn,Ramen,1,scaling
+Popcorn,Red Card,2,+mult|scaling
+Popcorn,Ride the Bus,2,+mult|scaling
+Popcorn,Rocket,1,scaling
+Popcorn,Runner,1,scaling
+Popcorn,Satellite,1,scaling
+Popcorn,Scholar,1,+mult
+Popcorn,Shoot the Moon,1,+mult
+Popcorn,Smiley Face,1,+mult
+Popcorn,Spare Trousers,2,+mult|scaling
+Popcorn,Square Joker,1,scaling
+Popcorn,Steel Joker,1,scaling
+Popcorn,Stone Joker,1,scaling
+Popcorn,Troubadour,1,scaling
+Popcorn,Vampire,1,scaling
+Popcorn,Walkie Talkie,1,+mult
+Popcorn,Wee Joker,1,scaling
+Popcorn,Wrathful Joker,1,+mult
+Popcorn,Zany Joker,1,+mult
+Raised Fist,Reserved Parking,1,held-in-hand
+Raised Fist,Shoot the Moon,1,held-in-hand
+Ramen,Red Card,1,scaling
+Ramen,Ride the Bus,1,scaling
+Ramen,Rocket,1,scaling
+Ramen,Runner,1,scaling
+Ramen,Satellite,1,scaling
+Ramen,Seeing Double,1,xmult
+Ramen,Spare Trousers,1,scaling
+Ramen,Square Joker,1,scaling
+Ramen,Steel Joker,2,scaling|xmult
+Ramen,Stone Joker,1,scaling
+Ramen,The Duo,1,xmult
+Ramen,The Family,1,xmult
+Ramen,The Idol,1,xmult
+Ramen,The Order,1,xmult
+Ramen,The Tribe,1,xmult
+Ramen,The Trio,1,xmult
+Ramen,Throwback,1,xmult
+Ramen,Trading Card,1,discards
+Ramen,Triboulet,1,xmult
+Ramen,Troubadour,1,scaling
+Ramen,Vampire,2,scaling|xmult
+Ramen,Wee Joker,1,scaling
+Ramen,Yorick,2,discards|xmult
+Red Card,Ride the Bus,2,+mult|scaling
+Red Card,Rocket,1,scaling
+Red Card,Runner,1,scaling
+Red Card,Satellite,1,scaling
+Red Card,Scholar,1,+mult
+Red Card,Shoot the Moon,1,+mult
+Red Card,Smiley Face,1,+mult
+Red Card,Spare Trousers,2,+mult|scaling
+Red Card,Square Joker,1,scaling
+Red Card,Steel Joker,1,scaling
+Red Card,Stone Joker,1,scaling
+Red Card,Troubadour,1,scaling
+Red Card,Vampire,1,scaling
+Red Card,Walkie Talkie,1,+mult
+Red Card,Wee Joker,1,scaling
+Red Card,Wrathful Joker,1,+mult
+Red Card,Zany Joker,1,+mult
+Reserved Parking,Ride the Bus,2,aces|face-cards
+Reserved Parking,Rocket,1,economy
+Reserved Parking,Rough Gem,1,economy
+Reserved Parking,Satellite,1,economy
+Reserved Parking,Scary Face,2,aces|face-cards
+Reserved Parking,Scholar,1,aces
+Reserved Parking,Shoot the Moon,2,face-cards|held-in-hand
+Reserved Parking,Smiley Face,2,aces|face-cards
+Reserved Parking,Sock and Buskin,2,aces|face-cards
+Reserved Parking,Space Joker,1,probability
+Reserved Parking,Superposition,1,aces
+Reserved Parking,Swashbuckler,1,economy
+Reserved Parking,To Do List,1,economy
+Reserved Parking,To the Moon,1,economy
+Reserved Parking,Trading Card,1,economy
+Reserved Parking,Triboulet,1,face-cards
+Reserved Parking,Vagabond,1,economy
+Ride the Bus,Rocket,1,scaling
+Ride the Bus,Runner,1,scaling
+Ride the Bus,Satellite,1,scaling
+Ride the Bus,Scary Face,2,aces|face-cards
+Ride the Bus,Scholar,2,+mult|aces
+Ride the Bus,Shoot the Moon,2,+mult|face-cards
+Ride the Bus,Smiley Face,3,+mult|aces|face-cards
+Ride the Bus,Sock and Buskin,2,aces|face-cards
+Ride the Bus,Spare Trousers,2,+mult|scaling
+Ride the Bus,Square Joker,1,scaling
+Ride the Bus,Steel Joker,1,scaling
+Ride the Bus,Stone Joker,1,scaling
+Ride the Bus,Superposition,1,aces
+Ride the Bus,Triboulet,1,face-cards
+Ride the Bus,Troubadour,1,scaling
+Ride the Bus,Vampire,1,scaling
+Ride the Bus,Walkie Talkie,1,+mult
+Ride the Bus,Wee Joker,1,scaling
+Ride the Bus,Wrathful Joker,1,+mult
+Ride the Bus,Zany Joker,1,+mult
+Riff-raff,Rocket,1,blind-aware
+Riff-raff,Showman,1,joker-synergy
+Riff-raff,Steel Joker,1,joker-synergy
+Riff-raff,Stone Joker,1,joker-synergy
+Riff-raff,Swashbuckler,1,joker-synergy
+Riff-raff,Throwback,1,blind-aware
+Riff-raff,Wee Joker,1,joker-synergy
+Rocket,Rough Gem,1,economy
+Rocket,Runner,1,scaling
+Rocket,Satellite,2,economy|scaling
+Rocket,Spare Trousers,1,scaling
+Rocket,Square Joker,1,scaling
+Rocket,Steel Joker,1,scaling
+Rocket,Stone Joker,1,scaling
+Rocket,Swashbuckler,1,economy
+Rocket,Throwback,1,blind-aware
+Rocket,To Do List,1,economy
+Rocket,To the Moon,1,economy
+Rocket,Trading Card,1,economy
+Rocket,Troubadour,1,scaling
+Rocket,Vagabond,1,economy
+Rocket,Vampire,1,scaling
+Rocket,Wee Joker,1,scaling
+Rough Gem,Satellite,1,economy
+Rough Gem,Smeared Joker,1,suit:Diamonds
+Rough Gem,Swashbuckler,1,economy
+Rough Gem,To Do List,1,economy
+Rough Gem,To the Moon,1,economy
+Rough Gem,Trading Card,1,economy
+Rough Gem,Vagabond,1,economy
+Runner,Satellite,1,scaling
+Runner,Scary Face,1,+chips
+Runner,Scholar,1,+chips
+Runner,Shortcut,2,hand:Straight|straights
+Runner,Sly Joker,1,+chips
+Runner,Spare Trousers,1,scaling
+Runner,Square Joker,2,+chips|scaling
+Runner,Steel Joker,1,scaling
+Runner,Stone Joker,2,+chips|scaling
+Runner,Stuntman,1,+chips
+Runner,Superposition,2,hand:Straight|straights
+Runner,Séance,1,straights
+Runner,The Order,2,hand:Straight|straights
+Runner,Troubadour,1,scaling
+Runner,Vampire,1,scaling
+Runner,Walkie Talkie,1,+chips
+Runner,Wee Joker,2,+chips|scaling
+Runner,Wily Joker,1,+chips
+Satellite,Showman,1,planet
+Satellite,Spare Trousers,1,scaling
+Satellite,Square Joker,1,scaling
+Satellite,Steel Joker,1,scaling
+Satellite,Stone Joker,1,scaling
+Satellite,Swashbuckler,1,economy
+Satellite,To Do List,1,economy
+Satellite,To the Moon,1,economy
+Satellite,Trading Card,1,economy
+Satellite,Troubadour,1,scaling
+Satellite,Vagabond,1,economy
+Satellite,Vampire,1,scaling
+Satellite,Wee Joker,1,scaling
+Scary Face,Scholar,2,+chips|aces
+Scary Face,Shoot the Moon,1,face-cards
+Scary Face,Sly Joker,1,+chips
+Scary Face,Smiley Face,2,aces|face-cards
+Scary Face,Sock and Buskin,2,aces|face-cards
+Scary Face,Square Joker,1,+chips
+Scary Face,Stone Joker,1,+chips
+Scary Face,Stuntman,1,+chips
+Scary Face,Superposition,1,aces
+Scary Face,Triboulet,1,face-cards
+Scary Face,Walkie Talkie,1,+chips
+Scary Face,Wee Joker,1,+chips
+Scary Face,Wily Joker,1,+chips
+Scholar,Shoot the Moon,1,+mult
+Scholar,Sly Joker,1,+chips
+Scholar,Smiley Face,2,+mult|aces
+Scholar,Sock and Buskin,1,aces
+Scholar,Spare Trousers,1,+mult
+Scholar,Square Joker,1,+chips
+Scholar,Stone Joker,1,+chips
+Scholar,Stuntman,1,+chips
+Scholar,Superposition,1,aces
+Scholar,Walkie Talkie,2,+chips|+mult
+Scholar,Wee Joker,1,+chips
+Scholar,Wily Joker,1,+chips
+Scholar,Wrathful Joker,1,+mult
+Scholar,Zany Joker,1,+mult
+Seeing Double,Smeared Joker,1,suit:Clubs
+Seeing Double,Steel Joker,1,xmult
+Seeing Double,The Duo,1,xmult
+Seeing Double,The Family,1,xmult
+Seeing Double,The Idol,1,xmult
+Seeing Double,The Order,1,xmult
+Seeing Double,The Tribe,1,xmult
+Seeing Double,The Trio,1,xmult
+Seeing Double,Throwback,1,xmult
+Seeing Double,Triboulet,1,xmult
+Seeing Double,Vampire,1,xmult
+Seeing Double,Yorick,1,xmult
+Seltzer,Sock and Buskin,1,retrigger
+Shoot the Moon,Smiley Face,2,+mult|face-cards
+Shoot the Moon,Sock and Buskin,1,face-cards
+Shoot the Moon,Spare Trousers,1,+mult
+Shoot the Moon,Triboulet,1,face-cards
+Shoot the Moon,Walkie Talkie,1,+mult
+Shoot the Moon,Wrathful Joker,1,+mult
+Shoot the Moon,Zany Joker,1,+mult
+Shortcut,Superposition,2,hand:Straight|straights
+Shortcut,Séance,1,straights
+Shortcut,The Order,2,hand:Straight|straights
+Showman,Sixth Sense,1,spectral
+Showman,Steel Joker,1,joker-synergy
+Showman,Stone Joker,1,joker-synergy
+Showman,Superposition,1,tarot
+Showman,Swashbuckler,1,joker-synergy
+Showman,Séance,1,spectral
+Showman,Vagabond,1,tarot
+Showman,Wee Joker,1,joker-synergy
+Sixth Sense,Séance,1,spectral
+Sixth Sense,Trading Card,1,destruction
+Sly Joker,Spare Trousers,1,hand:Pair
+Sly Joker,Square Joker,1,+chips
+Sly Joker,Stone Joker,1,+chips
+Sly Joker,Stuntman,1,+chips
+Sly Joker,The Duo,1,hand:Pair
+Sly Joker,Walkie Talkie,1,+chips
+Sly Joker,Wee Joker,1,+chips
+Sly Joker,Wily Joker,1,+chips
+Smeared Joker,Wrathful Joker,1,suit:Spades
+Smiley Face,Sock and Buskin,2,aces|face-cards
+Smiley Face,Spare Trousers,1,+mult
+Smiley Face,Superposition,1,aces
+Smiley Face,Triboulet,1,face-cards
+Smiley Face,Walkie Talkie,1,+mult
+Smiley Face,Wrathful Joker,1,+mult
+Smiley Face,Zany Joker,1,+mult
+Sock and Buskin,Superposition,1,aces
+Sock and Buskin,Triboulet,1,face-cards
+Spare Trousers,Square Joker,1,scaling
+Spare Trousers,Steel Joker,1,scaling
+Spare Trousers,Stone Joker,1,scaling
+Spare Trousers,The Duo,1,hand:Pair
+Spare Trousers,Troubadour,1,scaling
+Spare Trousers,Vampire,1,scaling
+Spare Trousers,Walkie Talkie,1,+mult
+Spare Trousers,Wee Joker,1,scaling
+Spare Trousers,Wrathful Joker,1,+mult
+Spare Trousers,Zany Joker,1,+mult
+Square Joker,Steel Joker,1,scaling
+Square Joker,Stone Joker,2,+chips|scaling
+Square Joker,Stuntman,1,+chips
+Square Joker,Troubadour,1,scaling
+Square Joker,Vampire,1,scaling
+Square Joker,Walkie Talkie,1,+chips
+Square Joker,Wee Joker,2,+chips|scaling
+Square Joker,Wily Joker,1,+chips
+Steel Joker,Stone Joker,4,deck-size|enhancements|joker-synergy|scaling
+Steel Joker,Swashbuckler,1,joker-synergy
+Steel Joker,The Duo,1,xmult
+Steel Joker,The Family,1,xmult
+Steel Joker,The Idol,1,xmult
+Steel Joker,The Order,1,xmult
+Steel Joker,The Tribe,1,xmult
+Steel Joker,The Trio,1,xmult
+Steel Joker,Throwback,1,xmult
+Steel Joker,Triboulet,1,xmult
+Steel Joker,Troubadour,1,scaling
+Steel Joker,Vampire,3,enhancements|scaling|xmult
+Steel Joker,Wee Joker,2,joker-synergy|scaling
+Steel Joker,Yorick,1,xmult
+Stone Joker,Stuntman,1,+chips
+Stone Joker,Swashbuckler,1,joker-synergy
+Stone Joker,Troubadour,1,scaling
+Stone Joker,Vampire,2,enhancements|scaling
+Stone Joker,Walkie Talkie,1,+chips
+Stone Joker,Wee Joker,3,+chips|joker-synergy|scaling
+Stone Joker,Wily Joker,1,+chips
+Stuntman,Troubadour,1,hand-size
+Stuntman,Turtle Bean,1,hand-size
+Stuntman,Walkie Talkie,1,+chips
+Stuntman,Wee Joker,1,+chips
+Stuntman,Wily Joker,1,+chips
+Superposition,Séance,1,straights
+Superposition,The Order,2,hand:Straight|straights
+Superposition,Vagabond,1,tarot
+Swashbuckler,To Do List,1,economy
+Swashbuckler,To the Moon,1,economy
+Swashbuckler,Trading Card,1,economy
+Swashbuckler,Vagabond,1,economy
+Swashbuckler,Wee Joker,1,joker-synergy
+Séance,The Order,1,straights
+The Duo,The Family,1,xmult
+The Duo,The Idol,1,xmult
+The Duo,The Order,1,xmult
+The Duo,The Tribe,1,xmult
+The Duo,The Trio,1,xmult
+The Duo,Throwback,1,xmult
+The Duo,Triboulet,1,xmult
+The Duo,Vampire,1,xmult
+The Duo,Yorick,1,xmult
+The Family,The Idol,1,xmult
+The Family,The Order,1,xmult
+The Family,The Tribe,1,xmult
+The Family,The Trio,1,xmult
+The Family,Throwback,1,xmult
+The Family,Triboulet,1,xmult
+The Family,Vampire,1,xmult
+The Family,Yorick,1,xmult
+The Idol,The Order,1,xmult
+The Idol,The Tribe,1,xmult
+The Idol,The Trio,1,xmult
+The Idol,Throwback,1,xmult
+The Idol,Triboulet,1,xmult
+The Idol,Vampire,1,xmult
+The Idol,Yorick,1,xmult
+The Order,The Tribe,1,xmult
+The Order,The Trio,1,xmult
+The Order,Throwback,1,xmult
+The Order,Triboulet,1,xmult
+The Order,Vampire,1,xmult
+The Order,Yorick,1,xmult
+The Tribe,The Trio,1,xmult
+The Tribe,Throwback,1,xmult
+The Tribe,Triboulet,1,xmult
+The Tribe,Vampire,1,xmult
+The Tribe,Yorick,1,xmult
+The Trio,Throwback,1,xmult
+The Trio,Triboulet,1,xmult
+The Trio,Vampire,1,xmult
+The Trio,Wily Joker,1,hand:Three of a Kind
+The Trio,Yorick,1,xmult
+The Trio,Zany Joker,1,hand:Three of a Kind
+Throwback,Triboulet,1,xmult
+Throwback,Vampire,1,xmult
+Throwback,Yorick,1,xmult
+To Do List,To the Moon,1,economy
+To Do List,Trading Card,1,economy
+To Do List,Vagabond,1,economy
+To the Moon,Trading Card,1,economy
+To the Moon,Vagabond,1,economy
+Trading Card,Vagabond,1,economy
+Trading Card,Yorick,1,discards
+Triboulet,Vampire,1,xmult
+Triboulet,Yorick,1,xmult
+Troubadour,Turtle Bean,1,hand-size
+Troubadour,Vampire,1,scaling
+Troubadour,Wee Joker,1,scaling
+Vampire,Wee Joker,1,scaling
+Vampire,Yorick,1,xmult
+Walkie Talkie,Wee Joker,1,+chips
+Walkie Talkie,Wily Joker,1,+chips
+Walkie Talkie,Wrathful Joker,1,+mult
+Walkie Talkie,Zany Joker,1,+mult
+Wee Joker,Wily Joker,1,+chips
+Wily Joker,Zany Joker,1,hand:Three of a Kind
+Wrathful Joker,Zany Joker,1,+mult
