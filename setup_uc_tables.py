@@ -27,7 +27,8 @@ here = os.path.dirname(os.path.abspath(dbutils.notebook.entry_point.getDbutils()
     if False else "."  # notebook cwd is the notebook's folder on serverless
 data_dir = os.path.join(here, "data")
 
-tables = ["jokers", "hands", "planets", "tarots", "spectrals", "vouchers", "decks", "tags"]
+tables = ["jokers", "hands", "planets", "tarots", "spectrals", "vouchers", "decks", "tags",
+          "joker_benchmarks", "synergy_edges"]
 for t in tables:
     pdf = pd.read_csv(os.path.join(data_dir, f"{t}.csv"))
     sdf = spark.createDataFrame(pdf)

@@ -35,18 +35,29 @@ DIAG: dict[str, str] = {}
 
 def _load_tables() -> None:
     for name in ["jokers", "hands", "planets", "tarots", "spectrals",
-                 "vouchers", "decks", "tags"]:
-        TABLES[name] = pd.read_csv(os.path.join(DATA_DIR, f"{name}.csv"))
+                 "vouchers", "decks", "tags", "joker_benchmarks"]:
+        path = os.path.join(DATA_DIR, f"{name}.csv")
+        if os.path.exists(path):
+            TABLES[name] = pd.read_csv(path)
 
 
 def _joker_records() -> list[dict]:
     df = TABLES["jokers"].fillna("")
     recs = df.to_dict(orient="records")
+    bench = {}
+    if "joker_benchmarks" in TABLES:
+        bench = {b["name"]: b for b in
+                 TABLES["joker_benchmarks"].fillna("").to_dict(orient="records")}
     for r in recs:
         spec = JSPEC.get(r["name"], {})
         r["kind"] = spec.get("kind", "")
         r["stat"] = spec.get("stat", "")
         r["supported"] = r["name"] in SUPPORTED
+        b = bench.get(r["name"])
+        if b:
+            r["flush_lift"] = b["flush_lift"]
+            r["pair_lift"] = b["pair_lift"]
+            r["best_context"] = b["best_context"]
     return recs
 
 
