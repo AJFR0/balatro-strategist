@@ -525,6 +525,7 @@ function tile(j,sim){const cost=j.cost!==""&&j.cost!=null&&!isNaN(+j.cost)?"$"+M
     <div style="margin-top:7px"><span class="pill rar" style="background:${RAR[j.rarity]}">${j.rarity}</span>
       <span class="pill arch">${esc(j.archetype||"")}</span>
       ${tags.map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</div>
+    ${benchLine(j)?`<div style="margin-top:6px;font-size:11.5px;color:var(--chip)">${benchLine(j)}</div>`:""}
     ${j.strategy?`<details><summary>Strategy</summary>
       <div class="strat">${esc(j.strategy)}</div>
       ${j.test_idea?`<div class="test">🧪 ${esc(j.test_idea)}</div>`:""}</details>`:""}</div>`}
@@ -596,18 +597,26 @@ async function renderWeb(center){try{
   catch(e){toast(e.message)}}
 
 /* hover stat-cards for the synergy web */
+function benchLine(j){
+  if(j.flush_lift==null||j.flush_lift===""||!j.supported)return "";
+  const fl=+j.flush_lift,pl=+j.pair_lift;
+  if(fl===1&&pl===1)return `📊 solo-neutral — its value comes from the rest of your lineup`;
+  const star=c=>j.best_context===c?"★":"";
+  return `📊 engine benchmark: flush ×${fl.toFixed(2)}${star("flush")} · pair ×${pl.toFixed(2)}${star("pair")} <span style="color:var(--fade)">(vs jokerless hand, lvl 1)</span>`}
 function tipHTML(name,shared){const j=S.byName[name];if(!j)return "";
   const col=varColor(j.rarity);
   const cost=j.cost!==""&&j.cost!=null&&!isNaN(+j.cost)?"$"+Math.round(+j.cost):"";
   const pills=[j.archetype?`<span class="pill">${esc(j.archetype)}</span>`:"",
     j.scaling&&j.scaling!=="no"?`<span class="pill">scaling: ${esc(j.scaling)}</span>`:"",
     j.supported?`<span class="pill">⚙️ engine-exact</span>`:""].join("");
+  const bench=benchLine(j);
   const sh=(shared||[]).filter(Boolean);
   return `<div><span class="jt-h" style="color:${col}">${esc(j.name)}</span>
     <span class="jt-r" style="color:${col}">${esc(j.rarity).toUpperCase()}</span>
     ${cost?`<span class="jt-c">${cost}</span>`:""}</div>
     <div class="jt-eff">${esc(j.effect)}</div>
     <div style="margin-top:5px">${pills}</div>
+    ${bench?`<div style="margin-top:5px;font-size:12px;color:var(--chip)">${bench}</div>`:""}
     ${sh.length?`<div style="margin-top:5px"><span style="color:var(--fade);font-size:11px">shared with center:</span> ${sh.map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</div>`:""}
     ${j.strategy?`<div class="jt-strat">🧠 ${esc(String(j.strategy).length>200?String(j.strategy).slice(0,200)+"…":j.strategy)}</div>`:""}`}
 function tipMove(e){const t=$("#jtip");if(t.hidden)return;
