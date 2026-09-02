@@ -19,7 +19,8 @@ from pydantic import BaseModel
 
 import db
 from engine import (J as JSPEC, HAND_BASE, NAME_RANKS, SUPPORTED,
-                    JokerState, Rules, best_plays, parse_cards)
+                    JokerState, Rules, best_plays, best_discards, parse_cards,
+                    score_hand)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(HERE, "data")
@@ -90,6 +91,33 @@ def _lakebase_ok() -> bool:
 @app.get("/")
 def index() -> FileResponse:
     return FileResponse(os.path.join(HERE, "static", "index.html"))
+
+
+# --- PWA assets -----------------------------------------------------------
+@app.get("/manifest.json")
+def manifest() -> FileResponse:
+    return FileResponse(os.path.join(HERE, "static", "manifest.json"),
+                        media_type="application/manifest+json")
+
+
+@app.get("/sw.js")
+def service_worker() -> FileResponse:
+    return FileResponse(os.path.join(HERE, "static", "sw.js"),
+                        media_type="application/javascript",
+                        headers={"Cache-Control": "no-cache"})
+
+
+@app.get("/icon-192.png")
+@app.get("/apple-touch-icon.png")
+def icon_192() -> FileResponse:
+    return FileResponse(os.path.join(HERE, "static", "icon-192.png"),
+                        media_type="image/png")
+
+
+@app.get("/icon-512.png")
+def icon_512() -> FileResponse:
+    return FileResponse(os.path.join(HERE, "static", "icon-512.png"),
+                        media_type="image/png")
 
 
 # ---------------------------------------------------------------------------
@@ -191,6 +219,32 @@ def optimize(req: OptimizeReq) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Discard advisor  (seeded Monte Carlo over the unseen deck)
+# ---------------------------------------------------------------------------
+class DiscardReq(BaseModel):
+    hand: str
+    lineup: list[LineupItem] = []
+    levels: dict[str, int] = {}
+    optimist: bool = False
+    max_discard: int = 5
+
+
+@app.post("/api/discard")
+def discard(req: DiscardReq) -> dict:
+    try:
+        cards = parse_cards(req.hand)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    if not 2 <= len(cards) <= 12:
+        raise HTTPException(400, "Give me 2-12 cards to advise on discards.")
+    jokers = [JokerState(_canon_joker(i.name), i.value,
+                         _canon_edition(i.edition)) for i in req.lineup]
+    r = best_discards(cards, jokers, req.levels, Rules(optimist=req.optimist),
+                      max_discard=max(1, min(5, req.max_discard)), top_n=5)
+    return r
+
+
+# ---------------------------------------------------------------------------
 # Search
 # ---------------------------------------------------------------------------
 class SearchReq(BaseModel):
@@ -285,7 +339,7 @@ def log_run(req: RunReq) -> dict:
 
 
 @app.delete("/api/runs/{run_id}")
-def del_run(run_id: int) -> dict:
+def del_run(run_id: str) -> dict:
     if not _lakebase_ok():
         raise HTTPException(503, "Lakebase unavailable")
     db.delete_run(run_id)
@@ -303,9 +357,112 @@ class ChatReq(BaseModel):
     discards_left: int = 2
     shop: str = ""
     lineup: list[LineupItem] = []
+    levels: dict[str, int] = {}
     last_plays: list[dict] = []
     hand_text: str = ""
     blind_req: int = 0
+
+
+# --- agentic coach: the model can call the deterministic engine -----------
+_COACH_TOOLS = [
+    {"type": "function", "function": {
+        "name": "best_plays",
+        "description": "Run the deterministic scoring engine over every legal "
+                       "play from a hand (with the player's current joker "
+                       "lineup and hand levels) and return the top plays.",
+        "parameters": {"type": "object", "properties": {
+            "hand": {"type": "string",
+                     "description": "cards like 'AH KH 9H 5H 2C AS 3C 7D'"}},
+            "required": ["hand"]}}},
+    {"type": "function", "function": {
+        "name": "score_play",
+        "description": "Score exactly these played cards (1-5) with the "
+                       "player's current lineup and levels. Use to test a "
+                       "specific line or compare two plays.",
+        "parameters": {"type": "object", "properties": {
+            "cards": {"type": "string",
+                      "description": "the exact cards to play, e.g. 'AH AS'"}},
+            "required": ["cards"]}}},
+    {"type": "function", "function": {
+        "name": "discard_advisor",
+        "description": "Seeded Monte-Carlo discard analysis: expected "
+                       "best-play score after redrawing, for the best discard "
+                       "choices from this hand.",
+        "parameters": {"type": "object", "properties": {
+            "hand": {"type": "string", "description": "the full held hand"},
+            "max_discard": {"type": "integer", "minimum": 1, "maximum": 5}},
+            "required": ["hand"]}}},
+]
+
+
+def _coach_tool_exec(name: str, args: dict, req: "ChatReq") -> dict:
+    jokers = [JokerState(_canon_joker(i.name), i.value,
+                         _canon_edition(i.edition)) for i in req.lineup]
+    levels = req.levels or {}
+    if name == "best_plays":
+        cards = parse_cards(str(args.get("hand", "")))
+        plays = best_plays(cards, jokers, levels, top_n=3)
+        out = [{"hand": p["result"].hand,
+                "played": [c.label() for c in p["played"]],
+                "total": p["result"].total,
+                "chips": p["result"].chips, "mult": p["result"].mult}
+               for p in plays]
+        if plays:
+            out[0]["steps"] = plays[0]["result"].steps[:14]
+        return {"plays": out}
+    if name == "score_play":
+        cards = parse_cards(str(args.get("cards", "")))
+        r = score_hand(cards, [], jokers, levels)
+        return {"hand": r.hand, "total": r.total, "chips": r.chips,
+                "mult": r.mult, "steps": r.steps[:14]}
+    if name == "discard_advisor":
+        cards = parse_cards(str(args.get("hand", "")))
+        md = max(1, min(5, int(args.get("max_discard", 5) or 5)))
+        r = best_discards(cards, jokers, levels, max_discard=md, top_n=3,
+                          stage1_samples=4, stage2_samples=40)
+        return {"stand_pat": r["stand_pat"],
+                "options": [{"discard": o["discard"], "ev": round(o["ev"], 1),
+                             "ci95": round(o["ci95"], 1),
+                             "delta": round(o["delta"], 1)}
+                            for o in r["options"]],
+                "note": r["assumption"]}
+    raise ValueError(f"unknown tool {name}")
+
+
+_TOOL_NOTE = ("\n\n## Tools\nYou can call the deterministic engine directly: "
+              "best_plays(hand), score_play(cards), discard_advisor(hand). "
+              "Use them to verify any line you recommend instead of guessing "
+              "numbers; then answer with the results.")
+
+
+def _agentic_chat(prompt: str, req: "ChatReq"):
+    msgs = [{"role": "user", "content": prompt + _TOOL_NOTE}]
+    trace: list[dict] = []
+    for _ in range(3):
+        m = db.chat_with_tools(msgs, _COACH_TOOLS)
+        calls = m.get("tool_calls") or []
+        if not calls:
+            return (m.get("content") or "").strip(), trace
+        msgs.append({"role": "assistant", "content": m.get("content") or "",
+                     "tool_calls": calls})
+        for tc in calls[:4]:
+            fn = tc.get("function", {}) or {}
+            name = fn.get("name", "")
+            try:
+                targs = json.loads(fn.get("arguments") or "{}")
+            except Exception:
+                targs = {}
+            try:
+                result = _coach_tool_exec(name, targs, req)
+            except Exception as e:
+                result = {"error": str(e)[:200]}
+            trace.append({"tool": name, "args": targs, "result": result})
+            msgs.append({"role": "tool", "tool_call_id": tc.get("id", ""),
+                         "content": json.dumps(result)[:4000]})
+    msgs.append({"role": "user",
+                 "content": "No more tool calls — answer now with what you have."})
+    m = db.chat_with_tools(msgs, [])
+    return (m.get("content") or "").strip(), trace
 
 
 @app.post("/api/chat")
@@ -366,6 +523,14 @@ def chat(req: ChatReq, request: Request) -> dict:
             pass
     lines.append(f"\n## Question\n{req.question}")
     prompt = "\n".join(lines)
+    if db.ai_ok():
+        try:
+            answer, trace = _agentic_chat(prompt, req)
+            if answer:
+                return {"ok": True, "answer": answer, "prompt": prompt,
+                        "tool_trace": trace}
+        except Exception:
+            pass                    # endpoint may not support tools — fall back
     try:
         answer = db.chat(prompt)
         return {"ok": True, "answer": answer, "prompt": prompt}

@@ -656,3 +656,119 @@ def best_plays(hand_cards: list[Card], jokers: list[JokerState],
             results.append({"played": played, "held": held, "result": res})
     results.sort(key=lambda x: x["result"].total, reverse=True)
     return results[:top_n]
+
+
+# ---------------------------------------------------------------------------
+# Discard advisor — seeded Monte Carlo expected value over the unseen deck
+# ---------------------------------------------------------------------------
+# Assumptions (stated in the UI): draws come from a standard 52-card deck
+# minus the cards you can see; replacement cards arrive plain (no enhancements);
+# EV is of the best 5-card play from the resulting hand at current levels.
+
+def full_deck_minus(known: list[Card]) -> list[Card]:
+    """A fresh 52-card deck with one copy removed per known card."""
+    deck = [Card(r, s) for s in "HDSC" for r in range(2, 15)]
+    for k in known:
+        for i, c in enumerate(deck):
+            if c.rank == k.rank and c.suit == k.suit:
+                deck.pop(i)
+                break
+    return deck
+
+
+def best_five_total(hand_cards: list[Card], jokers: list[JokerState],
+                    levels: dict[str, int] | None, rules: Rules | None,
+                    extra: dict | None) -> int:
+    """Best total among 5-card plays (all plays when the hand is small)."""
+    n = len(hand_cards)
+    best = 0
+    sizes = (min(5, n),) if n >= 5 else tuple(range(1, n + 1))
+    for k in sizes:
+        for combo in combinations(range(n), k):
+            played = [hand_cards[i] for i in combo]
+            held = [hand_cards[i] for i in range(n) if i not in combo]
+            t = score_hand(played, held, jokers, levels, rules, extra).total
+            if t > best:
+                best = t
+    return best
+
+
+def _sampled_best_total(hand_cards, jokers, levels, rules, extra, rng, tries=20):
+    """Cheap noisy estimate: best of `tries` random 5-card plays."""
+    n = len(hand_cards)
+    if n <= 5:
+        return best_five_total(hand_cards, jokers, levels, rules, extra)
+    idx = list(range(n))
+    best = 0
+    for _ in range(tries):
+        rng.shuffle(idx)
+        played = [hand_cards[i] for i in idx[:5]]
+        held = [hand_cards[i] for i in idx[5:]]
+        t = score_hand(played, held, jokers, levels, rules, extra).total
+        if t > best:
+            best = t
+    return best
+
+
+def best_discards(hand_cards: list[Card], jokers: list[JokerState],
+                  levels: dict[str, int] | None = None,
+                  rules: Rules | None = None, extra: dict | None = None,
+                  max_discard: int = 5, top_n: int = 5,
+                  stage1_samples: int = 8, stage2_samples: int = 100,
+                  seed: int = 1972) -> dict:
+    """Rank discard options by Monte Carlo EV of the best 5-card play.
+
+    Two stages: a cheap noisy pass over every discard pattern picks the
+    finalists; a heavier pass with full best-5 evaluation and a fresh seed
+    produces the reported EV ± 95% CI. Deterministic for a given seed.
+    """
+    import random
+    import statistics
+
+    n = len(hand_cards)
+    max_discard = max(1, min(max_discard, n - 1))
+    deck = full_deck_minus(hand_cards)
+    stand_pat = best_five_total(hand_cards, jokers, levels, rules, extra)
+
+    patterns = []
+    for k in range(1, max_discard + 1):
+        patterns.extend(combinations(range(n), k))
+
+    # ---- stage 1: noisy filter over all patterns -------------------------
+    rng = random.Random(seed)
+    coarse = []
+    for pat in patterns:
+        kept = [hand_cards[i] for i in range(n) if i not in pat]
+        tot = 0.0
+        for _ in range(stage1_samples):
+            draw = rng.sample(deck, len(pat))
+            tot += _sampled_best_total(kept + draw, jokers, levels, rules,
+                                       extra, rng, tries=16)
+        coarse.append((tot / stage1_samples, pat))
+    coarse.sort(key=lambda x: -x[0])
+    finalists = [pat for _, pat in coarse[:max(top_n + 3, 8)]]
+
+    # ---- stage 2: proper EV on the finalists -----------------------------
+    out = []
+    for pat in finalists:
+        kept = [hand_cards[i] for i in range(n) if i not in pat]
+        rng2 = random.Random((seed, pat).__hash__() & 0x7FFFFFFF)
+        totals = []
+        for _ in range(stage2_samples):
+            draw = rng2.sample(deck, len(pat))
+            totals.append(best_five_total(kept + draw, jokers, levels,
+                                          rules, extra))
+        ev = statistics.fmean(totals)
+        sd = statistics.pstdev(totals)
+        ci = 1.96 * sd / (stage2_samples ** 0.5)
+        out.append({
+            "discard": [hand_cards[i].label() for i in pat],
+            "keep": [c.label() for c in kept],
+            "ev": round(ev, 1), "ci95": round(ci, 1),
+            "n": stage2_samples, "delta": round(ev - stand_pat, 1),
+        })
+    out.sort(key=lambda x: -x["ev"])
+    return {"stand_pat": stand_pat, "options": out[:top_n],
+            "assumption": "draws from a fresh 52-card deck minus your visible "
+                          "cards; replacements arrive plain; EV of best "
+                          "5-card play at current levels"}

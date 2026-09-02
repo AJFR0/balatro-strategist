@@ -185,8 +185,63 @@ def init_schema() -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Run log  (Lakebase Postgres normally; local SQLite in demo mode)
+# Run log  (Lakebase Postgres normally; DynamoDB on Lambda; SQLite fallback)
 # ---------------------------------------------------------------------------
+RUNS_TABLE = os.environ.get("RUNS_TABLE", "balatro-runs")
+_ddb_state: dict = {"table": None, "ok": None}
+
+
+def _dynamo():
+    """DynamoDB table handle, or None when unavailable. Auto-detected on
+    Lambda (boto3 is built in there); never used outside demo mode."""
+    if _ddb_state["ok"] is False:
+        return None
+    if _ddb_state["table"] is None:
+        try:
+            import boto3
+            t = boto3.resource("dynamodb").Table(RUNS_TABLE)
+            t.load()                       # raises if missing/unauthorized
+            _ddb_state["table"] = t
+            _ddb_state["ok"] = True
+        except Exception:
+            _ddb_state["ok"] = False
+            return None
+    return _ddb_state["table"]
+
+
+def _use_dynamo() -> bool:
+    return DEMO and bool(os.environ.get("AWS_LAMBDA_FUNCTION_NAME")) \
+        and _dynamo() is not None
+
+
+def _ddb_save(ante, deck, stake, lineup, best_hand, best_score, outcome, notes):
+    import datetime
+    import uuid as _uuid
+    now = datetime.datetime.now(datetime.timezone.utc)
+    _dynamo().put_item(Item={
+        "pk": "runs",
+        "id": now.strftime("%Y%m%dT%H%M%S") + "-" + _uuid.uuid4().hex[:6],
+        "ts": now.isoformat(timespec="seconds"),
+        "ante": int(ante or 0), "deck": deck or "", "stake": stake or "",
+        "lineup": json.dumps(lineup or []),
+        "best_hand": best_hand or "", "best_score": int(best_score or 0),
+        "outcome": outcome or "", "notes": notes or ""})
+
+
+def _ddb_list(limit=100):
+    r = _dynamo().query(KeyConditionExpression="pk = :p",
+                        ExpressionAttributeValues={":p": "runs"},
+                        ScanIndexForward=False, Limit=limit)
+    out = []
+    for it in r.get("Items", []):
+        out.append({"id": it["id"], "ts": it.get("ts", ""),
+                    "ante": int(it.get("ante", 0)), "deck": it.get("deck", ""),
+                    "stake": it.get("stake", ""), "lineup": it.get("lineup", "[]"),
+                    "best_hand": it.get("best_hand", ""),
+                    "best_score": int(it.get("best_score", 0)),
+                    "outcome": it.get("outcome", ""), "notes": it.get("notes", "")})
+    return out
+
 
 def _sqlite():
     import sqlite3
@@ -201,6 +256,13 @@ def _sqlite():
 
 def save_run(ante, deck, stake, lineup, best_hand, best_score, outcome, notes) -> bool:
     if DEMO:
+        if _use_dynamo():
+            try:
+                _ddb_save(ante, deck, stake, lineup, best_hand, best_score,
+                          outcome, notes)
+                return True
+            except Exception:
+                _ddb_state["ok"] = False        # fall through to SQLite
         with _sqlite() as c:
             c.execute("""INSERT INTO runs (ante, deck, stake, lineup, best_hand,
                                            best_score, outcome, notes)
@@ -219,6 +281,11 @@ def list_runs(limit: int = 100):
     cols = ["id", "ts", "ante", "deck", "stake", "lineup", "best_hand",
             "best_score", "outcome", "notes"]
     if DEMO:
+        if _use_dynamo():
+            try:
+                return _ddb_list(limit)
+            except Exception:
+                _ddb_state["ok"] = False
         with _sqlite() as c:
             rows = c.execute("""SELECT id, ts, ante, deck, stake, lineup, best_hand,
                                        best_score, outcome, notes
@@ -234,6 +301,20 @@ def list_runs(limit: int = 100):
 
 def run_stats():
     if DEMO:
+        if _use_dynamo():
+            try:
+                agg: dict = {}
+                for r in _ddb_list(1000):
+                    o = r["outcome"] or ""
+                    a = agg.setdefault(o, {"count": 0, "_ante": 0, "top_score": 0})
+                    a["count"] += 1
+                    a["_ante"] += r["ante"]
+                    a["top_score"] = max(a["top_score"], r["best_score"])
+                return {o: {"count": a["count"],
+                            "avg_ante": a["_ante"] / a["count"] if a["count"] else 0.0,
+                            "top_score": a["top_score"]} for o, a in agg.items()}
+            except Exception:
+                _ddb_state["ok"] = False
         with _sqlite() as c:
             rows = c.execute("""SELECT outcome, count(*), coalesce(avg(ante),0),
                                        coalesce(max(best_score),0)
@@ -247,8 +328,14 @@ def run_stats():
             for r in rows}
 
 
-def delete_run(run_id: int):
+def delete_run(run_id):
     if DEMO:
+        if _use_dynamo():
+            try:
+                _dynamo().delete_item(Key={"pk": "runs", "id": str(run_id)})
+                return
+            except Exception:
+                _ddb_state["ok"] = False
         with _sqlite() as c:
             c.execute("DELETE FROM runs WHERE id = ?", (run_id,))
         return
@@ -402,6 +489,23 @@ def chat(prompt: str, max_tokens: int = 900, temperature: float = 0.4) -> str:
         messages=[ChatMessage(role=ChatMessageRole.USER, content=prompt)],
         max_tokens=max_tokens, temperature=temperature)
     return resp.choices[0].message.content
+
+
+def chat_with_tools(messages: list[dict], tools: list[dict],
+                    max_tokens: int = 900, temperature: float = 0.3) -> dict:
+    """One OpenAI-style chat turn with function tools. Returns the raw
+    assistant message dict ({"role","content","tool_calls":[...]})."""
+    if not ai_ok():
+        raise RuntimeError("demo mode — the AI coach runs on the Databricks deployment")
+    w = _workspace_client()
+    body = {"messages": messages, "max_tokens": max_tokens,
+            "temperature": temperature}
+    if tools:
+        body["tools"] = tools
+        body["tool_choice"] = "auto"
+    resp = w.api_client.do(
+        "POST", f"/serving-endpoints/{CHAT_ENDPOINT}/invocations", body=body)
+    return resp["choices"][0]["message"]
 
 
 # ---------------------------------------------------------------------------
