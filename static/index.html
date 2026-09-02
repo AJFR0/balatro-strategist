@@ -100,6 +100,16 @@ label.f{display:block;color:var(--fade);font-size:11px;text-transform:uppercase;
 .mcard.enh::after{content:attr(data-enh);position:absolute;bottom:1px;left:3px;font-size:8px;
   font-weight:800;color:#333;letter-spacing:.3px}
 .mcard.ed-foil{border-color:#7fd4ff}.mcard.ed-holo{border-color:#ff8ae0}.mcard.ed-polychrome{border-color:#ffd54a}
+.jtip{position:fixed;z-index:95;max-width:350px;background:rgba(10,32,24,.97);
+  border:1.5px solid var(--rar,#4fa8ff);border-radius:13px;padding:12px 14px;
+  pointer-events:none;box-shadow:0 10px 32px rgba(0,0,0,.55);font-size:13px;line-height:1.45}
+.jtip .jt-h{font-size:15.5px;font-weight:800}
+.jtip .jt-r{font-size:11px;font-weight:700;margin-left:6px;letter-spacing:.4px}
+.jtip .jt-c{color:var(--gold);font-weight:800;float:right}
+.jtip .jt-eff{margin-top:5px;color:#f5f1e6}
+.jtip .jt-strat{margin-top:7px;color:#cfe8d8;font-size:12px;border-top:1px solid rgba(255,255,255,.1);padding-top:6px}
+.jtip .pill{font-size:10.5px;padding:1px 8px}
+.jnode{cursor:pointer}.jnode:hover rect{filter:brightness(1.25)}
 .mcard .seal{position:absolute;top:2px;right:3px;width:8px;height:8px;border-radius:50%}
 .suit-H{color:#d6342c}.suit-D{color:#e07f16}.suit-S{color:#3b4a8f}.suit-C{color:#1e6e4e}
 .picker .suits{display:flex;gap:8px;margin-bottom:8px}
@@ -332,12 +342,19 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
     <details style="margin-top:10px"><summary style="cursor:pointer;color:var(--fade);font-size:12px">what the model saw</summary>
       <pre id="promptView" style="white-space:pre-wrap;font-size:11px;color:var(--fade)"></pre></details>
   </div>
+  <div class="panel" id="geniePanel" style="display:none">
+    <div style="color:var(--gold);font-weight:800;font-size:14px;letter-spacing:.5px">🧞 ASK THE CODEX <span class="hint" style="font-weight:400">— Genie writes SQL over the wiki-verified dataset and answers in English</span></div>
+    <input id="gQ" placeholder="e.g. which jokers under $6 scale multiplicatively?" style="width:100%;margin-top:9px">
+    <button class="b primary" id="gAsk" style="margin-top:9px">🧞 ASK GENIE</button>
+    <div id="gOut" style="margin-top:10px"></div>
+  </div>
   <div class="panel">
     <details><summary style="cursor:pointer;color:var(--gold);font-weight:700;font-size:13px">🔌 Diagnostics — what this app is wired to</summary>
       <pre id="diagView" style="white-space:pre-wrap;font-size:12px;color:var(--soft)"></pre></details>
   </div>
 </section>
 </main>
+<div id="jtip" class="jtip" hidden></div>
 
 <div id="sheet"><div class="body" id="sheetBody"></div></div>
 <div id="toast"></div>
@@ -555,25 +572,60 @@ async function renderWeb(center){try{
       <text x="${mx}" y="${(cy+y)/2-7}" fill="#ffd54a" font-size="13" text-anchor="middle"
         opacity=".95">${esc(nb.shared.slice(0,2).join(" · "))}</text>`});
   r.neighbors.forEach((nb,i)=>{const y=40+i*62,col=RAR[nb.rarity]||"#4fa8ff";
-    svg+=`<rect x="${nx}" y="${y}" rx="10" width="${nw}" height="${nh}" fill="rgba(0,0,0,.45)"
+    svg+=`<g class="jnode" data-jt="${esc(nb.name)}" data-sh="${esc(nb.shared.join("|"))}">
+      <rect x="${nx}" y="${y}" rx="10" width="${nw}" height="${nh}" fill="rgba(0,0,0,.45)"
       stroke="${col.startsWith("var")?varColor(nb.rarity):col}" stroke-width="2"/>
       <text x="${nx+16}" y="${y+nh/2+5}" fill="#f5f1e6" font-size="17" font-weight="700">${esc(nb.name)}</text>
       <circle cx="${nx+nw-24}" cy="${y+nh/2}" r="13" fill="${varColor(nb.rarity)}" opacity=".9"/>
       <text x="${nx+nw-24}" y="${y+nh/2+5}" fill="#08131b" font-size="14" font-weight="800"
-        text-anchor="middle">${nb.w}</text>`});
-  svg+=`<rect x="${cx-cw/2}" y="${cy-ch/2}" rx="12" width="${cw}" height="${ch}" fill="rgba(0,0,0,.6)"
+        text-anchor="middle">${nb.w}</text></g>`});
+  svg+=`<g class="jnode" data-jt="${esc(r.center.name)}">
+    <rect x="${cx-cw/2}" y="${cy-ch/2}" rx="12" width="${cw}" height="${ch}" fill="rgba(0,0,0,.6)"
     stroke="#ffd54a" stroke-width="3"/>
     <rect x="${cx-cw/2}" y="${cy-ch/2}" rx="12" width="${cw}" height="6" fill="${varColor(r.center.rarity)}"/>
     <text x="${cx}" y="${cy+7}" fill="#ffd54a" font-size="20" font-weight="800"
-      text-anchor="middle">${esc(r.center.name)}</text></svg>`;
+      text-anchor="middle">${esc(r.center.name)}</text></g></svg>`;
   const list=`<div class="syn-list">${r.neighbors.map(nb=>`
-    <div class="nrow" style="--rar:${varColor(nb.rarity)}"><div class="w">${nb.w}</div>
+    <div class="nrow" data-jt="${esc(nb.name)}" data-sh="${esc(nb.shared.join("|"))}"
+      style="--rar:${varColor(nb.rarity)}"><div class="w">${nb.w}</div>
       <div><b>${esc(nb.name)}</b><div style="margin-top:2px">${nb.shared.slice(0,3)
         .map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</div></div></div>`).join("")}</div>`;
   $("#webOut").innerHTML=`<div class="panel">${svg}${list}
-    <div class="hint">edge thickness & badge = shared synergy tags · border = rarity</div></div>`
+    <div class="hint">hover a card for stats · click to re-center the web · edge thickness & badge = shared synergy tags · border = rarity</div></div>`
     +`<div class="grid">${tile(S.byName[center])}</div>`}
   catch(e){toast(e.message)}}
+
+/* hover stat-cards for the synergy web */
+function tipHTML(name,shared){const j=S.byName[name];if(!j)return "";
+  const col=varColor(j.rarity);
+  const cost=j.cost!==""&&j.cost!=null&&!isNaN(+j.cost)?"$"+Math.round(+j.cost):"";
+  const pills=[j.archetype?`<span class="pill">${esc(j.archetype)}</span>`:"",
+    j.scaling&&j.scaling!=="no"?`<span class="pill">scaling: ${esc(j.scaling)}</span>`:"",
+    j.supported?`<span class="pill">⚙️ engine-exact</span>`:""].join("");
+  const sh=(shared||[]).filter(Boolean);
+  return `<div><span class="jt-h" style="color:${col}">${esc(j.name)}</span>
+    <span class="jt-r" style="color:${col}">${esc(j.rarity).toUpperCase()}</span>
+    ${cost?`<span class="jt-c">${cost}</span>`:""}</div>
+    <div class="jt-eff">${esc(j.effect)}</div>
+    <div style="margin-top:5px">${pills}</div>
+    ${sh.length?`<div style="margin-top:5px"><span style="color:var(--fade);font-size:11px">shared with center:</span> ${sh.map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</div>`:""}
+    ${j.strategy?`<div class="jt-strat">🧠 ${esc(String(j.strategy).length>200?String(j.strategy).slice(0,200)+"…":j.strategy)}</div>`:""}`}
+function tipMove(e){const t=$("#jtip");if(t.hidden)return;
+  const pad=16,w=t.offsetWidth,h=t.offsetHeight;
+  let x=e.clientX+pad,y=e.clientY+pad;
+  if(x+w>innerWidth-8)x=e.clientX-w-pad;
+  if(y+h>innerHeight-8)y=e.clientY-h-pad;
+  t.style.left=Math.max(6,x)+"px";t.style.top=Math.max(6,y)+"px"}
+$("#webOut").addEventListener("mouseover",e=>{const n=e.target.closest("[data-jt]");
+  const t=$("#jtip");if(!n){t.hidden=true;return}
+  const j=S.byName[n.dataset.jt];if(!j){t.hidden=true;return}
+  t.innerHTML=tipHTML(n.dataset.jt,(n.dataset.sh||"").split("|"));
+  t.style.setProperty("--rar",varColor(j.rarity));t.hidden=false;tipMove(e)});
+$("#webOut").addEventListener("mousemove",tipMove);
+$("#webOut").addEventListener("mouseleave",()=>{$("#jtip").hidden=true});
+$("#webOut").addEventListener("click",e=>{const n=e.target.closest("g.jnode[data-jt]");
+  if(!n||n.dataset.jt===S._webCenter)return;
+  $("#jtip").hidden=true;S._webCenter=n.dataset.jt;renderWeb(n.dataset.jt)});
 function varColor(r){return{Common:"#4fa8ff",Uncommon:"#3fd08a",Rare:"#ff5c50",Legendary:"#c47ae0"}[r]||"#4fa8ff"}
 $("#wn").onchange=()=>{if(S._webCenter)renderWeb(S._webCenter)};
 
@@ -632,6 +684,36 @@ $("#cAsk").onclick=async()=>{
   catch(e){toast(e.message)}
   $("#cAsk").innerHTML="🧠 ASK THE STRATEGIST"};
 
+/* ---------------- genie ---------------- */
+async function askGenie(){
+  const q=$("#gQ").value.trim();if(!q)return;
+  const btn=$("#gAsk"),out=$("#gOut");
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Genie is thinking…';
+  out.innerHTML='<div class="hint">writing SQL over workspace.balatro…</div>';
+  try{
+    const s=await api("/api/genie/start",{method:"POST",body:JSON.stringify({question:q})});
+    if(!s.ok)throw new Error(s.error||"Genie unavailable");
+    let r,tries=0;
+    while(tries++<40){
+      await new Promise(res=>setTimeout(res,2500));
+      r=await api(`/api/genie/poll?cid=${encodeURIComponent(s.conversation_id)}&mid=${encodeURIComponent(s.message_id)}`);
+      if(r.status==="COMPLETED"||r.status==="FAILED"||r.status==="CANCELLED")break;
+      out.innerHTML=`<div class="hint"><span class="spin"></span> ${esc(r.status.toLowerCase().replace(/_/g," "))}…</div>`}
+    if(!r||r.status!=="COMPLETED")throw new Error("Genie "+(r?r.status.toLowerCase():"timed out"));
+    let html="";
+    if(r.text)html+=`<div style="line-height:1.55">${esc(r.text).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>")}</div>`;
+    if(r.columns&&r.columns.length&&r.rows&&r.rows.length){
+      html+=`<div style="overflow-x:auto;margin-top:9px"><table style="border-collapse:collapse;font-size:12.5px;min-width:50%">
+        <tr>${r.columns.map(c=>`<th style="text-align:left;padding:5px 12px 5px 0;color:var(--gold);border-bottom:1px solid rgba(255,255,255,.15)">${esc(c)}</th>`).join("")}</tr>
+        ${r.rows.map(row=>`<tr>${row.map(v=>`<td style="padding:5px 12px 5px 0;border-bottom:1px solid rgba(255,255,255,.06)">${esc(v==null?"":String(v))}</td>`).join("")}</tr>`).join("")}</table></div>`}
+    if(r.sql)html+=`<details style="margin-top:9px"><summary style="cursor:pointer;color:var(--fade);font-size:12px">the SQL Genie wrote</summary>
+      <pre style="white-space:pre-wrap;font-size:11.5px;color:var(--soft)">${esc(r.sql)}</pre></details>`;
+    out.innerHTML=html||'<div class="hint">Genie returned nothing — try rephrasing.</div>'}
+  catch(e){out.innerHTML=`<div class="hint">🧞 ${esc(e.message)}</div>`}
+  btn.disabled=false;btn.innerHTML="🧞 ASK GENIE"}
+$("#gAsk").onclick=askGenie;
+$("#gQ").addEventListener("keydown",e=>{if(e.key==="Enter")askGenie()});
+
 /* ---------------- boot ---------------- */
 (async function(){
   load();
@@ -641,6 +723,7 @@ $("#cAsk").onclick=async()=>{
   $("#rDeck").innerHTML=["Red",...S.boot.decks.filter(d=>d!=="Red")].map(d=>`<option>${esc(d)}</option>`).join("");
   $("#diagView").textContent=JSON.stringify(S.boot.diag,null,2)
     +`\n\ninstance: ${S.boot.instance}\nchat: ${S.boot.endpoints.chat}\nembed: ${S.boot.endpoints.embed}`;
+  if(S.boot.genie_ok)$("#geniePanel").style.display="block";
   acSetup("#jsearch","#aclist",n=>{S.lineup.push({name:n,value:null,ed:"none"});renderLineup()});
   acSetup("#wsearch","#waclist",n=>{S._webCenter=n;renderWeb(n)});
   S._webCenter="Blueprint";renderWeb("Blueprint");
