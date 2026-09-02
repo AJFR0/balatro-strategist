@@ -116,6 +116,48 @@ async def main():
                     f"result y={res_box and int(res_box['y'])}, viewport=844")
         await pg.screenshot(path=f"{SHOTS}/02_play_result.png")
 
+        # ---------- journey 1b: discard advisor ----------
+        if not await pg.locator("#discPanel").is_visible():
+            finding("HIGH", "play", "discard advisor panel not shown after optimize")
+        else:
+            await pg.click("#discGo")
+            for _ in range(30):                       # MC sim can take a few seconds
+                await pg.wait_for_timeout(500)
+                if "toss" in (await pg.locator("#discOut").inner_text()):
+                    break
+            disc_txt = await pg.locator("#discOut").inner_text()
+            if "toss" not in disc_txt:
+                finding("HIGH", "play", "discard advisor returned no options")
+            elif "stand pat" not in disc_txt:
+                finding("LOW", "play", "discard advisor missing stand-pat baseline")
+            await pg.screenshot(path=f"{SHOTS}/02b_discard.png")
+
+        # ---------- journey 1c: run mode ----------
+        await pg.click("#runStart")
+        await pg.wait_for_timeout(400)
+        if not await pg.locator("#runbar").is_visible():
+            finding("HIGH", "runmode", "Start run does not show the run bar")
+        else:
+            bar = await pg.locator("#runbar").inner_text()
+            if "Small Blind" not in bar:
+                finding("MED", "runmode", "run bar missing blind name", bar[:80])
+            blind_val = await pg.locator("#blind").input_value()
+            if blind_val != "300":
+                finding("MED", "runmode", f"blind target not auto-filled (got {blind_val!r}, want 300)")
+            await pg.click("#runNext")
+            await pg.wait_for_timeout(300)
+            bar = await pg.locator("#runbar").inner_text()
+            if "Big Blind" not in bar:
+                finding("MED", "runmode", "Next blind did not advance small→big", bar[:80])
+            m1b = await pg.evaluate(MEASURE_JS)
+            if m1b["overflow"]:
+                finding("HIGH", "runmode", "run bar causes horizontal overflow")
+            await pg.screenshot(path=f"{SHOTS}/02c_runbar.png")
+            await pg.click("#runEnd")
+            await pg.wait_for_timeout(800)
+            if await pg.locator("#runbar").is_visible():
+                finding("MED", "runmode", "End run does not dismiss the run bar")
+
         # ---------- journey 2: Codex ----------
         await pg.click("#nav button[data-t='codex']")
         await pg.wait_for_timeout(1200)
@@ -182,6 +224,25 @@ async def main():
         if not ans_visible:
             finding("MED", "coach", "no visible answer/fallback after asking the strategist")
         await pg.screenshot(path=f"{SHOTS}/06_coach.png")
+
+        # ---------- journey 6: PWA ----------
+        pwa = await pg.evaluate("""async () => {
+          const out = {};
+          try { const r = await fetch('/manifest.json'); const m = await r.json();
+                out.manifest = r.ok && m.display === 'standalone' && m.icons.length >= 2; }
+          catch (e) { out.manifest = false; }
+          try { const reg = await navigator.serviceWorker.getRegistration();
+                out.sw = !!(reg && (reg.active || reg.installing || reg.waiting)); }
+          catch (e) { out.sw = false; }
+          out.link = !!document.querySelector('link[rel="manifest"]');
+          return out;
+        }""")
+        if not pwa.get("link"):
+            finding("HIGH", "pwa", "no <link rel=manifest> in the page head")
+        if not pwa.get("manifest"):
+            finding("HIGH", "pwa", "manifest.json missing/invalid (standalone + icons)")
+        if not pwa.get("sw"):
+            finding("MED", "pwa", "service worker not registered")
 
         if console_errors:
             finding("MED", "global", f"{len(console_errors)} console errors", console_errors[0][:100])

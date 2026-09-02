@@ -179,3 +179,22 @@ if __name__ == "__main__":
                 traceback.print_exc()
     print("ALL PASS" if fails == 0 else f"{fails} FAILURES")
     sys.exit(1 if fails else 0)
+
+def test_discard_advisor_deterministic():
+    from engine import best_discards
+    cards = parse_cards("AH KH 9H 5H 2C AS 3C 7D")
+    jk = [JokerState("The Tribe")]
+    a = best_discards(cards, jk, stage1_samples=4, stage2_samples=30)
+    b = best_discards(cards, jk, stage1_samples=4, stage2_samples=30)
+    assert a == b, "seeded MC must be reproducible"
+
+
+def test_discard_advisor_chases_flush():
+    from engine import best_discards
+    cards = parse_cards("AH KH 9H 5H 2C AS 3C 7D")
+    r = best_discards(cards, [JokerState("The Tribe")],
+                      stage1_samples=6, stage2_samples=60)
+    top = r["options"][0]
+    hearts_kept = sum(1 for c in top["keep"] if c.endswith("H"))
+    assert hearts_kept == 4, f"expected flush chase, kept {top['keep']}"
+    assert top["ev"] > r["stand_pat"], "flush chase EV must beat stand pat"
