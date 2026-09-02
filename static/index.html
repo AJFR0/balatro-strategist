@@ -110,6 +110,19 @@ label.f{display:block;color:var(--fade);font-size:11px;text-transform:uppercase;
 .jtip .jt-strat{margin-top:7px;color:#cfe8d8;font-size:12px;border-top:1px solid rgba(255,255,255,.1);padding-top:6px}
 .jtip .pill{font-size:10.5px;padding:1px 8px}
 .jnode{cursor:pointer}.jnode:hover rect{filter:brightness(1.25)}
+.b:active,.chipbtn:active,nav button:active,.picker .ranks button:active,
+.picker .suits button:active{transform:scale(.96)}
+@keyframes scoreflash{0%{box-shadow:0 0 0 3px rgba(255,213,74,.9)}100%{box-shadow:0 0 0 3px rgba(255,213,74,0)}}
+.score.flash{animation:scoreflash .9s ease-out}
+.jsheet{position:fixed;left:0;right:0;bottom:0;z-index:96;background:#0c2419;
+  border-top:2px solid var(--rar,#4fa8ff);border-radius:18px 18px 0 0;
+  padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+  box-shadow:0 -12px 40px rgba(0,0,0,.6);font-size:13.5px;line-height:1.5;
+  animation:sheetup .22s ease-out}
+@keyframes sheetup{from{transform:translateY(30%);opacity:.4}to{transform:none;opacity:1}}
+.jsheet .sheetbtns{display:flex;gap:9px;margin-top:13px}
+.jsheet .sheetbtns .b{flex:1;text-align:center}
+.jsheet-veil{position:fixed;inset:0;z-index:95;background:rgba(0,0,0,.35)}
 .mcard .seal{position:absolute;top:2px;right:3px;width:8px;height:8px;border-radius:50%}
 .suit-H{color:#d6342c}.suit-D{color:#e07f16}.suit-S{color:#3b4a8f}.suit-C{color:#1e6e4e}
 .picker .suits{display:flex;gap:8px;margin-bottom:8px}
@@ -209,6 +222,15 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
 @media(min-width:700px){.ctxgrid{grid-template-columns:repeat(4,1fr)}}
 #answer{white-space:pre-wrap;line-height:1.55;font-size:14px;color:#e6f0e9}
 #answer b{color:var(--gold)}
+/* mobile ergonomics — must stay last to win the cascade */
+@media(max-width:819px){
+  input,select,textarea{font-size:16px}
+  .picker .ranks button{padding:13px 0;font-size:16px}
+  .jrow .mv button{font-size:15px;padding:6px 10px}
+  .aclist div{padding:13px 12px}
+  .b.jdel{padding:10px 13px}
+  #clearHand,#demoHand{padding:12px 18px}
+}
 </style>
 </head>
 <body>
@@ -452,12 +474,12 @@ function renderLineup(){const el=$("#lineup");
       : `<div><label class="f">edition</label><select data-i="${i}" class="jed">
          ${EDS.map(e=>`<option ${e===d.ed?"selected":""}>${e}</option>`).join("")}</select></div>`;
     return `<div class="jrow" style="--rar:${RAR[j.rarity]||"#4fa8ff"}">
-      <div class="mv"><button data-i="${i}" class="jup">▲</button><button data-i="${i}" class="jdn">▼</button></div>
+      <div class="mv"><button data-i="${i}" class="jup" aria-label="move joker up">▲</button><button data-i="${i}" class="jdn" aria-label="move joker down">▼</button></div>
       <div class="grow"><div class="nm">${i+1}. ${esc(d.name)}</div>
         <div class="eff">${esc(String(j.effect||"").slice(0,90))}</div>
         ${j.supported?"":'<div class="eff" style="color:#8aa">ℹ️ not score-affecting — synergy only</div>'}</div>
       ${ctrl}
-      <button class="b jdel" data-i="${i}" style="padding:6px 10px">✖</button></div>`}).join("");
+      <button class="b jdel" data-i="${i}" aria-label="remove joker" style="padding:6px 10px">✖</button></div>`}).join("");
   save()}
 $("#lineup").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
   const i=+b.dataset.i;
@@ -505,6 +527,8 @@ $("#go").onclick=async()=>{
         <summary>#${i+1} ${p.hand} — play ${p.played.join(" ")} → <b>${p.total.toLocaleString()}</b></summary>
         <pre>${esc(p.steps.join("\n"))}</pre></details>`).join("");
     $("#qWin").onclick=()=>quickLog("won");$("#qLose").onclick=()=>quickLog("lost");
+    $("#result").scrollIntoView({behavior:"smooth",block:"start"});
+    const sc=$("#result .score");if(sc){sc.classList.add("flash");setTimeout(()=>sc.classList.remove("flash"),900)}
   }catch(e){toast(e.message)}
   $("#go").innerHTML="🎰 FIND MY BEST PLAY"};
 
@@ -625,15 +649,33 @@ function tipMove(e){const t=$("#jtip");if(t.hidden)return;
   if(x+w>innerWidth-8)x=e.clientX-w-pad;
   if(y+h>innerHeight-8)y=e.clientY-h-pad;
   t.style.left=Math.max(6,x)+"px";t.style.top=Math.max(6,y)+"px"}
-$("#webOut").addEventListener("mouseover",e=>{const n=e.target.closest("[data-jt]");
+const COARSE=matchMedia("(hover: none)").matches;
+$("#webOut").addEventListener("mouseover",e=>{if(COARSE)return;
+  const n=e.target.closest("[data-jt]");
   const t=$("#jtip");if(!n){t.hidden=true;return}
   const j=S.byName[n.dataset.jt];if(!j){t.hidden=true;return}
   t.innerHTML=tipHTML(n.dataset.jt,(n.dataset.sh||"").split("|"));
   t.style.setProperty("--rar",varColor(j.rarity));t.hidden=false;tipMove(e)});
-$("#webOut").addEventListener("mousemove",tipMove);
+$("#webOut").addEventListener("mousemove",e=>{if(!COARSE)tipMove(e)});
 $("#webOut").addEventListener("mouseleave",()=>{$("#jtip").hidden=true});
-$("#webOut").addEventListener("click",e=>{const n=e.target.closest("g.jnode[data-jt]");
-  if(!n||n.dataset.jt===S._webCenter)return;
+
+function closeSheet(){const s=$("#jsheet"),v=$("#jveil");if(s)s.remove();if(v)v.remove()}
+function openSheet(name,shared){
+  closeSheet();const j=S.byName[name];if(!j)return;
+  const veil=document.createElement("div");veil.id="jveil";veil.className="jsheet-veil";
+  const sh=document.createElement("div");sh.id="jsheet";sh.className="jsheet";
+  sh.style.setProperty("--rar",varColor(j.rarity));
+  sh.innerHTML=tipHTML(name,shared)+`<div class="sheetbtns">
+    ${name!==S._webCenter?`<button class="b gold" id="shCenter">🕸️ Center web here</button>`:""}
+    <button class="b" id="shClose" aria-label="close">Close</button></div>`;
+  document.body.append(veil,sh);
+  veil.onclick=closeSheet;
+  $("#shClose").onclick=closeSheet;
+  const c=$("#shCenter");if(c)c.onclick=()=>{closeSheet();S._webCenter=name;renderWeb(name)};}
+$("#webOut").addEventListener("click",e=>{const n=e.target.closest("[data-jt]");
+  if(!n)return;
+  if(COARSE){openSheet(n.dataset.jt,(n.dataset.sh||"").split("|").filter(Boolean));return}
+  if(!n.closest("g.jnode")||n.dataset.jt===S._webCenter)return;
   $("#jtip").hidden=true;S._webCenter=n.dataset.jt;renderWeb(n.dataset.jt)});
 function varColor(r){return{Common:"#4fa8ff",Uncommon:"#3fd08a",Rare:"#ff5c50",Legendary:"#c47ae0"}[r]||"#4fa8ff"}
 $("#wn").onchange=()=>{if(S._webCenter)renderWeb(S._webCenter)};
@@ -653,7 +695,7 @@ async function loadRuns(){try{
   el.innerHTML=runs.map(x=>`<div class="runrow"><div class="top">
       <span><span class="${x.outcome==="won"?"won":"lost"}">${x.outcome==="won"?"🏆 WON":x.outcome==="lost"?"💀 LOST":"⏳ …"}
       </span> · ante ${x.ante} · ${esc(x.deck)} / ${esc(x.stake)}</span>
-      <button class="b rdel" data-id="${x.id}" style="padding:4px 9px;font-size:12px">✖</button></div>
+      <button class="b rdel" data-id="${x.id}" aria-label="delete run" style="padding:4px 9px;font-size:12px">✖</button></div>
     <div class="meta">${(x.lineup||[]).join(" · ")||"no lineup"}${x.best_hand?` · best: ${esc(x.best_hand)} ${(+x.best_score).toLocaleString()}`:""}
       ${x.notes?` · ${esc(x.notes)}`:""}</div></div>`).join("")||'<div class="hint">No runs yet. Lose one for science.</div>';
   el.onclick=async e=>{const b=e.target.closest(".rdel");if(!b)return;
