@@ -226,26 +226,64 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
 #answer{white-space:pre-wrap;line-height:1.55;font-size:14px;color:#e6f0e9}
 #answer b{color:var(--gold)}
 /* ---- run mode ---- */
-#runbar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:10px;
-  flex-wrap:wrap;background:linear-gradient(180deg,#1a4a38,#12352a);
-  border-bottom:2px solid var(--gold);padding:9px 14px;font-size:13px}
+#runbar{position:sticky;top:0;z-index:60;background:linear-gradient(180deg,#1a4a38,#12352a);
+  border-bottom:2px solid var(--gold);padding:7px 12px 8px;font-size:13px}
+#runbar .r1,#runbar .r2{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap}
+#runbar .r2{margin-top:6px}
+#runbar .r2 #runNext{flex:1}
+#runbar #runEnd{min-width:44px;min-height:44px;padding:11px 12px}
 #runbar .seg{display:flex;align-items:baseline;gap:5px;white-space:nowrap}
 #runbar .k{color:var(--fade);font-size:10.5px;text-transform:uppercase;letter-spacing:1px}
 #runbar .v{font-family:var(--px);color:var(--gold);font-size:13px}
 #runbar .v.boss{color:var(--mult)}
-#runbar input{width:64px;padding:4px 6px}
+#runbar input{width:64px;padding:8px 8px}
 #runbar .b{padding:7px 12px;font-size:12.5px}
 #runbar .grow{flex:1}
+
+/* ---- live result strip (v1.5: the optimizer runs as you type) ---- */
+#live{position:fixed;left:8px;right:8px;z-index:55;display:none;align-items:center;gap:8px;
+  bottom:calc(var(--navh,58px) + 8px + env(safe-area-inset-bottom));
+  padding:9px 10px 9px 13px;border-radius:14px;background:rgba(8,26,19,.97);
+  border:1px solid rgba(255,213,74,.45);box-shadow:0 8px 24px rgba(0,0,0,.5);backdrop-filter:blur(8px)}
+#live.on{display:flex}
+#live .lt{flex:1;min-width:0;cursor:pointer}
+#live .lh{font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#live .ls{font-family:var(--px);font-size:13px;line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#live .ls small{font-family:var(--body);font-size:11px;color:var(--fade);letter-spacing:0}
+#live .lv{font-size:11.5px;color:var(--fade)}
+#live .b{padding:11px 11px;font-size:12.5px;white-space:nowrap}
+#live.pulse{animation:lpulse .5s ease}
+@keyframes lpulse{0%{box-shadow:0 0 0 0 rgba(255,213,74,.6)}100%{box-shadow:0 8px 24px rgba(0,0,0,.5)}}
+body.live{padding-bottom:calc(160px + env(safe-area-inset-bottom))}
+body.live #toast{bottom:calc(var(--navh,58px) + 96px + env(safe-area-inset-bottom))}
+@media(min-width:820px){
+  #live{left:50%;right:auto;transform:translateX(-50%);width:min(1150px,calc(100vw - 28px));bottom:14px}
+  body.live{padding-bottom:110px}
+  body.live #toast{bottom:104px}}
+.qchips{display:flex;gap:7px;overflow-x:auto;padding:9px 0 2px;scrollbar-width:none;align-items:center}
+.qchips::-webkit-scrollbar{display:none}
+.qchips .chipbtn{white-space:nowrap;flex:0 0 auto;padding:9px 13px}
+.qchips .lab{color:var(--fade);font-size:11px;white-space:nowrap;text-transform:uppercase;letter-spacing:1px;flex:0 0 auto}
+.trayhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.trayhead .hint{margin:0}
+.b.jdel{padding:6px 10px}
+.play .act{margin:8px 0 2px}
+#go{width:100%;background:var(--panel2);color:var(--soft);font-size:13px;padding:11px}
 
 /* mobile ergonomics — must stay last to win the cascade */
 @media(max-width:819px){
   input,select,textarea{font-size:16px}
   .picker .ranks button{padding:13px 0;font-size:16px}
-  .jrow .mv button{font-size:15px;padding:6px 10px}
   .aclist div{padding:13px 12px}
-  .b.jdel{padding:10px 13px}
   #clearHand,#demoHand,#runStart{padding:12px 18px}
-  #runbar .b{padding:11px 14px}
+  #runbar .b{padding:13px 14px}
+  #go{padding:13px}
+  .jrow .mv button{font-size:15px;padding:12px 13px;min-width:42px;min-height:42px}
+  .jrow select.jed{padding:11px 8px}
+  .b.jdel{padding:12px 14px;min-width:42px;min-height:42px}
+  #undoCard,.qchips .chipbtn{padding:12px 14px;font-size:13px}
+  #live .b{padding:13px 12px}
+  .play .act .b,#result .quicklog .b{padding:12px 16px}
 }
 </style>
 </head>
@@ -271,8 +309,11 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
 <section id="t-play" class="on">
   <div class="panel">
     <h2>Your hand</h2>
-    <div class="hint">Pick a suit, tap ranks to add cards. Tap a card to enhance or remove it.</div>
-    <div class="tray" id="tray"></div>
+    <div class="trayhead">
+      <div class="hint">Pick a suit, tap ranks to add cards. Best play updates live below.</div>
+      <button class="chipbtn" id="undoCard" aria-label="undo last card">↶ undo</button>
+    </div>
+    <div class="tray" id="tray" style="margin-top:8px"></div>
     <div class="picker" style="margin-top:10px">
       <div class="suits" id="suits">
         <button data-s="H" class="suit-H on">♥</button>
@@ -295,7 +336,8 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
       <input id="jsearch" placeholder="Add a joker — type to search…" autocomplete="off" style="width:100%">
       <div class="aclist" id="aclist"></div>
     </div>
-    <div id="lineup" style="margin-top:10px"></div>
+    <div class="qchips" id="jquick"></div>
+    <div id="lineup" style="margin-top:6px"></div>
   </div>
 
   <div class="panel">
@@ -309,7 +351,7 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
     </details>
   </div>
 
-  <button class="b primary" id="go">🎰 FIND MY BEST PLAY</button>
+  <button class="b" id="go">🎰 Recalculate</button>
   <div id="result"></div>
   <div id="discPanel" style="display:none;margin-top:12px">
     <button class="b gold" id="discGo" style="width:100%">🗑️ DISCARD ADVISOR — what should I toss?</button>
@@ -402,6 +444,11 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
 <div id="jtip" class="jtip" hidden></div>
 
 <div id="sheet"><div class="body" id="sheetBody"></div></div>
+<div id="live" role="status" aria-live="polite">
+  <div class="lt" id="liveText"></div>
+  <button class="b gold" id="lPlayed" aria-label="I played the best play">✓ Played</button>
+  <button class="b" id="lDisc" aria-label="ask the discard advisor">🗑 Discard?</button>
+</div>
 <div id="toast"></div>
 
 <script>
@@ -414,16 +461,17 @@ const ENH=["none","bonus","mult","wild","glass","steel","stone","gold","lucky"];
 const EDS=["none","foil","holo","polychrome"];
 const SEALS=["none","red","gold","blue","purple"];
 const S={jokers:[],byName:{},hand:[],lineup:[],suit:"H",levels:{},lastPlays:null,lastCtx:{},
-  boot:{},rarSel:new Set(),archSel:new Set(),semantic:true};
+  boot:{},rarSel:new Set(),archSel:new Set(),semantic:true,recent:[],run:null,_syn:{}};
+function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms||8)}catch(e){}}
 
 function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";
   clearTimeout(t._h);t._h=setTimeout(()=>t.style.display="none",3500)}
 async function api(path,opts){const r=await fetch(path,opts?{headers:{"Content-Type":"application/json"},...opts}:undefined);
   if(!r.ok){let m="request failed";try{m=(await r.json()).detail||m}catch(e){}throw new Error(m)}return r.json()}
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
-function save(){try{localStorage.setItem("bs",JSON.stringify({hand:S.hand,lineup:S.lineup,levels:S.levels,run:S.run||null}))}catch(e){}}
+function save(){try{localStorage.setItem("bs",JSON.stringify({hand:S.hand,lineup:S.lineup,levels:S.levels,run:S.run||null,recent:S.recent||[]}))}catch(e){}}
 function load(){try{const d=JSON.parse(localStorage.getItem("bs")||"{}");
-  S.hand=d.hand||[];S.lineup=d.lineup||[];S.levels=d.levels||{};S.run=d.run||null}catch(e){}}
+  S.hand=d.hand||[];S.lineup=d.lineup||[];S.levels=d.levels||{};S.run=d.run||null;S.recent=d.recent||[]}catch(e){}}
 
 /* ---------------- run mode ---------------- */
 const BLINDS={1:[300,450,600],2:[800,1200,1600],3:[2000,3000,4000],4:[5000,7500,10000],
@@ -435,23 +483,27 @@ function renderRunbar(){const bar=$("#runbar");
   if(!S.run){bar.style.display="none";$("#runStart").textContent="🎮 Start run";return}
   $("#runStart").textContent="🎮 Run active";
   const won=S.run.ante>8, tgt=runTarget();
-  bar.style.display="flex";
-  bar.innerHTML=`
+  bar.style.display="block";
+  bar.innerHTML=`<div class="r1">
     <div class="seg"><span class="k">Ante</span><span class="v">${Math.min(S.run.ante,8)}${won?"+":""}</span></div>
     <div class="seg"><span class="v ${S.run.blind===2?"boss":""}">${won?"🏆 ENDLESS":BLIND_NAMES[S.run.blind]}</span></div>
     <div class="seg"><span class="k">Target</span><span class="v">${tgt.toLocaleString()}</span></div>
     <div class="seg"><span class="k">Best</span><span class="v">${(S.run.best||0).toLocaleString()}</span></div>
+    <div class="seg" title="hands · discards left this blind"><span class="v">✋${S.run.hands??4}</span><span class="v" style="color:var(--mult)">🗑${S.run.discards??3}</span></div>
+   </div><div class="r2">
     <div class="seg"><span class="k">$</span><input id="runMoney" type="number" min="0" value="${S.run.money}" aria-label="money"></div>
-    <div class="grow"></div>
     <button class="b gold" id="runNext">${S.run.blind<2?"Next blind ▸":"Beat boss ▸ ante "+Math.min(S.run.ante+1,9)}</button>
-    <button class="b" id="runEnd" style="background:#5b1f1a;color:#ffb3ac">🏁 End run</button>`;
-  $("#blind").value=won?0:tgt;
+    <button class="b" id="runEnd" aria-label="end run" title="End run" style="background:#5b1f1a;color:#ffb3ac">🏁</button>
+   </div>`;
+  const prevBlind=$("#blind").value;$("#blind").value=won?0:tgt;
+  if(String(prevBlind)!==String($("#blind").value))scheduleOpt();
   $("#cAnte").value=Math.min(S.run.ante,8);$("#cMoney").value=S.run.money;
+  $("#cHands").value=S.run.hands??4;$("#cDisc").value=S.run.discards??3;
   $("#runMoney").onchange=e=>{S.run.money=Math.max(0,+e.target.value||0);save()};
-  $("#runNext").onclick=()=>{S.run.cleared=(S.run.cleared||0)+1;
+  $("#runNext").onclick=()=>{S.run.cleared=(S.run.cleared||0)+1;S.run.hands=4;S.run.discards=3;
     if(S.run.blind<2)S.run.blind++;else{S.run.ante++;S.run.blind=0;
       if(S.run.ante>8)toast("🏆 Ante 8 beaten — that's the win. Endless awaits.")}
-    save();renderRunbar()};
+    buzz(12);save();renderRunbar()};
   $("#runEnd").onclick=endRun}
 async function endRun(){const r=S.run;if(!r)return;
   const won=r.ante>8, ante=Math.min(r.ante,won?39:8);
@@ -466,14 +518,16 @@ async function endRun(){const r=S.run;if(!r)return;
   catch(e){toast("run over, but logging failed: "+e.message)}}
 $("#runStart").onclick=()=>{
   if(S.run){$("#runbar").scrollIntoView({behavior:"smooth"});return}
-  S.run={ante:1,blind:0,money:4,best:0,cleared:0};save();renderRunbar();
+  S.run={ante:1,blind:0,money:4,best:0,cleared:0,hands:4,discards:3};save();renderRunbar();
   toast("🎮 Run started — ante 1 small blind. The bar tracks your targets.")};
 
 /* ---------------- nav ---------------- */
 $("#nav").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
   $$("#nav button").forEach(x=>x.classList.toggle("on",x===b));
   $$("main section").forEach(x=>x.classList.toggle("on",x.id==="t-"+b.dataset.t));
-  window.scrollTo({top:0})});
+  showLive();window.scrollTo({top:0})});
+function navH(){const n=$("#nav");if(n)document.documentElement.style.setProperty("--navh",n.offsetHeight+"px")}
+addEventListener("resize",navH);
 
 /* ---------------- card tray + picker ---------------- */
 function cardToken(c){const mods=[c.enh,c.ed,c.seal].filter(x=>x&&x!=="none");
@@ -488,13 +542,16 @@ function renderTray(){const t=$("#tray");
     return `<div class="mcard suit-${c.suit}${ed}${enh}" data-i="${i}">
       <span class="r">${c.rank}</span><span class="s">${SUITG[c.suit]}</span>${seal}</div>`}).join("")
     ||`<span style="color:var(--fade);font-size:12.5px;align-self:center">tap ranks below to add your 8 cards</span>`;
-  save()}
+  $("#undoCard").style.visibility=S.hand.length?"visible":"hidden";
+  $("#discOut").innerHTML="";                       // advisor output is for the old hand
+  save();scheduleOpt()}
+$("#undoCard").onclick=()=>{if(!S.hand.length)return;S.hand.pop();buzz();renderTray()};
 $("#suits").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
   S.suit=b.dataset.s;$$("#suits button").forEach(x=>x.classList.toggle("on",x===b))});
 $("#ranks").innerHTML=RANKS.map(r=>`<button data-r="${r}">${r}</button>`).join("");
 $("#ranks").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
   if(S.hand.length>=12)return toast("12 cards max");
-  S.hand.push({rank:b.dataset.r,suit:S.suit,enh:"none",ed:"none",seal:"none"});renderTray()});
+  buzz();S.hand.push({rank:b.dataset.r,suit:S.suit,enh:"none",ed:"none",seal:"none"});renderTray()});
 $("#tray").addEventListener("click",e=>{const c=e.target.closest(".mcard");if(!c)return;openCardSheet(+c.dataset.i)});
 $("#clearHand").onclick=()=>{S.hand=[];renderTray()};
 $("#demoHand").onclick=()=>{S.hand=[["A","H"],["K","H"],["9","H"],["5","H"],["2","H"],["A","S"],["3","C"],["7","D"]]
@@ -546,8 +603,32 @@ function renderLineup(){const el=$("#lineup");
         <div class="eff">${esc(String(j.effect||"").slice(0,90))}</div>
         ${j.supported?"":'<div class="eff" style="color:#8aa">ℹ️ not score-affecting — synergy only</div>'}</div>
       ${ctrl}
-      <button class="b jdel" data-i="${i}" aria-label="remove joker" style="padding:6px 10px">✖</button></div>`}).join("");
-  save()}
+      <button class="b jdel" data-i="${i}" aria-label="remove joker">✖</button></div>`}).join("");
+  save();renderQuick();scheduleOpt()}
+
+/* quick-add chips: recent jokers + what pairs with your last one (one tap each) */
+function addJoker(n){if(!S.byName[n])return;
+  S.lineup.push({name:n,value:null,ed:"none"});
+  S.recent=[n,...(S.recent||[]).filter(x=>x!==n)].slice(0,12);
+  buzz();renderLineup()}
+const STARTERS=["Joker","The Duo","Blueprint","Hologram","The Tribe","Baron","Fibonacci","Photograph"];
+async function renderQuick(){const el=$("#jquick");if(!el||!S.jokers.length)return;
+  const inL=new Set(S.lineup.map(d=>d.name));
+  const last=S.lineup.length?S.lineup[S.lineup.length-1].name:null;
+  let syn=[];
+  if(last){
+    if(!S._syn[last]){try{const r=await api(`/api/synergy?center=${encodeURIComponent(last)}&n=12`);
+      S._syn[last]=r.neighbors.map(x=>x.name)}catch(e){S._syn[last]=[]}}
+    if(!S.lineup.length||S.lineup[S.lineup.length-1].name!==last)return;   // stale
+    syn=S._syn[last].filter(n=>!inL.has(n)&&S.byName[n]&&S.byName[n].supported).slice(0,4)}
+  const rec=(S.recent||[]).filter(n=>!inL.has(n)&&!syn.includes(n)&&S.byName[n]).slice(0,4);
+  const seed=(rec.length+syn.length)<3?STARTERS.filter(n=>!inL.has(n)&&!rec.includes(n)&&!syn.includes(n)).slice(0,5-rec.length-syn.length):[];
+  const chip=(n,cls)=>`<button class="chipbtn ${cls}" data-q="${esc(n)}" style="--rar:${RAR[(S.byName[n]||{}).rarity]||"#4fa8ff"};border-color:var(--rar)">+ ${esc(n)}</button>`;
+  el.innerHTML=(syn.length?`<span class="lab">🕸️ pairs with ${esc(last)}</span>`+syn.map(n=>chip(n,"")).join(""):"")
+    +(rec.length?`<span class="lab">recent</span>`+rec.map(n=>chip(n,"")).join(""):"")
+    +(seed.length?`<span class="lab">${rec.length||syn.length?"":"quick add"}</span>`+seed.map(n=>chip(n,"")).join(""):"");
+  el.scrollLeft=0}
+$("#jquick").addEventListener("click",e=>{const b=e.target.closest("button[data-q]");if(b)addJoker(b.dataset.q)});
 $("#lineup").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
   const i=+b.dataset.i;
   if(b.classList.contains("jdel"))S.lineup.splice(i,1);
@@ -556,7 +637,7 @@ $("#lineup").addEventListener("click",e=>{const b=e.target.closest("button");if(
   renderLineup()});
 $("#lineup").addEventListener("change",e=>{const t=e.target,i=+t.dataset.i;
   if(t.classList.contains("jval"))S.lineup[i].value=parseFloat(t.value)||0;
-  if(t.classList.contains("jed"))S.lineup[i].ed=t.value;save()});
+  if(t.classList.contains("jed"))S.lineup[i].ed=t.value;save();scheduleOpt()});
 
 /* ---------------- optimizer ---------------- */
 function levelsUI(){const hands=S.boot.hands||[];
@@ -564,17 +645,29 @@ function levelsUI(){const hands=S.boot.hands||[];
     <input type="number" min="1" max="30" value="${S.levels[h.hand]||1}" data-h="${esc(h.hand)}"
       class="lvl" style="width:100%"></div>`).join("")}
 $("#levels").addEventListener("change",e=>{if(e.target.classList.contains("lvl"))
-  S.levels[e.target.dataset.h]=+e.target.value||1;save()});
+  S.levels[e.target.dataset.h]=+e.target.value||1;save();scheduleOpt()});
 
-$("#go").onclick=async()=>{
-  if(!S.hand.length)return toast("Add some cards first");
-  $("#go").innerHTML='<span class="spin"></span> computing 218 plays…';
+/* live optimizer: re-scores as the hand / lineup / context change (debounced),
+   so there is no "find my best play" tap. Manual button = force + scroll. */
+let _optT=null,_optSeq=0;
+function scheduleOpt(){if(!S.boot.jokers)return;clearTimeout(_optT);
+  if(!S.hand.length){clearResult();return}
+  _optT=setTimeout(()=>optimize(true),S.hand.length>=5?320:1100)}
+function clearResult(){S.lastPlays=null;$("#result").innerHTML="";$("#discPanel").style.display="none";
+  $("#live").classList.remove("on");document.body.classList.remove("live")}
+function showLive(){const on=!!S.lastPlays&&$("#t-play").classList.contains("on");
+  $("#live").classList.toggle("on",on);document.body.classList.toggle("live",on)}
+async function optimize(auto){
+  if(!S.hand.length){if(!auto)toast("Add some cards first");return}
+  const seq=++_optSeq;
+  if(!auto)$("#go").innerHTML='<span class="spin"></span> computing 218 plays…';
   try{
     const body={hand:S.hand.map(cardToken).join(" "),
       lineup:S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"})),
       levels:S.levels,optimist:$("#optimist").checked,final_hand:$("#finalHand").checked,
       blind_req:+$("#blind").value||0};
     const r=await api("/api/optimize",{method:"POST",body:JSON.stringify(body)});
+    if(seq!==_optSeq)return;                       // a newer request superseded this one
     S.lastPlays=r.plays;S.lastCtx={hand_text:body.hand,blind_req:body.blind_req};
     const b=r.plays[0];
     const v=r.verdict==="ok"?'<span class="vok"> ✔ beats the blind</span>'
@@ -592,14 +685,44 @@ $("#go").onclick=async()=>{
       </div>`+
       r.plays.map((p,i)=>`<details class="play" ${i===0?"open":""}>
         <summary>#${i+1} ${p.hand} — play ${p.played.join(" ")} → <b>${p.total.toLocaleString()}</b></summary>
-        <pre>${esc(p.steps.join("\n"))}</pre></details>`).join("");
+        <pre>${esc(p.steps.join("\n"))}</pre>
+        <div class="act"><button class="b" data-played="${p.played.join(" ")}" data-total="${p.total}">✓ I played this</button></div></details>`).join("");
     $("#qWin").onclick=()=>quickLog("won");$("#qLose").onclick=()=>quickLog("lost");
-    if(S.run&&b.total>(S.run.best||0)){S.run.best=b.total;save();renderRunbar()}
-    $("#discPanel").style.display=S.hand.length>=2?"":"none";$("#discOut").innerHTML="";
-    $("#result").scrollIntoView({behavior:"smooth",block:"start"});
-    const sc=$("#result .score");if(sc){sc.classList.add("flash");setTimeout(()=>sc.classList.remove("flash"),900)}
-  }catch(e){toast(e.message)}
-  $("#go").innerHTML="🎰 FIND MY BEST PLAY"};
+    $("#liveText").innerHTML=`<div class="lh">best play · ${esc(b.hand)}</div>
+      <div class="ls">${b.total.toLocaleString()} <small>${b.played.join(" ")}</small></div>
+      ${v?`<div class="lv">${v}</div>`:""}`;
+    showLive();const lv=$("#live");lv.classList.remove("pulse");void lv.offsetWidth;lv.classList.add("pulse");
+    $("#discPanel").style.display=S.hand.length>=2?"":"none";
+    if(!auto){$("#result").scrollIntoView({behavior:"smooth",block:"start"});buzz();
+      const sc=$("#result .score");if(sc){sc.classList.add("flash");setTimeout(()=>sc.classList.remove("flash"),900)}}
+  }catch(e){if(!auto)toast(e.message)}
+  $("#go").innerHTML="🎰 Recalculate"}
+$("#go").onclick=()=>optimize(false);
+$("#optimist").onchange=$("#finalHand").onchange=()=>scheduleOpt();
+$("#blind").addEventListener("input",()=>scheduleOpt());
+$("#liveText").onclick=()=>$("#result").scrollIntoView({behavior:"smooth",block:"start"});
+
+/* one-tap "I played / tossed these": drop those cards from the tray so you only
+   enter the replacements, and keep the run counters honest */
+function removeCards(labels){for(const lab of labels){
+  const m=/^(10|[AKQJ2-9])([HDSC])/.exec(lab);if(!m)continue;
+  const i=S.hand.findIndex(c=>c.rank===m[1]&&c.suit===m[2]);if(i>=0)S.hand.splice(i,1)}}
+function markPlayed(labels,total){removeCards(labels);
+  if(S.run){S.run.hands=Math.max(0,(S.run.hands??4)-1);if(total>(S.run.best||0))S.run.best=total;save();renderRunbar()}
+  buzz(15);renderTray();$("#discOut").innerHTML="";
+  toast(`✓ played ${labels.join(" ")} — add your ${labels.length} new card${labels.length>1?"s":""}`);
+  $("#tray").scrollIntoView({behavior:"smooth",block:"center"})}
+function markTossed(labels){removeCards(labels);
+  if(S.run){S.run.discards=Math.max(0,(S.run.discards??3)-1);save();renderRunbar()}
+  buzz(15);renderTray();$("#discOut").innerHTML="";
+  toast(`🗑 tossed ${labels.join(" ")} — add your ${labels.length} new card${labels.length>1?"s":""}`);
+  $("#tray").scrollIntoView({behavior:"smooth",block:"center"})}
+$("#lPlayed").onclick=()=>{const b=S.lastPlays&&S.lastPlays[0];if(b)markPlayed(b.played,b.total)};
+$("#lDisc").onclick=()=>{$("#discGo").click();$("#discPanel").scrollIntoView({behavior:"smooth",block:"start"})};
+$("#result").addEventListener("click",e=>{const b=e.target.closest("button[data-played]");
+  if(b)markPlayed(b.dataset.played.split(" "),+b.dataset.total||0)});
+$("#discOut").addEventListener("click",e=>{const b=e.target.closest("button[data-toss]");
+  if(b)markTossed(b.dataset.toss.split(" "))});
 
 $("#discGo").onclick=async()=>{
   if(S.hand.length<2)return toast("Add at least 2 cards");
@@ -617,7 +740,8 @@ $("#discGo").onclick=async()=>{
             <span style="color:var(--fade)">· keep ${o.keep.join(" ")}</span></div>
           <div>EV <b>${fmt(o.ev)}</b> <span style="color:var(--fade)">±${fmt(o.ci95)}</span>
             <b style="color:${up?"#3fd08a":"var(--mult)"}">${up?"▲":"▼"} ${fmt(Math.abs(o.delta))}</b></div>
-        </div></div>`};
+        </div>
+        <div class="act"><button class="b" data-toss="${o.discard.join(" ")}">🗑 I tossed these</button></div></div>`};
     $("#discOut").innerHTML=`
       <div class="hint" style="margin:8px 0 6px">stand pat scores <b>${fmt(r.stand_pat)}</b> now —
         options ranked by expected best-play score after redraw (Δ vs standing pat):</div>
@@ -869,12 +993,12 @@ $("#gQ").addEventListener("keydown",e=>{if(e.key==="Enter")askGenie()});
   load();
   try{S.boot=await api("/api/bootstrap")}catch(e){toast("backend unreachable: "+e.message);return}
   S.jokers=S.boot.jokers;S.jokers.forEach(j=>S.byName[j.name]=j);
-  renderTray();renderLineup();levelsUI();filterChips();renderCodex();renderRunbar();
+  navH();renderTray();renderLineup();levelsUI();filterChips();renderCodex();renderRunbar();
   $("#rDeck").innerHTML=["Red",...S.boot.decks.filter(d=>d!=="Red")].map(d=>`<option>${esc(d)}</option>`).join("");
   $("#diagView").textContent=JSON.stringify(S.boot.diag,null,2)
     +`\n\ninstance: ${S.boot.instance}\nchat: ${S.boot.endpoints.chat}\nembed: ${S.boot.endpoints.embed}`;
   if(S.boot.genie_ok)$("#geniePanel").style.display="block";
-  acSetup("#jsearch","#aclist",n=>{S.lineup.push({name:n,value:null,ed:"none"});renderLineup()});
+  acSetup("#jsearch","#aclist",n=>addJoker(n));
   acSetup("#wsearch","#waclist",n=>{S._webCenter=n;renderWeb(n)});
   S._webCenter="Blueprint";renderWeb("Blueprint");
   loadRuns();
