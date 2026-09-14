@@ -59,6 +59,42 @@ MEASURE_JS = """() => {
 }"""
 
 
+TAPS: dict = {}
+
+
+class Taps:
+    """Counts the user's taps on a journey (typing a joker name counts as 2)."""
+    def __init__(self):
+        self.n = 0
+
+    async def tap(self, pg, sel):
+        self.n += 1
+        await pg.tap(sel)
+        await pg.wait_for_timeout(120)
+
+    async def add_joker(self, pg, name):
+        chip = pg.locator(f"#jquick button[data-q='{name}']")
+        if await chip.count():
+            self.n += 1
+            await chip.first.tap()
+        else:
+            self.n += 2                                  # focus + pick (typing is the heavy part)
+            await pg.fill("#jsearch", name)
+            await pg.wait_for_timeout(400)
+            await pg.locator("#aclist div[data-n]").first.dispatch_event("mousedown")
+        await pg.wait_for_timeout(450)
+
+
+async def wait_live(pg, expect_total=None, tries=24):
+    for _ in range(tries):
+        await pg.wait_for_timeout(250)
+        if await pg.locator("#live.on").count():
+            txt = await pg.locator("#liveText").inner_text()
+            if expect_total is None or expect_total in txt:
+                return True
+    return False
+
+
 async def add_joker(pg, name):
     await pg.fill("#jsearch", name)
     await pg.wait_for_timeout(400)
@@ -81,7 +117,7 @@ async def main():
         await pg.goto(BASE)
         await pg.wait_for_timeout(1800)
 
-        # ---------- journey 1: Play ----------
+        # ---------- journey 1: Play (tap budget) ----------
         m = await pg.evaluate(MEASURE_JS)
         if m["overflow"]:
             finding("HIGH", "global", "horizontal page overflow on Play tab")
@@ -95,68 +131,123 @@ async def main():
                     ", ".join(m["smallTargets"][:8]))
         await pg.screenshot(path=f"{SHOTS}/01_play.png")
 
-        await pg.click("#demoHand")
+        # A. cold start: build A♥ K♥ 9♥ 5♥ 2♥ A♠ 3♣ 7♦ with the picker + 3 jokers,
+        #    and expect the best play to appear WITHOUT a "find my best play" tap.
+        taps = Taps()
+        await taps.tap(pg, "#clearHand")
+        taps.n = 0                                        # clearing isn't part of the budget
+        for suit, ranks in (("H", "A K 9 5 2"), ("S", "A"), ("C", "3"), ("D", "7")):
+            if suit != "H":
+                await taps.tap(pg, f"#suits button[data-s='{suit}']")
+            for r in ranks.split():
+                await taps.tap(pg, f"#ranks button[data-r='{r}']")
         for j in ["The Tribe", "Blueprint", "Hologram"]:
-            await add_joker(pg, j)
+            await taps.add_joker(pg, j)
         eds = pg.locator("select.jed")
         if await eds.count() >= 2:
             await eds.nth(1).select_option("polychrome")
         vals = pg.locator("input.jval")
         if await vals.count() >= 1:
             await vals.last.fill("2.5")
-        go = pg.locator("#go")
-        go_box = await go.bounding_box()
-        await go.click()
-        await pg.wait_for_timeout(1500)
-        res = pg.locator("#result .score, #result")
+            await vals.last.dispatch_event("change")
+        live = await wait_live(pg, expect_total="5,400")
+        if not live:
+            finding("HIGH", "play", "best play did not update live after entering hand + jokers")
+        else:
+            box = await pg.locator("#live").bounding_box()
+            if not box or box["y"] + box["height"] > 844 or box["y"] < 0:
+                finding("HIGH", "play", "live result strip is not inside the viewport",
+                        f"y={box and int(box['y'])}")
+            nav_box = await pg.locator("#nav").bounding_box()
+            if box and nav_box and box["y"] + box["height"] > nav_box["y"] + 1:
+                finding("HIGH", "play", "live result strip overlaps the tab bar")
+        TAPS["A_cold_hand_3_jokers"] = taps.n
+        await pg.screenshot(path=f"{SHOTS}/02_play_live.png")
+        # tapping the strip should reveal the full breakdown
+        await pg.tap("#liveText")
+        await pg.wait_for_timeout(700)
         res_box = await pg.locator("#result").bounding_box()
-        visible = res_box and res_box["y"] < 844 and res_box["y"] > 0
-        if not visible:
-            finding("HIGH", "play", "optimizer result renders below the fold with no auto-scroll",
-                    f"result y={res_box and int(res_box['y'])}, viewport=844")
-        await pg.screenshot(path=f"{SHOTS}/02_play_result.png")
+        if not (res_box and 0 <= res_box["y"] < 844):
+            finding("MED", "play", "tapping the live strip does not scroll to the breakdown")
 
-        # ---------- journey 1b: discard advisor ----------
-        if not await pg.locator("#discPanel").is_visible():
-            finding("HIGH", "play", "discard advisor panel not shown after optimize")
-        else:
-            await pg.click("#discGo")
-            for _ in range(30):                       # MC sim can take a few seconds
-                await pg.wait_for_timeout(500)
-                if "toss" in (await pg.locator("#discOut").inner_text()):
-                    break
-            disc_txt = await pg.locator("#discOut").inner_text()
-            if "toss" not in disc_txt:
-                finding("HIGH", "play", "discard advisor returned no options")
-            elif "stand pat" not in disc_txt:
-                finding("LOW", "play", "discard advisor missing stand-pat baseline")
-            await pg.screenshot(path=f"{SHOTS}/02b_discard.png")
-
-        # ---------- journey 1c: run mode ----------
-        await pg.click("#runStart")
+        # B. next hand mid-run: one tap says "I played these", then only the
+        #    replacements get entered. Start a run first so counters are checked.
+        await pg.tap("#runStart")
         await pg.wait_for_timeout(400)
-        if not await pg.locator("#runbar").is_visible():
-            finding("HIGH", "runmode", "Start run does not show the run bar")
+        n_before = len(await pg.locator("#tray .mcard").all())
+        taps = Taps()
+        await taps.tap(pg, "#lPlayed")
+        await pg.wait_for_timeout(500)
+        n_after = len(await pg.locator("#tray .mcard").all())
+        if n_after != n_before - 5:
+            finding("HIGH", "play", f"'✓ Played' should drop the 5 played cards (tray {n_before}→{n_after})")
+        bar = await pg.locator("#runbar").inner_text()
+        if "✋3" not in bar:
+            finding("MED", "runmode", "hands-left counter did not decrement after ✓ Played", bar[:80])
+        for suit, ranks in (("S", "K Q"), ("C", "K 8"), ("H", "J")):
+            await taps.tap(pg, f"#suits button[data-s='{suit}']")
+            for r in ranks.split():
+                await taps.tap(pg, f"#ranks button[data-r='{r}']")
+        if not await wait_live(pg):
+            finding("HIGH", "play", "no live result after entering replacement cards")
+        TAPS["B_next_hand_after_play"] = taps.n
+        await pg.screenshot(path=f"{SHOTS}/02b_next_hand.png")
+
+        # C. discard flow: strip → advisor → "I tossed these" → replacements
+        taps = Taps()
+        await taps.tap(pg, "#lDisc")
+        ok = False
+        for _ in range(40):
+            await pg.wait_for_timeout(500)
+            if await pg.locator("#discOut button[data-toss]").count():
+                ok = True
+                break
+        if not ok:
+            finding("HIGH", "play", "discard advisor returned no options from the strip")
         else:
+            disc_txt = await pg.locator("#discOut").inner_text()
+            if "stand pat" not in disc_txt:
+                finding("LOW", "play", "discard advisor missing stand-pat baseline")
+            toss = await pg.locator("#discOut button[data-toss]").first.get_attribute("data-toss")
+            k = len(toss.split())
+            n_before = len(await pg.locator("#tray .mcard").all())
+            await pg.screenshot(path=f"{SHOTS}/02c_discard.png")
+            await taps.tap(pg, "#discOut button[data-toss] >> nth=0")
+            await pg.wait_for_timeout(500)
+            n_after = len(await pg.locator("#tray .mcard").all())
+            if n_after != n_before - k:
+                finding("HIGH", "play", f"'I tossed these' should drop {k} cards (tray {n_before}→{n_after})")
             bar = await pg.locator("#runbar").inner_text()
-            if "Small Blind" not in bar:
-                finding("MED", "runmode", "run bar missing blind name", bar[:80])
-            blind_val = await pg.locator("#blind").input_value()
-            if blind_val != "300":
-                finding("MED", "runmode", f"blind target not auto-filled (got {blind_val!r}, want 300)")
-            await pg.click("#runNext")
-            await pg.wait_for_timeout(300)
-            bar = await pg.locator("#runbar").inner_text()
-            if "Big Blind" not in bar:
-                finding("MED", "runmode", "Next blind did not advance small→big", bar[:80])
-            m1b = await pg.evaluate(MEASURE_JS)
-            if m1b["overflow"]:
-                finding("HIGH", "runmode", "run bar causes horizontal overflow")
-            await pg.screenshot(path=f"{SHOTS}/02c_runbar.png")
-            await pg.click("#runEnd")
-            await pg.wait_for_timeout(800)
-            if await pg.locator("#runbar").is_visible():
-                finding("MED", "runmode", "End run does not dismiss the run bar")
+            if "🗑2" not in bar:
+                finding("MED", "runmode", "discards-left counter did not decrement after a toss", bar[:80])
+            for i, r in enumerate("Q J 10 9 8".split()[:k]):
+                await taps.tap(pg, f"#ranks button[data-r='{r}']")
+            if not await wait_live(pg):
+                finding("HIGH", "play", "no live result after entering post-discard cards")
+        TAPS["C_discard_and_refill"] = taps.n
+
+        # run bar sanity + end run
+        bar = await pg.locator("#runbar").inner_text()
+        if "Small Blind" not in bar:
+            finding("MED", "runmode", "run bar missing blind name", bar[:80])
+        if (await pg.locator("#blind").input_value()) != "300":
+            finding("MED", "runmode", "blind target not auto-filled to 300")
+        await pg.tap("#runNext")
+        await pg.wait_for_timeout(300)
+        bar = await pg.locator("#runbar").inner_text()
+        if "Big Blind" not in bar or "✋4" not in bar:
+            finding("MED", "runmode", "Next blind should advance to Big Blind and reset hands", bar[:80])
+        m1b = await pg.evaluate(MEASURE_JS)
+        if m1b["overflow"]:
+            finding("HIGH", "runmode", "run bar causes horizontal overflow")
+        if m1b["smallTargets"]:
+            finding("MED", "play", f"{len(m1b['smallTargets'])} tap targets under 40px with results shown",
+                    ", ".join(m1b["smallTargets"][:8]))
+        await pg.screenshot(path=f"{SHOTS}/02d_runbar.png")
+        await pg.tap("#runEnd")
+        await pg.wait_for_timeout(800)
+        if await pg.locator("#runbar").is_visible():
+            finding("MED", "runmode", "End run does not dismiss the run bar")
 
         # ---------- journey 2: Codex ----------
         await pg.click("#nav button[data-t='codex']")
@@ -250,6 +341,7 @@ async def main():
         await ctx.close()
         await b.close()
 
+    print("tap budget:", json.dumps(TAPS))
     print(json.dumps(FINDINGS, indent=2))
     print(f"\n{len(FINDINGS)} findings · screenshots in {SHOTS}")
     return FINDINGS
