@@ -70,6 +70,11 @@ def boot() -> None:
     print("=== BALATRO STRATEGIST STARTUP DIAGNOSTICS ===", flush=True)
     for k, v in DIAG.items():
         print(f"  {k}: {v}", flush=True)
+    _start_backfill()
+    print("=== END DIAGNOSTICS ===", flush=True)
+
+
+def _start_backfill() -> None:
     if str(DIAG.get("lakebase", "")).startswith("OK") \
             and str(DIAG.get("embeddings", "")).startswith("OK"):
         def backfill() -> None:
@@ -78,11 +83,52 @@ def boot() -> None:
                   + (f" ({r['error']})" if r.get("error") else " — complete"), flush=True)
         threading.Thread(target=backfill, daemon=True).start()
         print("  joker_embeddings: backfill started in background", flush=True)
-    print("=== END DIAGNOSTICS ===", flush=True)
+
+
+def _pg_ok() -> bool:
+    """A real Lakebase Postgres connection is up (pgvector / semantic search)."""
+    return str(DIAG.get("lakebase", "")).startswith("OK")
 
 
 def _lakebase_ok() -> bool:
-    return str(DIAG.get("lakebase", "")).startswith("OK")
+    """The run log is usable. In demo/hybrid mode runs live locally
+    (SQLite or DynamoDB), so they never depend on Lakebase being awake."""
+    return db.DEMO or _pg_ok()
+
+
+# --- Lakebase wake: a Free Edition branch archives when idle and only a real
+# connection un-archives it. This is the "psql to wake it" button. ------------
+_WAKE: dict = {"running": False, "result": None}
+
+
+def _wake_worker() -> None:
+    try:
+        r = db.wake()
+        _WAKE["result"] = r
+        if r.get("ok"):
+            DIAG.update(db.diagnostics(run_chat_test=False))
+            _start_backfill()
+    except Exception as e:
+        _WAKE["result"] = {"ok": False, "error": str(e)[:200]}
+    finally:
+        _WAKE["running"] = False
+
+
+@app.post("/api/lakebase/reconnect")
+def lakebase_reconnect() -> dict:
+    if db.DEMO and not db.CONNECTED:
+        return {"ok": False, "reason": "demo mode — no Lakebase"}
+    if not _WAKE["running"]:
+        _WAKE["running"] = True
+        _WAKE["result"] = None
+        threading.Thread(target=_wake_worker, daemon=True).start()
+    return {"started": True, "running": _WAKE["running"]}
+
+
+@app.get("/api/lakebase/reconnect")
+def lakebase_reconnect_status() -> dict:
+    return {"running": _WAKE["running"], "result": _WAKE["result"],
+            "lakebase": DIAG.get("lakebase"), "pgvector": DIAG.get("pgvector")}
 
 
 # ---------------------------------------------------------------------------
@@ -140,7 +186,7 @@ def bootstrap() -> dict:
         "genie_ok": db.genie_ok(),
         "ai_ok": db.ai_ok(),
         "lakebase_ok": _lakebase_ok(),
-        "semantic_ok": _lakebase_ok() and str(DIAG.get("embeddings", "")).startswith("OK"),
+        "semantic_ok": _pg_ok() and str(DIAG.get("embeddings", "")).startswith("OK"),
         "instance": db.INSTANCE,
         "endpoints": {"chat": db.CHAT_ENDPOINT, "embed": db.EMBED_ENDPOINT},
         "run_stats": stats,
@@ -257,7 +303,7 @@ def search(req: SearchReq) -> dict:
     q = req.q.strip()
     if not q:
         return {"hits": [], "note": ""}
-    if req.semantic and _lakebase_ok():
+    if req.semantic and _pg_ok():
         try:
             if db.embedding_count() > 0:
                 hits = db.semantic_search(q, top_n=24)

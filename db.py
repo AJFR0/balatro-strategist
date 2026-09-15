@@ -73,7 +73,7 @@ def _pg_user(w) -> str:
     return w.current_user.me().user_name
 
 
-def _fresh_conn():
+def _fresh_conn(timeout: int = 10):
     import psycopg2
     w = _workspace_client()
     inst = w.database.get_database_instance(name=INSTANCE)
@@ -81,9 +81,33 @@ def _fresh_conn():
         request_id=str(uuid.uuid4()), instance_names=[INSTANCE])
     conn = psycopg2.connect(
         host=inst.read_write_dns, dbname=DBNAME, user=_pg_user(w),
-        password=cred.token, sslmode="require", connect_timeout=10)
+        password=cred.token, sslmode="require", connect_timeout=timeout)
     conn.autocommit = True
     return conn
+
+
+def wake(attempts: int = 6, wait: float = 15.0, timeout: int = 30) -> dict:
+    """Keep connecting until an archived / suspended Lakebase branch comes
+    back (the platform un-archives on the first real connection). Uses the
+    app's own platform-minted credential — no tokens leave the service."""
+    if DEMO and not CONNECTED:
+        return {"ok": False, "error": "demo mode"}
+    last = None
+    for i in range(attempts):
+        try:
+            c = _fresh_conn(timeout)
+            old = _state["conn"]
+            _state.update(conn=c, born=time.time(), err=None)
+            if old is not None:
+                try: old.close()
+                except Exception: pass
+            return {"ok": True, "attempts": i + 1}
+        except Exception as e:
+            last = str(e)[:200]
+            _state["err"] = last
+            if i < attempts - 1:
+                time.sleep(wait)
+    return {"ok": False, "attempts": attempts, "error": last}
 
 
 def get_conn():
