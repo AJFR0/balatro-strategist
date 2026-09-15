@@ -1,19 +1,19 @@
-name,cost,effect
-Ankh,,"Create a copy of a random Joker, destroy all other Jokers"
-Aura,,"Add Foil, Holographic, or Polychrome effect to 1 selected card in hand"
-Black Hole,,Upgrade every poker hand by 1 level
-Cryptid,,Create 2 copies of 1 selected card in your hand
-Déjà Vu,,Add a Red Seal to 1 selected card in your hand
-Ectoplasm,,"Add Negative to a random Joker, -1 hand size"
-Familiar,,"Destroy 1 random card in your hand, add 3 random Enhanced face cards to your hand"
-Grim,,"Destroy 1 random card in your hand, add 2 random Enhanced Aces to your hand"
-Hex,,"Add Polychrome to a random Joker, destroy all other Jokers"
-Immolate,,"Destroys 5 random cards in hand, gain $20"
-Incantation,,"Destroy 1 random card in your hand, add 4 random Enhanced numbered cards to your hand"
-Medium,,Add a Purple Seal to 1 selected card in your hand
-Ouija,,Converts all cards in hand to a single random rank -1 hand size
-Sigil,,Converts all cards in hand to a single random suit
-Soul,,Creates a Legendary Joker
-Talisman,,Add Gold Seal to 1 selected card in your hand
-Trance,,Add a Blue Seal to 1 selected card in your hand
-Wraith,,"Creates a random Rare Joker, sets money to $0"
+name,kind,cost,effect,unlock,shop,image
+Ankh,Spectral,4,"Create a copy of a random Joker, destroy all other Jokers (Removes Negative from copy)",,1,Ankh.png
+Aura,Spectral,4,"Add Foil, Holographic, or Polychrome effect to 1 selected card in hand",,1,Aura.png
+Black Hole,Spectral,4,Upgrade every poker hand by 1 level,,0,Black_Hole.png
+Cryptid,Spectral,4,Create 2 copies of 1 selected card in your hand,,1,Cryptid.png
+Déjà Vu,Spectral,4,Add a Red Seal to 1 selected card in your hand,,1,Deja_Vu.png
+Ectoplasm,Spectral,4,"Add Negative to a random Joker, -1 hand size",,1,Ectoplasm.png
+Familiar,Spectral,4,"Destroy 1 random card in your hand, add 3 random Enhanced face cards to your hand",,1,Familiar.png
+Grim,Spectral,4,"Destroy 1 random card in your hand, add 2 random Enhanced Aces to your hand",,1,Grim.png
+Hex,Spectral,4,"Add Polychrome to a random Joker, destroy all other Jokers",,1,Hex.png
+Immolate,Spectral,4,"Destroys 5 random cards in hand, gain $20",,1,Immolate.png
+Incantation,Spectral,4,"Destroy 1 random card in your hand, add 4 random Enhanced numbered cards to your hand",,1,Incantation.png
+Medium,Spectral,4,Add a Purple Seal to 1 selected card in your hand,,1,Medium.png
+Ouija,Spectral,4,"Converts all cards in hand to a single random rank, -1 hand size",,1,Ouija.png
+Sigil,Spectral,4,Converts all cards in hand to a single random suit,,1,Sigil.png
+Talisman,Spectral,4,Add a Gold Seal to 1 selected card in your hand,,1,Talisman.png
+The Soul,Spectral,4,Creates a Legendary Joker (Must have room),,0,The_Soul.png
+Trance,Spectral,4,Add a Blue Seal to 1 selected card in your hand,,1,Trance.png
+Wraith,Spectral,4,"Creates a random Rare Joker, sets money to $0",,1,Wraith.png

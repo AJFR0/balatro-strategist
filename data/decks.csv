@@ -1,22 +1,16 @@
-name,cost,effect
-,,
-Abandoned,,Start run with no Face Cards in your deck
-Anaglyph,,"After defeating each Boss Blind, gain a Double Tag"
-Black,,+1 Joker slot.  -1 hand every round
-Blue,,+1 hand every round
-Braided,,Most Played hand starts at lvl.3
-Checkered,,Start run with 26 Spades and 26 Hearts in deck
-Erratic,,All Ranks and Suits in deck are randomized
-Foil,,Add Foil to 3 random cards in deck
-Ghost,,"Spectral cards may appear in the shop, start with a Hex card"
-Green,,"At the end of each Round: $2 per remaining Hand, $1 per remaining Discard, Earn no Interest"
-Holographic,,Add Holographic to 2 random cards in deck
-Magic,,Start run with the Crystal Ball voucher active and two copies of The Fool
-Nebula,,"Start run with the Telescope voucher active, -1 consumable slot"
-Painted,,"+2 hand size, -1 Joker slot"
-Plasma,,"Balance Chips and Mult when calculating score for played hand, X2 base Blind size"
-Polychrome,,Add Polychrome to 1 random card in deck
-Red,,+1 discard every round
-Silver,,Start run with one Joker
-Yellow,,Start with extra $10
-Zodiac,,"Start run with Tarot Merchant, Planet Merchant, and Overstock"
+name,effect,unlock,image,order
+Red,+1 discard every round,,Red_Deck.png,1
+Blue,+1 hand every round,Discover at least 20 items from your collection,Blue_Deck.png,2
+Yellow,Start with extra $10,Discover at least 50 items from your collection,Yellow_Deck.png,3
+Green,"At end of each Round: $2 per remaining Hand, $1 per remaining Discard, Earn no Interest",Discover at least 75 items from your collection,Green_Deck.png,4
+Black,"+1 Joker slot, -1 hand every round",Discover at least 100 items from your collection,Black_Deck.png,5
+Magic,Start run with the Crystal Ball voucher and 2 copies of The Fool,Win a run with the Red Deck on any difficulty,Magic_Deck.png,6
+Nebula,"Start run with the Telescope voucher, -1 consumable slot",Win a run with the Blue Deck on any difficulty,Nebula_Deck.png,7
+Ghost,"Spectral cards may appear in the shop, start with a Hex card",Win a run with the Yellow Deck on any difficulty,Ghost_Deck.png,8
+Abandoned,Start run with no Face Cards in your deck,Win a run with the Green Deck on any difficulty,Abandoned_Deck.png,9
+Checkered,Start run with 26 Spades and 26 Hearts in deck,Win a run with the Black Deck on any difficulty,Checkered_Deck.png,10
+Zodiac,"Start run with Tarot Merchant, Planet Merchant, and Overstock",Win a run with any deck on the Red Stake difficulty or harder,Zodiac_Deck.png,11
+Painted,"+2 hand size, -1 Joker slot",Win a run with any deck on the Green Stake difficulty or harder,Painted_Deck.png,12
+Anaglyph,"After defeating each Boss Blind, gain a Double Tag",Win a run with any deck on the Black Stake difficulty or harder,Anaglyph_Deck.png,13
+Plasma,"Balance Chips and Mult when calculating score for played hand, X2 base Blind size",Win a run with any deck on the Blue Stake difficulty or harder,Plasma_Deck.png,14
+Erratic,All Ranks and Suits in deck are randomized,Win a run with any deck on the Orange Stake difficulty or harder,Erratic_Deck.png,15

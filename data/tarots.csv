@@ -1,23 +1,23 @@
-name,cost,effect
-Death,,"Select 2 cards, convert the left card into the right cardDrag to rearrange"
-Judgement,,"Spawns a random Joker card , Must have room"
-Justice,,Enhances 1 selected card into a Glass Card
-Strength,,Increases rank of up to 2 selected cards by 1
-Temperance,,"Gives the total sell value of all current Jokers , Max of $50"
-The Chariot,,Enhances 1 selected card into a Steel Card
-The Devil,,Enhances 1 selected card into a Gold Card
-The Emperor,,"Creates up to 2 random Tarot cards , Must have room"
-The Empress,,Enhances up to 2 selected cards to Mult Cards
-The Fool,,"Spawns the last Tarot or Planet card used during this run, Excludes The Fool"
-The Hanged Man,,Destroys up to 2 selected cards
-The Hermit,,"Doubles money, Max of $20"
-The Hierophant,,Enhances up to 2 selected cards to Bonus Cards
-The High Priestess,,"Spawns up to 2 random Planet cards , Must have room"
-The Lovers,,Enhances 1 selected card into a Wild Card
-The Magician,,Enhances 1 selected card into a Lucky Card
-The Moon,,Converts up to 3 selected cards to Clubs
-The Star,,Converts up to 3 selected cards to Diamonds
-The Sun,,Converts up to 3 selected cards to Hearts
-The Tower,,Enhances 1 selected card into a Stone Card
-The Wheel of Fortune,,"1 in 4 chance to add Foil, Holographic, or Polychrome edition to a random Joker"
-The World,,Converts up to 3 selected cards to Spades
+name,kind,cost,effect,unlock,shop,image
+Death,Tarot,3,"Select 2 cards, convert the left card into the right card (Drag to rearrange)",,1,Death.png
+Judgement,Tarot,3,Creates a random Joker card (Must have room),,1,Judgement.png
+Justice,Tarot,3,Enhances 1 selected card into a Glass Card,,1,Justice.png
+Strength,Tarot,3,Increases rank of up to 2 selected cards by 1,,1,Strength.png
+Temperance,Tarot,3,Gives the total sell value of all current Jokers (Max of $50),,1,Temperance.png
+The Chariot,Tarot,3,Enhances 1 selected card into a Steel Card,,1,The_Chariot.png
+The Devil,Tarot,3,Enhances 1 selected card into a Gold Card,,1,The_Devil.png
+The Emperor,Tarot,3,Creates up to 2 random Tarot cards (Must have room),,1,The_Emperor.png
+The Empress,Tarot,3,Enhances 2 selected cards to Mult Cards,,1,The_Empress.png
+The Fool,Tarot,3,"Creates the last Tarot or Planet card used during this run, The Fool excluded",,1,The_Fool.png
+The Hanged Man,Tarot,3,Destroys up to 2 selected cards,,1,The_Hanged_Man.png
+The Hermit,Tarot,3,Doubles money (Max of $20),,1,The_Hermit.png
+The Hierophant,Tarot,3,Enhances 2 selected cards to Bonus Cards,,1,The_Hierophant.png
+The High Priestess,Tarot,3,Creates up to 2 random Planet cards (Must have room),,1,The_High_Priestess.png
+The Lovers,Tarot,3,Enhances 1 selected card into a Wild Card,,1,The_Lovers.png
+The Magician,Tarot,3,Enhances 2 selected cards to Lucky Cards,,1,The_Magician.png
+The Moon,Tarot,3,Converts up to 3 selected cards to Clubs,,1,The_Moon.png
+The Star,Tarot,3,Converts up to 3 selected cards to Diamonds,,1,The_Star.png
+The Sun,Tarot,3,Converts up to 3 selected cards to Hearts,,1,The_Sun.png
+The Tower,Tarot,3,Enhances 1 selected card into a Stone Card,,1,The_Tower.png
+The Wheel of Fortune,Tarot,3,"1 in 4 chance to add Foil, Holographic, or Polychrome edition to a random Joker",,1,The_Wheel_of_Fortune.png
+The World,Tarot,3,Converts up to 3 selected cards to Spades,,1,The_World.png

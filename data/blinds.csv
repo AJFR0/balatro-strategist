@@ -1,0 +1,31 @@
+name,kind,min_ante,score_mult,reward,effect,image,order
+Small Blind,Standard,Any,1,3,,Small_Blind.webp,1
+Big Blind,Standard,Any,1.5,4,,Big_Blind.webp,2
+The Hook,Boss,Any,2,5,Discards 2 random cards per hand played,The_Hook.webp,3
+The Ox,Boss,6,2,5,Playing a (most played hand) sets money to $0,The_Ox.webp,4
+The House,Boss,2,2,5,First hand is drawn face down,The_House.webp,5
+The Wall,Boss,2,4,5,Extra large blind,The_Wall.webp,6
+The Wheel,Boss,2,2,5,1 in 7 cards get drawn face down,The_Wheel.webp,7
+The Arm,Boss,2,2,5,Decrease level of played poker hand,The_Arm.webp,8
+The Club,Boss,Any,2,5,All Club cards are debuffed,The_Club.webp,9
+The Fish,Boss,2,2,5,Cards drawn face down after each hand played,The_Fish.webp,10
+The Psychic,Boss,Any,2,5,Must play 5 cards,The_Psychic.webp,11
+The Goad,Boss,Any,2,5,All Spade cards are debuffed,The_Goad.webp,12
+The Water,Boss,2,2,5,Start with 0 discards,The_Water.webp,13
+The Window,Boss,Any,2,5,All Diamond cards are debuffed,The_Window.webp,14
+The Manacle,Boss,Any,2,5,-1 Hand Size,The_Manacle.webp,15
+The Eye,Boss,3,2,5,No repeat hand types this round,The_Eye.webp,16
+The Mouth,Boss,2,2,5,Play only 1 hand type this round,The_Mouth.webp,17
+The Plant,Boss,4,2,5,All face cards are debuffed,The_Plant.webp,18
+The Serpent,Boss,5,2,5,"After Play or Discard, always draw 3 cards",The_Serpent.webp,19
+The Pillar,Boss,Any,2,5,Cards played previously this Ante are debuffed,The_Pillar.webp,20
+The Needle,Boss,2,1,5,Play only 1 hand,The_Needle.webp,21
+The Head,Boss,Any,2,5,All Heart cards are debuffed,The_Head.webp,22
+The Tooth,Boss,3,2,5,Lose $1 per card played,The_Tooth.webp,23
+The Flint,Boss,2,2,5,Base Chips and Mult are halved,The_Flint.webp,24
+The Mark,Boss,2,2,5,All face cards are drawn face down,The_Mark.webp,25
+Amber Acorn,Showdown,8,2,8,Flips and shuffles all Joker cards,Amber_Acorn.webp,26
+Verdant Leaf,Showdown,8,2,8,All cards debuffed until 1 Joker sold,Verdant_Leaf.webp,27
+Violet Vessel,Showdown,8,6,8,Very large blind,Violet_Vessel.webp,28
+Crimson Heart,Showdown,8,2,8,One random Joker disabled every hand,Crimson_Heart.webp,29
+Cerulean Bell,Showdown,8,2,8,Forces 1 card to always be selected,Cerulean_Bell.webp,30

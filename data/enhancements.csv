@@ -1,0 +1,9 @@
+name,effect,image,order
+Bonus cards,+30 extra chips,Bonus_Card.png,0
+Glass cards,"X2 Mult, 1 in 4 chance to destroy card",Glass_Card.png,0
+Gold cards,$3 if this card is held in hand at end of round,Gold_Card.png,0
+Lucky cards,"1 in 5 chance for +20 Mult, 1 in 15 chance to win $20",Lucky_Card.png,0
+Mult cards,+4 Mult,Mult_Card.png,0
+Steel cards,X1.5 Mult while this card stays in hand,Steel_Card.png,0
+Stone cards,"+50 Chips, no rank or suit",Stone_Card.png,0
+Wild cards,Can be used as any suit,Wild_Card.png,0

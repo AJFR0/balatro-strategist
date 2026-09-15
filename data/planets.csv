@@ -1,13 +1,13 @@
-name,hand,chips_per_level,mult_per_level
-Ceres,Flush House,40,4
-Earth,Full House,25,2
-Eris,Flush Five,50,3
-Jupiter,Flush,15,2
-Mars,Four of a Kind,30,3
-Mercury,Pair,15,1
-Neptune,Straight Flush,40,4
-Planet X,Five of a Kind,35,3
-Pluto,High Card,10,1
-Saturn,Straight,30,3
-Uranus,Two Pair,20,1
-Venus,Three of a Kind,20,2
+name,hand,chips_per_level,mult_per_level,effect,cost,image,unlock
+Ceres,Flush House,40,4,Increases Flush House hand value by +4 Mult and +40 Chips,3,Ceres.png,Play Flush House during the current run
+Earth,Full House,25,2,Increases Full House hand value by +2 Mult and +25 Chips,3,Earth.png,
+Eris,Flush Five,50,3,Increases Flush Five hand value by +3 Mult and +50 Chips,3,Eris.png,Play Flush Five during the current run
+Jupiter,Flush,15,2,Increases Flush hand value by +2 Mult and +15 Chips,3,Jupiter.png,
+Mars,Four of a Kind,30,3,Increases Four of a Kind hand value by +3 Mult and +30 Chips,3,Mars.png,
+Mercury,Pair,15,1,Increases Pair hand value by +1 Mult and +15 Chips,3,Mercury.png,
+Neptune,Straight Flush,40,4,Increases Straight Flush hand value by +4 Mult and +40 Chips,3,Neptune.png,
+Planet X,Five of a Kind,35,3,Increases Five of a Kind hand value by +3 Mult and +35 Chips,3,Planet_X.png,Play Five of a Kind during the current run
+Pluto,High Card,10,1,Increases High Card hand value by +1 Mult and +10 Chips,3,Pluto.png,
+Saturn,Straight,30,3,Increases Straight hand value by +3 Mult and +30 Chips,3,Saturn.png,
+Uranus,Two Pair,20,1,Increases Two Pair hand value by +1 Mult and +20 Chips,3,Uranus.png,
+Venus,Three of a Kind,20,2,Increases Three of a Kind hand value by +2 Mult and +20 Chips,3,Venus.png,

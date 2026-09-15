@@ -1,0 +1,9 @@
+name,effect,image,order
+White Stake,Base difficulty,White_stake.png,1
+Red Stake,Small Blind gives no reward money,Red_stake.png,2
+Green Stake,Required score scales faster for each Ante,Green_stake.png,3
+Black Stake,Shop can have Eternal Jokers (Can't be sold or destroyed),Black_stake.png,4
+Blue Stake,-1 Discard,Blue_stake.png,5
+Purple Stake,Required score scales faster for each Ante,Purple_stake.png,6
+Orange Stake,Shop can have Perishable Jokers (Debuffed after 5 Rounds),Orange_stake.png,7
+Gold Stake,Shop can have Rental Jokers (Costs $3 per round),Gold_stake.png,8

@@ -1,0 +1,6 @@
+name,effect,image,order
+Base,No extra effects,Joker_(Base).png,0
+Foil,+50 Chips,Joker_(Foil).png,0
+Holographic,+10 Mult,Joker_(Holographic).png,0
+Negative,+1 Joker or Consumable slot,Joker_(Negative).png,0
+Polychrome,X1.5 Mult,Joker_(Polychrome).png,0

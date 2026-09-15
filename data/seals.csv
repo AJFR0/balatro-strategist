@@ -1,0 +1,5 @@
+name,effect,image,order
+Blue Seal,Creates the Planet card for final played poker hand of round if held in hand (Must have room),Blue_Seal.png,0
+Gold Seal,Earn $3 when this card is played and scores,Gold_Seal.png,0
+Purple Seal,Creates a Tarot card when discarded (Must have room),Purple_Seal.png,0
+Red Seal,Retrigger this card 1 time,Red_Seal.png,0
