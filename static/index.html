@@ -836,7 +836,10 @@ async function quickLog(outcome){const b=S.lastPlays&&S.lastPlays[0];
    <img> hides itself when the art is unavailable so layout never breaks */
 function art(file,cls){if(!file)return "";
   return `<img class="${cls||"cimg"}" src="/img/${encodeURIComponent(file)}" loading="lazy" decoding="async" alt=""
-    onerror="this.hidden=true">`}
+    onerror="imgErr(this)">`}
+/* a cold proxy can 502 under a burst of first loads: retry twice (4s, 8s), then give up quietly */
+function imgErr(el){const n=+(el.dataset.n||0);if(n>=2){el.hidden=true;return}el.dataset.n=n+1;
+  setTimeout(()=>{el.src=el.src.split("?")[0]+"?r="+(n+1)},4000*(n+1))}
 function unlockHTML(u){if(!u)return "";
   return `<div class="unl ${S.spoil?"":"spoil"}" title="${S.spoil?"":"tap to reveal this unlock"}">🔒 ${esc(u)}</div>`}
 function tile(j,sim){const cost=j.cost!==""&&j.cost!=null&&!isNaN(+j.cost)?"$"+Math.round(+j.cost):"";
