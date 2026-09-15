@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 import threading
+import urllib.parse
 import uuid
 from typing import Any, Optional
 
@@ -33,14 +35,30 @@ app = FastAPI(title="Balatro Strategist", docs_url=None, redoc_url=None)
 # ---------------------------------------------------------------------------
 TABLES: dict[str, pd.DataFrame] = {}
 DIAG: dict[str, str] = {}
+CARD_SETS = ["tarots", "planets", "spectrals", "vouchers", "tags", "decks",
+             "blinds", "enhancements", "editions", "seals", "stakes"]
+IMAGES: dict[str, Any] = {"base": "https://balatrowiki.org/images/", "files": set(),
+                          "credit": "Card art © LocalThunk · data via balatrowiki.org (CC BY-NC-SA 3.0)"}
+NOTES: dict[str, list[dict]] = {}
 
 
 def _load_tables() -> None:
-    for name in ["jokers", "hands", "planets", "tarots", "spectrals",
-                 "vouchers", "decks", "tags", "joker_benchmarks"]:
+    for name in ["jokers", "hands", "joker_benchmarks", "joker_notes"] + CARD_SETS:
         path = os.path.join(DATA_DIR, f"{name}.csv")
         if os.path.exists(path):
             TABLES[name] = pd.read_csv(path)
+    imgs = os.path.join(DATA_DIR, "wiki_images.json")
+    if os.path.exists(imgs):
+        with open(imgs) as f:
+            j = json.load(f)
+        IMAGES.update({"base": j["base"], "files": set(j["files"]), "credit": j["credit"]})
+    if "joker_notes" in TABLES:
+        NOTES.clear()
+        order = {"Overview": 0, "Synergies": 1, "Strategy": 2, "Anti-Synergies": 3, "Notes": 4}
+        df = TABLES["joker_notes"].fillna("")
+        df = df.assign(_o=df["section"].map(lambda s: order.get(s, 9)))
+        for r in df.sort_values(["name", "_o", "seq"]).to_dict("records"):
+            NOTES.setdefault(r["name"], []).append({"section": r["section"], "text": r["text"]})
 
 
 def _joker_records() -> list[dict]:
@@ -68,7 +86,7 @@ def boot() -> None:
     _load_tables()
     DIAG.update(db.diagnostics(run_chat_test=True))
     DIAG["tracing"] = db.init_tracing()["why"]
-    db.build_tfidf(TABLES["jokers"])
+    db.build_tfidf(TABLES["jokers"], TABLES.get("joker_notes"))
     print("=== BALATRO STRATEGIST STARTUP DIAGNOSTICS ===", flush=True)
     for k, v in DIAG.items():
         print(f"  {k}: {v}", flush=True)
@@ -84,7 +102,7 @@ def _start_backfill() -> None:
             print(f"  joker_embeddings backfill: {r['stored']}/{r['total']} stored"
                   + (f" ({r['error']})" if r.get("error") else " — complete"), flush=True)
             try:
-                sr = db.ensure_search(TABLES["jokers"])
+                sr = db.ensure_search(TABLES["jokers"], TABLES.get("joker_notes"))
                 DIAG["search"] = ("Lakebase Search (BM25 + ANN, RRF)" if sr["lbsearch"]
                                   else f"pgvector ({sr.get('error')})")
                 print(f"  lakebase search: {DIAG['search']}", flush=True)
@@ -175,6 +193,58 @@ def icon_512() -> FileResponse:
                         media_type="image/png")
 
 
+# --- card art: same-origin proxy for the wiki thumbnails ---------------------
+# Only file names that appear in data/wiki_images.json are served (no open
+# proxy). Bytes are cached on local disk (Lambda: /tmp) and marked immutable,
+# so CloudFront / the service worker keep them after the first fetch.
+_IMG_DIR = os.path.join(tempfile.gettempdir(), "bs-img")
+_IMG_LOCK = threading.Lock()
+
+
+def _fetch_card_art(fname: str) -> Optional[bytes]:
+    import urllib.request
+    url = IMAGES["base"] + urllib.parse.quote(fname)
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "BalatroStrategist/1.7 (+https://github.com/AJFR0/balatro-strategist)"})
+    try:
+        with urllib.request.urlopen(req, timeout=8) as r:
+            data = r.read()
+            return data if r.status == 200 and len(data) > 0 else None
+    except Exception:
+        return None
+
+
+@app.get("/img/{fname}")
+def card_art(fname: str):
+    if fname not in IMAGES["files"] or "/" in fname or fname.startswith("."):
+        raise HTTPException(404, "unknown image")
+    path = os.path.join(_IMG_DIR, fname)
+    if not os.path.exists(path):
+        data = _fetch_card_art(fname)
+        if not data:
+            raise HTTPException(502, "card art unavailable")
+        with _IMG_LOCK:
+            os.makedirs(_IMG_DIR, exist_ok=True)
+            tmp = path + ".part"
+            with open(tmp, "wb") as f:
+                f.write(data)
+            os.replace(tmp, path)
+    mt = "image/webp" if fname.lower().endswith(".webp") else "image/png"
+    return FileResponse(path, media_type=mt, headers={
+        "Cache-Control": "public, max-age=2592000, immutable",
+        "X-Credit": "Card art (c) LocalThunk, via balatrowiki.org"})
+
+
+@app.get("/api/joker/{name}/notes")
+def joker_notes(name: str) -> dict:
+    """The wiki's Synergies / Anti-Synergies / Strategy prose for one joker
+    (balatrowiki.org, CC BY-NC-SA 3.0) — fetched lazily by the Codex."""
+    key = name if name in NOTES else _canon_joker(name)
+    return {"name": key, "notes": NOTES.get(key, []),
+            "credit": "Text from balatrowiki.org, CC BY-NC-SA 3.0",
+            "source": f"https://balatrowiki.org/w/{urllib.parse.quote(key.replace(' ', '_'))}"}
+
+
 # ---------------------------------------------------------------------------
 # Bootstrap payload
 # ---------------------------------------------------------------------------
@@ -190,6 +260,9 @@ def bootstrap() -> dict:
         "jokers": _joker_records(),
         "hands": TABLES["hands"].to_dict(orient="records"),
         "decks": [d for d in TABLES["decks"]["name"].dropna().tolist() if str(d).strip()],
+        "cards": {k: TABLES[k].fillna("").to_dict(orient="records")
+                  for k in CARD_SETS if k in TABLES},
+        "credit": IMAGES["credit"],
         "diag": DIAG,
         "demo": db.DEMO,
         "genie_ok": db.genie_ok(),
@@ -423,6 +496,7 @@ class ChatReq(BaseModel):
     last_plays: list[dict] = []
     hand_text: str = ""
     blind_req: int = 0
+    boss: str = ""          # current boss blind name (run mode), e.g. "The Wall"
 
 
 # --- agentic coach: the model can call the deterministic engine -----------
@@ -454,7 +528,45 @@ _COACH_TOOLS = [
             "hand": {"type": "string", "description": "the full held hand"},
             "max_discard": {"type": "integer", "minimum": 1, "maximum": 5}},
             "required": ["hand"]}}},
+    {"type": "function", "function": {
+        "name": "card_lookup",
+        "description": "Look up any Balatro card by name — joker, tarot, planet, "
+                       "spectral, voucher, tag, deck, boss blind, seal, edition, "
+                       "enhancement — and get its verified effect, cost, rarity, "
+                       "unlock and (for jokers) the community wiki's Synergies / "
+                       "Anti-Synergies / Strategy notes.",
+        "parameters": {"type": "object", "properties": {
+            "name": {"type": "string", "description": "card name, e.g. 'Blueprint' or 'The Wall'"}},
+            "required": ["name"]}}},
 ]
+
+
+def card_lookup(name: str) -> dict:
+    """Exact-then-fuzzy lookup across every card table (also used by MCP)."""
+    q = str(name or "").strip().lower()
+    if not q:
+        return {"error": "empty name"}
+    tables = ["jokers"] + CARD_SETS
+    best = None
+    for t in tables:
+        df = TABLES.get(t)
+        if df is None:
+            continue
+        for r in df.fillna("").to_dict("records"):
+            n = str(r["name"]).lower()
+            score = 3 if n == q else 2 if n.startswith(q) or q.startswith(n) else 1 if q in n or n in q else 0
+            if score and (best is None or score > best[0]):
+                best = (score, t, r)
+    if not best:
+        return {"error": f"no card named '{name}'"}
+    _, t, r = best
+    out = {"table": t, **{k: v for k, v in r.items()
+                          if k not in ("image", "wiki_number", "order", "test_idea")}}
+    if t == "jokers":
+        notes = NOTES.get(r["name"], [])
+        out["wiki_notes"] = [f"{n['section']}: {n['text']}" for n in notes][:12]
+        out["wiki_credit"] = "balatrowiki.org, CC BY-NC-SA 3.0"
+    return out
 
 
 def _coach_tool_exec(name: str, args: dict, req: "ChatReq") -> dict:
@@ -488,13 +600,17 @@ def _coach_tool_exec(name: str, args: dict, req: "ChatReq") -> dict:
                              "delta": round(o["delta"], 1)}
                             for o in r["options"]],
                 "note": r["assumption"]}
+    if name == "card_lookup":
+        return card_lookup(str(args.get("name", "")))
     raise ValueError(f"unknown tool {name}")
 
 
 _TOOL_NOTE = ("\n\n## Tools\nYou can call the deterministic engine directly: "
               "best_plays(hand), score_play(cards), discard_advisor(hand). "
               "Use them to verify any line you recommend instead of guessing "
-              "numbers; then answer with the results.")
+              "numbers; then answer with the results. card_lookup(name) returns "
+              "the wiki-verified text of any card plus community synergy notes — "
+              "use it before asserting what a card does.")
 
 
 def _agentic_chat(prompt: str, req: "ChatReq", endpoint: str | None = None):
@@ -556,6 +672,12 @@ def chat(req: ChatReq, request: Request) -> dict:
                  f"{req.hands_left} hands left, {req.discards_left} discards left.")
     if req.shop:
         lines.append(f"Shop: {req.shop}")
+    if req.boss and "blinds" in TABLES:
+        b = TABLES["blinds"][TABLES["blinds"]["name"] == req.boss]
+        if not b.empty:
+            br = b.iloc[0]
+            lines.append(f"Boss blind: {req.boss} — {br['effect']} "
+                         f"(x{br['score_mult']} base score, ${br['reward']} reward).")
     if req.lineup:
         lines.append("\n## Joker lineup (left to right)")
         for item in req.lineup:
@@ -778,6 +900,13 @@ try:
         """Monte-Carlo discard analysis: expected best-play score after redraw."""
         req = ChatReq(question="", lineup=[LineupItem(name=j) for j in jokers])
         return _coach_tool_exec("discard_advisor", {"hand": hand, "max_discard": max_discard}, req)
+
+    @_mcp.tool()
+    def card_lookup_tool(name: str) -> dict:
+        """Wiki-verified text for any Balatro card (joker, tarot, planet,
+        spectral, voucher, tag, deck, boss blind, seal, edition, enhancement)
+        plus community synergy notes for jokers (balatrowiki.org, CC BY-NC-SA)."""
+        return card_lookup(name)
 
     app.mount("/mcp", _mcp.streamable_http_app())
     import contextlib

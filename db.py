@@ -439,42 +439,58 @@ def embedding_count() -> int:
         return 0
 
 
+def _embed_text(r) -> str:
+    """What a joker 'means' for vector search: name, wiki-verified effect,
+    archetype, tags and the hand-written playbook line."""
+    strat = str(r.get("strategy", "") or "")[:400]
+    return (f"{r['name']}. {r['effect']} Archetype: {r.get('archetype', '')}. "
+            f"Tags: {str(r['tags']).replace('|', ', ')}. {strat}")
+
+
 def ensure_embeddings(jokers_df, budget_s: float = 300.0) -> dict:
-    """Embed joker effect texts into Lakebase, incrementally.
+    """Embed joker texts into Lakebase, incrementally.
 
     Works in small batches and commits each one, so progress survives
-    timeouts and restarts — repeated boots converge on 150/150.
+    timeouts and restarts — repeated boots converge on 150/150. Rows whose
+    source text changed (data audit, renamed card) are re-embedded, keyed
+    by an md5 of the text.
     """
+    import hashlib
     out = {"stored": 0, "total": len(jokers_df), "error": None}
     table = _emb_table()
     t0 = time.time()
     try:
-        have = {r[0] for r in _exec(f"SELECT name FROM {table}", fetch=True)}
+        _exec(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS doc_md5 TEXT")
+        have = {r[0]: r[1] for r in _exec(f"SELECT name, doc_md5 FROM {table}", fetch=True)}
     except Exception as e:
         out["error"] = f"table read failed: {e}"
         return out
-    missing = jokers_df[~jokers_df["name"].isin(have)]
-    out["stored"] = len(have)
-    if len(missing) == 0:
+    df = jokers_df.fillna("")
+    texts_all = {r["name"]: _embed_text(r) for _, r in df.iterrows()}
+    md5 = {n: hashlib.md5(t.encode()).hexdigest() for n, t in texts_all.items()}
+    todo = [n for n in texts_all if have.get(n) != md5[n]]
+    stale = [n for n in have if n not in texts_all]
+    if stale:                               # renamed / removed cards
+        _exec(f"DELETE FROM {table} WHERE name = ANY(%s)", (stale,))
+    out["stored"] = len(texts_all) - len(todo)
+    if not todo:
         return out
-    rows = list(missing.iterrows())
-    for i in range(0, len(rows), 8):
+    for i in range(0, len(todo), 8):
         if time.time() - t0 > budget_s:
             out["error"] = f"time budget hit at {out['stored']}/{out['total']} — will resume"
             return out
-        chunk = rows[i:i + 8]
-        texts = [f"{r['name']}. {r['effect']} Tags: {str(r['tags']).replace('|', ', ')}"
-                 for _, r in chunk]
+        chunk = todo[i:i + 8]
         try:
-            embs = _embed(texts)
+            embs = _embed([texts_all[n] for n in chunk])
         except Exception as e:
             out["error"] = f"embedding batch failed at {out['stored']}/{out['total']}: {str(e)[:120]}"
             return out
-        for (_, r), e in zip(chunk, embs):
+        for n, e in zip(chunk, embs):
             payload = str(list(e)) if _state["pgvector"] else json.dumps(list(e))
-            _exec(f"""INSERT INTO {table} (name, model, emb) VALUES (%s,%s,%s)
-                      ON CONFLICT (name) DO UPDATE SET emb = EXCLUDED.emb""",
-                  (r["name"], EMBED_ENDPOINT, payload))
+            _exec(f"""INSERT INTO {table} (name, model, emb, doc_md5) VALUES (%s,%s,%s,%s)
+                      ON CONFLICT (name) DO UPDATE
+                      SET emb = EXCLUDED.emb, model = EXCLUDED.model, doc_md5 = EXCLUDED.doc_md5""",
+                  (n, EMBED_ENDPOINT, payload, md5[n]))
         out["stored"] += len(chunk)
     return out
 
@@ -485,12 +501,40 @@ def ensure_embeddings(jokers_df, budget_s: float = 300.0) -> dict:
 BM25_INDEX = f"{SCHEMA}.joker_docs_bm25"
 
 
-def ensure_search(jokers_df) -> dict:
+def joker_doc(r, notes: dict | None = None) -> str:
+    """Keyword-search document for one joker: wiki-verified effect, archetype,
+    tags, playbook, plus the wiki's Synergies / Anti-Synergies / Strategy
+    prose (balatrowiki.org, CC BY-NC-SA 3.0) so questions like 'jokers that
+    punish discards' hit on meaning, not just on the card text."""
+    doc = (f"{r['name']}. {r['effect']} Type: {r.get('type', '')}, {r.get('activation', '')}. "
+           f"Archetype: {r.get('archetype', '')}. Tags: {str(r['tags']).replace('|', ', ')}. "
+           f"Playbook: {r.get('strategy', '')}")
+    if notes and r["name"] in notes:
+        doc += " Wiki: " + " ".join(notes[r["name"]])[:2500]
+    return doc
+
+
+def notes_index(notes_df) -> dict[str, list[str]]:
+    """joker_notes.csv → {name: [paragraph, ...]} (Synergies first)."""
+    out: dict[str, list[str]] = {}
+    if notes_df is None or len(notes_df) == 0:
+        return out
+    order = {"Overview": 0, "Synergies": 1, "Strategy": 2, "Anti-Synergies": 3, "Notes": 4}
+    df = notes_df.fillna("")
+    df = df.assign(_o=df["section"].map(lambda s: order.get(s, 9))).sort_values(["name", "_o", "seq"])
+    for name, g in df.groupby("name", sort=False):
+        out[str(name)] = [f"{s}: {t}" for s, t in zip(g["section"], g["text"])]
+    return out
+
+
+def ensure_search(jokers_df, notes_df=None) -> dict:
     """Install the lakebase_text / lakebase_vector extensions when the project
     has Lakebase Search enabled, keep a joker_docs table (name + effect +
-    playbook + tags → tsvector) in sync, and build the BM25 + ANN indexes.
-    Silently reports unavailable when the extensions are not offered."""
+    playbook + tags + wiki notes → tsvector) in sync, and build the BM25 +
+    ANN indexes. Silently reports unavailable when the extensions are not
+    offered."""
     out = {"lbsearch": False, "docs": 0, "error": None}
+    notes = notes_index(notes_df)
     if not available() or not _state["pgvector"]:
         out["error"] = "no pgvector connection"
         return out
@@ -508,13 +552,18 @@ def ensure_search(jokers_df) -> dict:
     have = {r[0]: r[1] for r in _exec(f"SELECT name, md5(doc) FROM {SCHEMA}.joker_docs", fetch=True)}
     import hashlib
     changed = 0
+    names = set()
     for _, r in jokers_df.fillna("").iterrows():
-        doc = (f"{r['name']}. {r['effect']} Archetype: {r.get('archetype','')}. "
-               f"Tags: {str(r['tags']).replace('|', ', ')}. Playbook: {r.get('strategy','')}")
+        names.add(r["name"])
+        doc = joker_doc(r, notes)
         if have.get(r["name"]) != hashlib.md5(doc.encode()).hexdigest():
             _exec(f"""INSERT INTO {SCHEMA}.joker_docs (name, doc) VALUES (%s, %s)
                       ON CONFLICT (name) DO UPDATE SET doc = EXCLUDED.doc""", (r["name"], doc))
             changed += 1
+    stale = [n for n in have if n not in names]
+    if stale:                               # renamed cards ("8-Ball" → "8 Ball")
+        _exec(f"DELETE FROM {SCHEMA}.joker_docs WHERE name = ANY(%s)", (stale,))
+        changed += len(stale)
     out["docs"] = len(jokers_df)
     # BM25 statistics are computed at build time → build after the corpus is loaded
     if changed or not _exec("SELECT 1 FROM pg_indexes WHERE indexname = 'joker_docs_bm25'", fetch=True):
@@ -587,10 +636,10 @@ def _tokenize(s: str):
     return re.findall(r"[a-z0-9+×$]+", s.lower())
 
 
-def build_tfidf(jokers_df):
-    docs = [(r["name"], _tokenize(f"{r['name']} {r['effect']} {str(r['tags']).replace('|',' ')} "
-                                  f"{r.get('archetype','')} {r.get('strategy','')}"))
-            for _, r in jokers_df.iterrows()]
+def build_tfidf(jokers_df, notes_df=None):
+    notes = notes_index(notes_df)
+    docs = [(r["name"], _tokenize(joker_doc(r, notes)))
+            for _, r in jokers_df.fillna("").iterrows()]
     df_count: dict = {}
     for _, toks in docs:
         for t in set(toks):

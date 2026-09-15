@@ -45,6 +45,21 @@ run context ─────────► foundation model on Databricks ──
   them for synergy but excludes them from the math, and *tells you* it did.
 - Known approximations are documented at the top of `engine.py`.
 
+## Where the card data comes from (v1.7)
+
+Every card table in `data/` is generated from a structured extract of
+[balatrowiki.org](https://balatrowiki.org) (`data/wiki_dump.json`: infobox
+parameters, Synergies / Anti-Synergies / Strategy sections, thumbnail paths)
+by `tools/wiki_enrich.py`, which normalises the wikitext and merges in the
+hand-written columns (archetype, playbook, test ideas). `tests/test_data.py`
+fails if a CSV ever drifts from the extract. The first run of that audit
+found real errors in the old hand-typed tables — see
+[`docs/Data_Audit.md`](docs/Data_Audit.md) — none of which were in the engine.
+
+Card art is © LocalThunk and is served through the app's `/img/` route from
+the wiki's thumbnails (nothing is bundled); wiki text is CC BY-NC-SA 3.0 and
+is credited in the Codex.
+
 ## Run it locally
 
 ```bash
@@ -88,9 +103,14 @@ app.py               FastAPI backend (optimizer, codex, search, runs, coach)
 static/index.html    hand-built SPA (5 tabs, mobile-first)
 engine.py            deterministic scoring engine + joker effect registry
 db.py                Lakebase/pgvector/model-serving layer + demo-mode fallbacks
-data/*.csv           150 jokers (tagged), hands, planets, tarots, spectrals,
-                     vouchers, decks, tags
-tests/test_engine.py 26 unit tests
+data/*.csv           150 jokers (wiki-verified + tagged), joker_notes (wiki
+                     synergy prose), hands, planets, tarots, spectrals,
+                     vouchers, decks, tags, blinds, enhancements, editions,
+                     seals, stakes; wiki_dump.json is the raw extract
+tools/wiki_enrich.py regenerates data/ from wiki_dump.json (tools/wikitext.py
+                     is the wikitext → plain-text normaliser)
+tests/test_engine.py 28 engine tests · tests/test_data.py data audit ·
+                     tests/mobile_walkthrough.py tap-budget walkthrough
 setup_uc_tables.py   optional: load data/ into Unity Catalog for Genie
 app.yaml             Databricks Apps entry point
 apprunner.yaml       AWS App Runner entry point (demo mode)
