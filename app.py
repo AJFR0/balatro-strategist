@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import threading
+import uuid
 from typing import Any, Optional
 
 import pandas as pd
@@ -66,6 +67,7 @@ def _joker_records() -> list[dict]:
 def boot() -> None:
     _load_tables()
     DIAG.update(db.diagnostics(run_chat_test=True))
+    DIAG["tracing"] = db.init_tracing()["why"]
     db.build_tfidf(TABLES["jokers"])
     print("=== BALATRO STRATEGIST STARTUP DIAGNOSTICS ===", flush=True)
     for k, v in DIAG.items():
@@ -81,6 +83,13 @@ def _start_backfill() -> None:
             r = db.ensure_embeddings(TABLES["jokers"])
             print(f"  joker_embeddings backfill: {r['stored']}/{r['total']} stored"
                   + (f" ({r['error']})" if r.get("error") else " — complete"), flush=True)
+            try:
+                sr = db.ensure_search(TABLES["jokers"])
+                DIAG["search"] = ("Lakebase Search (BM25 + ANN, RRF)" if sr["lbsearch"]
+                                  else f"pgvector ({sr.get('error')})")
+                print(f"  lakebase search: {DIAG['search']}", flush=True)
+            except Exception as e:
+                DIAG["search"] = f"pgvector (search index error: {str(e)[:100]})"
         threading.Thread(target=backfill, daemon=True).start()
         print("  joker_embeddings: backfill started in background", flush=True)
 
@@ -184,7 +193,10 @@ def bootstrap() -> dict:
         "diag": DIAG,
         "demo": db.DEMO,
         "genie_ok": db.genie_ok(),
+        "genie_agent_ok": db.genie_ok(),
         "ai_ok": db.ai_ok(),
+        "chat_model": db.chat_endpoint() if db.ai_ok() else None,
+        "search_mode": DIAG.get("search", ""),
         "lakebase_ok": _lakebase_ok(),
         "semantic_ok": _pg_ok() and str(DIAG.get("embeddings", "")).startswith("OK"),
         "instance": db.INSTANCE,
@@ -305,6 +317,10 @@ def search(req: SearchReq) -> dict:
         return {"hits": [], "note": ""}
     if req.semantic and _pg_ok():
         try:
+            if db._state.get("lbsearch"):
+                hits = db.hybrid_search(q, top_n=24)
+                return {"hits": [{"name": h[0], "sim": h[1], "vrank": h[2], "krank": h[3]} for h in hits],
+                        "note": "hybrid · Lakebase Search (BM25 + vector, RRF)"}
             if db.embedding_count() > 0:
                 hits = db.semantic_search(q, top_n=24)
                 note = "semantic · Lakebase " + \
@@ -481,34 +497,45 @@ _TOOL_NOTE = ("\n\n## Tools\nYou can call the deterministic engine directly: "
               "numbers; then answer with the results.")
 
 
-def _agentic_chat(prompt: str, req: "ChatReq"):
+def _agentic_chat(prompt: str, req: "ChatReq", endpoint: str | None = None):
     msgs = [{"role": "user", "content": prompt + _TOOL_NOTE}]
     trace: list[dict] = []
-    for _ in range(3):
-        m = db.chat_with_tools(msgs, _COACH_TOOLS)
-        calls = m.get("tool_calls") or []
-        if not calls:
-            return (m.get("content") or "").strip(), trace
-        msgs.append({"role": "assistant", "content": m.get("content") or "",
-                     "tool_calls": calls})
-        for tc in calls[:4]:
-            fn = tc.get("function", {}) or {}
-            name = fn.get("name", "")
-            try:
-                targs = json.loads(fn.get("arguments") or "{}")
-            except Exception:
-                targs = {}
-            try:
-                result = _coach_tool_exec(name, targs, req)
-            except Exception as e:
-                result = {"error": str(e)[:200]}
-            trace.append({"tool": name, "args": targs, "result": result})
-            msgs.append({"role": "tool", "tool_call_id": tc.get("id", ""),
-                         "content": json.dumps(result)[:4000]})
-    msgs.append({"role": "user",
-                 "content": "No more tool calls — answer now with what you have."})
-    m = db.chat_with_tools(msgs, [])
-    return (m.get("content") or "").strip(), trace
+    model = endpoint
+    with db.span("coach", {"question": req.question[:300]}, kind="AGENT") as root:
+        for _ in range(3):
+            with db.span("llm", {"messages": len(msgs)}, kind="LLM") as ls:
+                m = db.chat_with_tools(msgs, _COACH_TOOLS, endpoint=endpoint)
+                model = m.get("_endpoint", model)
+                ls.out({"endpoint": model, "tool_calls": len(m.get("tool_calls") or [])})
+            calls = m.get("tool_calls") or []
+            if not calls:
+                ans = (m.get("content") or "").strip()
+                root.out({"answer": ans[:500], "tools": len(trace), "model": model})
+                return ans, trace, model
+            msgs.append({"role": "assistant", "content": m.get("content") or "",
+                         "tool_calls": calls})
+            for tc in calls[:4]:
+                fn = tc.get("function", {}) or {}
+                name = fn.get("name", "")
+                try:
+                    targs = json.loads(fn.get("arguments") or "{}")
+                except Exception:
+                    targs = {}
+                with db.span(name or "tool", targs) as ts:
+                    try:
+                        result = _coach_tool_exec(name, targs, req)
+                    except Exception as e:
+                        result = {"error": str(e)[:200]}
+                    ts.out(result)
+                trace.append({"tool": name, "args": targs, "result": result})
+                msgs.append({"role": "tool", "tool_call_id": tc.get("id", ""),
+                             "content": json.dumps(result)[:4000]})
+        msgs.append({"role": "user",
+                     "content": "No more tool calls — answer now with what you have."})
+        m = db.chat_with_tools(msgs, [], endpoint=endpoint)
+        ans = (m.get("content") or "").strip()
+        root.out({"answer": ans[:500], "tools": len(trace), "model": m.get("_endpoint", model)})
+        return ans, trace, m.get("_endpoint", model)
 
 
 @app.post("/api/chat")
@@ -571,10 +598,10 @@ def chat(req: ChatReq, request: Request) -> dict:
     prompt = "\n".join(lines)
     if db.ai_ok():
         try:
-            answer, trace = _agentic_chat(prompt, req)
+            answer, trace, model = _agentic_chat(prompt, req)
             if answer:
                 return {"ok": True, "answer": answer, "prompt": prompt,
-                        "tool_trace": trace}
+                        "tool_trace": trace, "model": model}
         except Exception:
             pass                    # endpoint may not support tools — fall back
     try:
@@ -590,6 +617,36 @@ def chat(req: ChatReq, request: Request) -> dict:
                         "so a second ×Mult usually beats a third +Mult.")
         return {"ok": False, "answer": fallback,
                 "error": str(e)[:200], "prompt": prompt}
+
+
+class BenchReq(BaseModel):
+    endpoints: list[str] = []
+    question: str = ("My hand is AH KH 9H 5H 2C AS 3C 7D with The Tribe. Should I play "
+                     "now or discard first? Verify with the engine before answering.")
+
+
+@app.post("/api/model/bench")
+def model_bench(req: BenchReq, request: Request) -> dict:
+    """Run the agentic coach once per candidate endpoint and report which
+    ones call tools correctly, how fast, and what they say. Free Edition
+    only exposes Foundation Model APIs, so this is how the default gets picked."""
+    if not db.ai_ok():
+        raise HTTPException(503, "AI not connected")
+    if db.DEMO:
+        _ai_throttle(request)
+    eps = req.endpoints or db.chat_endpoints()
+    creq = ChatReq(question=req.question, lineup=[LineupItem(name="The Tribe")])
+    out = []
+    for ep in eps[:6]:
+        t0 = _time.time()
+        try:
+            ans, trace, model = _agentic_chat(req.question, creq, endpoint=ep)
+            out.append({"endpoint": ep, "ok": True, "secs": round(_time.time() - t0, 1),
+                        "tools": [t["tool"] for t in trace], "answer": ans[:240]})
+        except Exception as e:
+            out.append({"endpoint": ep, "ok": False, "secs": round(_time.time() - t0, 1),
+                        "error": str(e)[:200]})
+    return {"results": out, "current": db.chat_endpoint()}
 
 
 # ---------------------------------------------------------------------------
@@ -646,6 +703,93 @@ def genie_poll(cid: str, mid: str) -> dict:
         return {"status": "FAILED", "error": str(e)[:200]}
 
 
+# --- Genie Agent mode: multi-step reasoning, run in a worker thread and polled ---
+_AGENT_JOBS: dict[str, dict] = {}
+
+
+class GenieAgentReq(BaseModel):
+    question: str
+    conversation_id: Optional[str] = None
+
+
+@app.post("/api/genie/agent/start")
+def genie_agent_start(req: GenieAgentReq, request: Request) -> dict:
+    if not db.genie_ok():
+        raise HTTPException(503, "Genie is not wired up")
+    if db.DEMO:
+        _ai_throttle(request)
+    job = uuid.uuid4().hex[:12]
+    _AGENT_JOBS[job] = {"status": "running", "started": _time.time()}
+
+    def work() -> None:
+        try:
+            r = db.genie_agent_run(req.question, req.conversation_id)
+            _AGENT_JOBS[job].update(r)
+            _AGENT_JOBS[job]["status"] = r.get("status") or "completed"
+        except Exception as e:
+            _AGENT_JOBS[job].update(status="failed", error=str(e)[:300])
+        # keep the table small
+        for k in [k for k, v in _AGENT_JOBS.items() if _time.time() - v.get("started", 0) > 1800]:
+            _AGENT_JOBS.pop(k, None)
+    threading.Thread(target=work, daemon=True).start()
+    return {"job": job}
+
+
+@app.get("/api/genie/agent/poll")
+def genie_agent_poll(job: str) -> dict:
+    j = _AGENT_JOBS.get(job)
+    if not j:
+        raise HTTPException(410, "job not found on this instance — ask again")
+    return j
+
+
 @app.get("/api/diag")
 def diag() -> JSONResponse:
     return JSONResponse(DIAG)
+
+
+# ---------------------------------------------------------------------------
+# MCP: the engine as tools for any agent (Genie One, Claude, Cursor …).
+# Mounted only when the `mcp` package is installed (Databricks deployment).
+# ---------------------------------------------------------------------------
+try:
+    from mcp.server.fastmcp import FastMCP
+    from mcp.server.transport_security import TransportSecuritySettings
+    # served behind the Databricks Apps auth proxy on a public hostname, so the
+    # localhost-only DNS-rebinding guard has to be relaxed
+    _mcp = FastMCP("balatro-strategist", stateless_http=True, streamable_http_path="/",
+                   transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False))
+
+    @_mcp.tool()
+    def best_plays_tool(hand: str, jokers: list[str] = []) -> dict:
+        """Score every legal play from a Balatro hand with the deterministic
+        engine. hand like 'AH KH 9H 5H 2C AS 3C 7D'; jokers left-to-right."""
+        req = ChatReq(question="", lineup=[LineupItem(name=j) for j in jokers])
+        return _coach_tool_exec("best_plays", {"hand": hand}, req)
+
+    @_mcp.tool()
+    def score_play_tool(cards: str, jokers: list[str] = []) -> dict:
+        """Score exactly these played cards (1-5) with the given joker lineup."""
+        req = ChatReq(question="", lineup=[LineupItem(name=j) for j in jokers])
+        return _coach_tool_exec("score_play", {"cards": cards}, req)
+
+    @_mcp.tool()
+    def discard_advisor_tool(hand: str, jokers: list[str] = [], max_discard: int = 5) -> dict:
+        """Monte-Carlo discard analysis: expected best-play score after redraw."""
+        req = ChatReq(question="", lineup=[LineupItem(name=j) for j in jokers])
+        return _coach_tool_exec("discard_advisor", {"hand": hand, "max_discard": max_discard}, req)
+
+    app.mount("/mcp", _mcp.streamable_http_app())
+    import contextlib
+    _mcp_stack = contextlib.AsyncExitStack()
+
+    @app.on_event("startup")
+    async def _mcp_start() -> None:
+        await _mcp_stack.enter_async_context(_mcp.session_manager.run())
+
+    @app.on_event("shutdown")
+    async def _mcp_stop() -> None:
+        await _mcp_stack.aclose()
+    DIAG["mcp"] = "mounted at /mcp (streamable HTTP)"
+except Exception as _e:               # package absent (Lambda) or API drift
+    DIAG["mcp"] = f"off ({str(_e)[:80]})"
