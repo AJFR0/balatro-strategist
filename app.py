@@ -229,7 +229,9 @@ def card_art(fname: str):
             with open(tmp, "wb") as f:
                 f.write(data)
             os.replace(tmp, path)
-    mt = "image/webp" if fname.lower().endswith(".webp") else "image/png"
+    ext = fname.rsplit(".", 1)[-1].lower()
+    mt = {"webp": "image/webp", "gif": "image/gif", "jpg": "image/jpeg",
+          "jpeg": "image/jpeg"}.get(ext, "image/png")
     return FileResponse(path, media_type=mt, headers={
         "Cache-Control": "public, max-age=2592000, immutable",
         "X-Credit": "Card art (c) LocalThunk, via balatrowiki.org"})
