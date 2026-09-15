@@ -432,6 +432,10 @@ body.live #toast{bottom:calc(var(--navh,58px) + 96px + env(safe-area-inset-botto
   <div class="panel" id="geniePanel" style="display:none">
     <div style="color:var(--gold);font-weight:800;font-size:14px;letter-spacing:.5px">🧞 ASK THE CODEX <span class="hint" style="font-weight:400">— Genie writes SQL over the wiki-verified dataset and answers in English</span></div>
     <input id="gQ" placeholder="e.g. which jokers under $6 scale multiplicatively?" style="width:100%;margin-top:9px">
+    <div class="row" style="margin-top:9px;justify-content:space-between">
+      <label id="gAgentWrap" style="font-size:12.5px;display:none"><input type="checkbox" id="gAgent" checked> 🧭 Agent mode — multi-step reasoning over the joker tables <i>and your run log</i></label>
+      <button class="chipbtn" id="gNew" style="display:none">↺ new conversation</button>
+    </div>
     <button class="b primary" id="gAsk" style="margin-top:9px">🧞 ASK GENIE</button>
     <div id="gOut" style="margin-top:10px"></div>
   </div>
@@ -469,6 +473,25 @@ function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";
 async function api(path,opts){const r=await fetch(path,opts?{headers:{"Content-Type":"application/json"},...opts}:undefined);
   if(!r.ok){let m="request failed";try{m=(await r.json()).detail||m}catch(e){}throw new Error(m)}return r.json()}
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+/* tiny markdown: headings, bold, bullets, pipe tables, Genie citations — enough for model output */
+function mdLite(src){const lines=String(src||"").replace(/\r/g,"").split("\n");let out=[],tbl=[],list=[];
+  const flushT=()=>{if(!tbl.length)return;const rows=tbl.filter(r=>!/^\|?\s*:?-{2,}/.test(r));
+    out.push('<div style="overflow-x:auto;margin:8px 0"><table style="border-collapse:collapse;font-size:12.5px">'+rows.map((r,i)=>{
+      const cells=r.replace(/^\||\|$/g,"").split("|").map(c=>inline(c.trim()));const tag=i===0?"th":"td";
+      return "<tr>"+cells.map(c=>`<${tag} style="text-align:left;padding:5px 12px 5px 0;border-bottom:1px solid rgba(255,255,255,${i===0?".2":".06"});${i===0?"color:var(--gold)":""}">${c}</${tag}>`).join("")+"</tr>"}).join("")+"</table></div>");tbl=[]};
+  const flushL=()=>{if(!list.length)return;out.push("<ul style='margin:6px 0 6px 18px;padding:0'>"+list.map(x=>"<li style='margin:3px 0'>"+inline(x)+"</li>").join("")+"</ul>");list=[]};
+  const inline=t=>esc(t).replace(/\\\[\[(\d+)\]\((https?:[^)\s]+)\)\\\]/g,'<a href="$2" target="_blank" rel="noopener" style="color:var(--gold);font-size:10.5px;vertical-align:super">[$1]</a>')
+    .replace(/\[(\d+)\]\((https?:[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener" style="color:var(--gold);font-size:10.5px;vertical-align:super">[$1]</a>')
+    .replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/`([^`]+)`/g,"<code style='font-size:12px;color:var(--chip)'>$1</code>");
+  for(const ln of lines){
+    if(/^\s*\|.*\|\s*$/.test(ln)){flushL();tbl.push(ln.trim());continue}
+    flushT();
+    const h=/^(#{1,4})\s+(.+)$/.exec(ln);if(h){flushL();out.push(`<div style="color:var(--gold);font-weight:800;margin:10px 0 4px;font-size:${h[1].length<=2?"14px":"13px"}">${inline(h[2])}</div>`);continue}
+    const li=/^\s*(?:[-*•]|\d+[.)])\s+(.+)$/.exec(ln);if(li){list.push(li[1]);continue}
+    flushL();
+    if(!ln.trim()){out.push("<div style='height:6px'></div>");continue}
+    out.push("<div>"+inline(ln)+"</div>")}
+  flushT();flushL();return out.join("")}
 function save(){try{localStorage.setItem("bs",JSON.stringify({hand:S.hand,lineup:S.lineup,levels:S.levels,run:S.run||null,recent:S.recent||[]}))}catch(e){}}
 function load(){try{const d=JSON.parse(localStorage.getItem("bs")||"{}");
   S.hand=d.hand||[];S.lineup=d.lineup||[];S.levels=d.levels||{};S.run=d.run||null;S.recent=d.recent||[]}catch(e){}}
@@ -946,11 +969,10 @@ $("#cAsk").onclick=async()=>{
     lineup:S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"})),levels:S.levels,
     last_plays:S.lastPlays||[],hand_text:S.lastCtx.hand_text||"",blind_req:S.lastCtx.blind_req||0})});
     $("#answerWrap").style.display="block";
-    let html=(r.answer||"").replace(/&/g,"&amp;").replace(/</g,"&lt;")
-      .replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+    let html=`<div style="line-height:1.55">${mdLite(r.answer||"")}</div>`;
     if(r.tool_trace&&r.tool_trace.length){
       const tt=r.tool_trace.map(t=>`▸ ${t.tool}(${esc(JSON.stringify(t.args))})\n${esc(JSON.stringify(t.result,null,1).slice(0,900))}`).join("\n\n");
-      html+=`<details style="margin-top:12px"><summary style="cursor:pointer;color:var(--gold);font-size:12.5px">🔧 what the engine computed (${r.tool_trace.length} tool call${r.tool_trace.length>1?"s":""})</summary>
+      html+=`<details style="margin-top:12px"><summary style="cursor:pointer;color:var(--gold);font-size:12.5px">🔧 what the engine computed (${r.tool_trace.length} tool call${r.tool_trace.length>1?"s":""}${r.model?` · ${esc(String(r.model).replace("databricks-",""))}`:""})</summary>
         <pre style="white-space:pre-wrap;font-size:11px;color:var(--soft)">${tt}</pre></details>`}
     $("#answer").innerHTML=html;
     $("#promptView").textContent=r.prompt||"";
@@ -965,6 +987,25 @@ async function askGenie(){
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Genie is thinking…';
   out.innerHTML='<div class="hint">writing SQL over workspace.balatro…</div>';
   try{
+    if(S.boot.genie_agent_ok&&$("#gAgent").checked){
+      out.innerHTML='<div class="hint"><span class="spin"></span> agent mode: planning, querying, checking…</div>';
+      let job;
+      try{job=(await api("/api/genie/agent/start",{method:"POST",body:JSON.stringify({question:q,conversation_id:S._genieConv||null})})).job}
+      catch(e){throw new Error("agent mode: "+e.message)}
+      let r,tries=0,gone=false;
+      while(tries++<100){
+        await new Promise(res=>setTimeout(res,3000));
+        try{r=await api(`/api/genie/agent/poll?job=${job}`)}catch(e){gone=true;break}
+        if(r.status!=="running")break;
+        out.innerHTML=`<div class="hint"><span class="spin"></span> agent mode · ${Math.round(tries*3)}s${r.steps?` · ${r.steps} steps`:""}…</div>`}
+      if(gone)throw new Error("lost the agent job (new server instance) — ask again");
+      if(!r||r.status!=="completed")throw new Error("agent mode "+(r?(r.status+(r.error?": "+r.error:"")):"timed out"));
+      S._genieConv=r.conversation_id||S._genieConv;$("#gNew").style.display=S._genieConv?"":"none";
+      let html=`<div style="line-height:1.55">${mdLite(r.text||"")}</div>`;
+      if(r.sql&&r.sql.length)html+=`<details style="margin-top:9px"><summary style="cursor:pointer;color:var(--fade);font-size:12px">🧭 ${r.steps||r.sql.length} reasoning steps · ${r.sql.length} quer${r.sql.length===1?"y":"ies"} Genie ran</summary>
+        ${r.sql.map(x=>`<pre style="white-space:pre-wrap;font-size:11.5px;color:var(--soft)">${esc(x)}</pre>`).join("")}</details>`;
+      out.innerHTML=html||'<div class="hint">Genie returned nothing — try rephrasing.</div>';
+      btn.disabled=false;btn.innerHTML="🧞 ASK GENIE";return}
     const s=await api("/api/genie/start",{method:"POST",body:JSON.stringify({question:q})});
     if(!s.ok)throw new Error(s.error||"Genie unavailable");
     let r,tries=0;
@@ -975,7 +1016,7 @@ async function askGenie(){
       out.innerHTML=`<div class="hint"><span class="spin"></span> ${esc(r.status.toLowerCase().replace(/_/g," "))}…</div>`}
     if(!r||r.status!=="COMPLETED")throw new Error("Genie "+(r?r.status.toLowerCase():"timed out"));
     let html="";
-    if(r.text)html+=`<div style="line-height:1.55">${esc(r.text).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>")}</div>`;
+    if(r.text)html+=`<div style="line-height:1.55">${mdLite(r.text)}</div>`;
     if(r.columns&&r.columns.length&&r.rows&&r.rows.length){
       html+=`<div style="overflow-x:auto;margin-top:9px"><table style="border-collapse:collapse;font-size:12.5px;min-width:50%">
         <tr>${r.columns.map(c=>`<th style="text-align:left;padding:5px 12px 5px 0;color:var(--gold);border-bottom:1px solid rgba(255,255,255,.15)">${esc(c)}</th>`).join("")}</tr>
@@ -986,6 +1027,7 @@ async function askGenie(){
   catch(e){out.innerHTML=`<div class="hint">🧞 ${esc(e.message)}</div>`}
   btn.disabled=false;btn.innerHTML="🧞 ASK GENIE"}
 $("#gAsk").onclick=askGenie;
+$("#gNew").onclick=()=>{S._genieConv=null;$("#gNew").style.display="none";toast("🧭 fresh Genie conversation")};
 $("#gQ").addEventListener("keydown",e=>{if(e.key==="Enter")askGenie()});
 
 /* ---------------- boot ---------------- */
@@ -998,6 +1040,7 @@ $("#gQ").addEventListener("keydown",e=>{if(e.key==="Enter")askGenie()});
   $("#diagView").textContent=JSON.stringify(S.boot.diag,null,2)
     +`\n\ninstance: ${S.boot.instance}\nchat: ${S.boot.endpoints.chat}\nembed: ${S.boot.endpoints.embed}`;
   if(S.boot.genie_ok)$("#geniePanel").style.display="block";
+  if(S.boot.genie_agent_ok)$("#gAgentWrap").style.display="";
   acSetup("#jsearch","#aclist",n=>addJoker(n));
   acSetup("#wsearch","#waclist",n=>{S._webCenter=n;renderWeb(n)});
   S._webCenter="Blueprint";renderWeb("Blueprint");
