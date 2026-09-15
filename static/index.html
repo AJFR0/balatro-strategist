@@ -199,6 +199,32 @@ details.play pre{margin:0;padding:10px 12px;overflow-x:auto;font-size:11.5px;lin
   border-left:3px solid var(--gold);background:rgba(255,213,74,.06);border-radius:0 8px 8px 0}
 .filters{display:flex;gap:7px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
 .filters::-webkit-scrollbar{display:none}
+/* ---- card art (v1.7: wiki thumbnails, lazy, hidden on error) ---- */
+.tile.art{display:grid;grid-template-columns:58px 1fr;column-gap:12px}
+.tile.art>.cimg{grid-row:1/span 9;width:58px;height:78px;object-fit:contain;border-radius:6px;
+  background:rgba(0,0,0,.25);image-rendering:auto;align-self:start;margin-top:2px}
+.tile.art>.cimg.sq{height:58px}
+.tile .cimg[hidden]{display:none}
+.tile.art>*:not(.cimg){grid-column:2}
+.tile .unl{margin-top:7px;font-size:12px;color:#d7c27a;line-height:1.4}
+.tile .unl.spoil{filter:blur(5px);cursor:pointer;user-select:none}
+.tile .unl.spoil:active{filter:none}
+.tile .meta{color:var(--fade);font-size:11px;margin-top:5px}
+.tile .wiki{color:#cfe3d7;font-size:12.5px;line-height:1.45;margin-top:5px}
+.tile .wiki .sec{color:var(--gold);font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin:7px 0 2px}
+.tile .wiki .credit{color:var(--fade);font-size:10.5px;margin-top:7px}
+.mini{width:26px;height:35px;object-fit:contain;border-radius:3px;flex:0 0 auto;background:rgba(0,0,0,.25)}
+.mini[hidden]{display:none}
+.jrow .mini{margin-left:2px}
+.chipbtn .mini{width:18px;height:24px;vertical-align:middle;margin:-4px 5px -4px -3px;display:inline-block}
+.codexnav{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;scrollbar-width:none}
+.codexnav::-webkit-scrollbar{display:none}
+.codexnav .chipbtn{white-space:nowrap;flex:0 0 auto}
+.credit{color:var(--fade);font-size:11px;text-align:center;padding:16px 8px 6px;line-height:1.5}
+.credit a{color:var(--fade)}
+#runbar .bossrow{margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#runbar .bossrow select{padding:8px 8px;font-size:13px;max-width:52vw}
+#runbar .bossfx{color:#ffd0c8;font-size:12px;flex:1;min-width:140px}
 
 /* ---- synergy ---- */
 .syn-svg{width:100%;height:auto;display:block}
@@ -361,7 +387,17 @@ body.live #toast{bottom:calc(var(--navh,58px) + 96px + env(safe-area-inset-botto
 
 <!-- ============================ CODEX ============================ -->
 <section id="t-codex">
-  <div class="panel">
+  <div class="codexnav" id="codexNav">
+    <button class="chipbtn on" data-set="jokers">🃏 Jokers</button>
+    <button class="chipbtn" data-set="consumables">🔮 Tarot · Planet · Spectral</button>
+    <button class="chipbtn" data-set="vouchers">🎟️ Vouchers</button>
+    <button class="chipbtn" data-set="tags">🏷️ Tags</button>
+    <button class="chipbtn" data-set="decks">🂠 Decks</button>
+    <button class="chipbtn" data-set="blinds">👹 Blinds</button>
+    <button class="chipbtn" data-set="mods">✨ Editions · Seals · Enhancements</button>
+    <button class="chipbtn" id="spoilTog" title="unlock conditions are blurred until you say so">🔒 unlocks</button>
+  </div>
+  <div class="panel" id="codexJokerTools">
     <div class="row">
       <input id="csearch" placeholder="try: jokers that punish discards…" style="flex:1;min-width:200px">
       <button class="chipbtn on" id="semTog">🧠 semantic</button>
@@ -372,6 +408,7 @@ body.live #toast{bottom:calc(var(--navh,58px) + 96px + env(safe-area-inset-botto
   </div>
   <div class="hint" id="codexCount"></div>
   <div class="grid" id="codexGrid"></div>
+  <div class="credit" id="credit"></div>
 </section>
 
 <!-- ============================ WEB ============================ -->
@@ -500,16 +537,21 @@ function load(){try{const d=JSON.parse(localStorage.getItem("bs")||"{}");
 const BLINDS={1:[300,450,600],2:[800,1200,1600],3:[2000,3000,4000],4:[5000,7500,10000],
   5:[11000,16500,22000],6:[20000,30000,40000],7:[35000,52500,70000],8:[50000,75000,100000]};
 const BLIND_NAMES=["Small Blind","Big Blind","BOSS"];
+function bossInfo(){if(!S.run||S.run.blind!==2||!S.run.boss)return null;
+  return ((S.boot.cards||{}).blinds||[]).find(b=>b.name===S.run.boss)||null}
 function runTarget(){if(!S.run)return 0;const a=Math.min(S.run.ante,8);
-  return (BLINDS[a]||BLINDS[8])[S.run.blind]}
+  const base=(BLINDS[a]||BLINDS[8])[S.run.blind],b=bossInfo();
+  return b?Math.round(base*(+b.score_mult||2)/2):base}   // boss slot already holds the ×2 boss value
+function bossOptions(){const ante=Math.min(S.run.ante,8);
+  return ((S.boot.cards||{}).blinds||[]).filter(b=>(b.kind==="Boss"&&(b.min_ante==="Any"||+b.min_ante<=ante))||(b.kind==="Showdown"&&ante>=8))}
 function renderRunbar(){const bar=$("#runbar");
   if(!S.run){bar.style.display="none";$("#runStart").textContent="🎮 Start run";return}
   $("#runStart").textContent="🎮 Run active";
-  const won=S.run.ante>8, tgt=runTarget();
+  const won=S.run.ante>8, tgt=runTarget(), boss=bossInfo();
   bar.style.display="block";
   bar.innerHTML=`<div class="r1">
     <div class="seg"><span class="k">Ante</span><span class="v">${Math.min(S.run.ante,8)}${won?"+":""}</span></div>
-    <div class="seg"><span class="v ${S.run.blind===2?"boss":""}">${won?"🏆 ENDLESS":BLIND_NAMES[S.run.blind]}</span></div>
+    <div class="seg"><span class="v ${S.run.blind===2?"boss":""}">${won?"🏆 ENDLESS":S.run.blind===2&&boss?boss.name.toUpperCase():BLIND_NAMES[S.run.blind]}</span></div>
     <div class="seg"><span class="k">Target</span><span class="v">${tgt.toLocaleString()}</span></div>
     <div class="seg"><span class="k">Best</span><span class="v">${(S.run.best||0).toLocaleString()}</span></div>
     <div class="seg" title="hands · discards left this blind"><span class="v">✋${S.run.hands??4}</span><span class="v" style="color:var(--mult)">🗑${S.run.discards??3}</span></div>
@@ -517,13 +559,21 @@ function renderRunbar(){const bar=$("#runbar");
     <div class="seg"><span class="k">$</span><input id="runMoney" type="number" min="0" value="${S.run.money}" aria-label="money"></div>
     <button class="b gold" id="runNext">${S.run.blind<2?"Next blind ▸":"Beat boss ▸ ante "+Math.min(S.run.ante+1,9)}</button>
     <button class="b" id="runEnd" aria-label="end run" title="End run" style="background:#5b1f1a;color:#ffb3ac">🏁</button>
-   </div>`;
+   </div>${S.run.blind===2&&!won?`<div class="bossrow">
+    ${art(boss?boss.image:"","mini")}
+    <select id="runBoss" aria-label="which boss blind"><option value="">which boss?</option>${bossOptions().map(b=>
+      `<option ${b.name===S.run.boss?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
+    <span class="bossfx">${boss?esc(boss.effect)+(+boss.score_mult!==2?` · ×${boss.score_mult} blind`:"")+` · $${boss.reward}`:"pick it and the target + coach adjust"}</span>
+   </div>`:""}`;
   const prevBlind=$("#blind").value;$("#blind").value=won?0:tgt;
   if(String(prevBlind)!==String($("#blind").value))scheduleOpt();
   $("#cAnte").value=Math.min(S.run.ante,8);$("#cMoney").value=S.run.money;
   $("#cHands").value=S.run.hands??4;$("#cDisc").value=S.run.discards??3;
   $("#runMoney").onchange=e=>{S.run.money=Math.max(0,+e.target.value||0);save()};
-  $("#runNext").onclick=()=>{S.run.cleared=(S.run.cleared||0)+1;S.run.hands=4;S.run.discards=3;
+  const rb=$("#runBoss");if(rb)rb.onchange=e=>{S.run.boss=e.target.value||null;
+    const b=bossInfo();if(b&&b.name==="The Water"){S.run.discards=0}if(b&&b.name==="The Needle"){S.run.hands=1}
+    buzz();save();renderRunbar()};
+  $("#runNext").onclick=()=>{S.run.cleared=(S.run.cleared||0)+1;S.run.hands=4;S.run.discards=3;S.run.boss=null;
     if(S.run.blind<2)S.run.blind++;else{S.run.ante++;S.run.blind=0;
       if(S.run.ante>8)toast("🏆 Ante 8 beaten — that's the win. Endless awaits.")}
     buzz(12);save();renderRunbar()};
@@ -622,6 +672,7 @@ function renderLineup(){const el=$("#lineup");
          ${EDS.map(e=>`<option ${e===d.ed?"selected":""}>${e}</option>`).join("")}</select></div>`;
     return `<div class="jrow" style="--rar:${RAR[j.rarity]||"#4fa8ff"}">
       <div class="mv"><button data-i="${i}" class="jup" aria-label="move joker up">▲</button><button data-i="${i}" class="jdn" aria-label="move joker down">▼</button></div>
+      ${art(j.image,"mini")}
       <div class="grow"><div class="nm">${i+1}. ${esc(d.name)}</div>
         <div class="eff">${esc(String(j.effect||"").slice(0,90))}</div>
         ${j.supported?"":'<div class="eff" style="color:#8aa">ℹ️ not score-affecting — synergy only</div>'}</div>
@@ -646,7 +697,7 @@ async function renderQuick(){const el=$("#jquick");if(!el||!S.jokers.length)retu
     syn=S._syn[last].filter(n=>!inL.has(n)&&S.byName[n]&&S.byName[n].supported).slice(0,4)}
   const rec=(S.recent||[]).filter(n=>!inL.has(n)&&!syn.includes(n)&&S.byName[n]).slice(0,4);
   const seed=(rec.length+syn.length)<3?STARTERS.filter(n=>!inL.has(n)&&!rec.includes(n)&&!syn.includes(n)).slice(0,5-rec.length-syn.length):[];
-  const chip=(n,cls)=>`<button class="chipbtn ${cls}" data-q="${esc(n)}" style="--rar:${RAR[(S.byName[n]||{}).rarity]||"#4fa8ff"};border-color:var(--rar)">+ ${esc(n)}</button>`;
+  const chip=(n,cls)=>`<button class="chipbtn ${cls}" data-q="${esc(n)}" style="--rar:${RAR[(S.byName[n]||{}).rarity]||"#4fa8ff"};border-color:var(--rar)">${art((S.byName[n]||{}).image,"mini")}+ ${esc(n)}</button>`;
   el.innerHTML=(syn.length?`<span class="lab">🕸️ pairs with ${esc(last)}</span>`+syn.map(n=>chip(n,"")).join(""):"")
     +(rec.length?`<span class="lab">recent</span>`+rec.map(n=>chip(n,"")).join(""):"")
     +(seed.length?`<span class="lab">${rec.length||syn.length?"":"quick add"}</span>`+seed.map(n=>chip(n,"")).join(""):"");
@@ -781,22 +832,80 @@ async function quickLog(outcome){const b=S.lastPlays&&S.lastPlays[0];
   catch(e){toast(e.message)}}
 
 /* ---------------- codex ---------------- */
+/* card art: wiki thumbnails through the same-origin /img/ proxy; lazy, and the
+   <img> hides itself when the art is unavailable so layout never breaks */
+function art(file,cls){if(!file)return "";
+  return `<img class="${cls||"cimg"}" src="/img/${encodeURIComponent(file)}" loading="lazy" decoding="async" alt=""
+    onerror="this.hidden=true">`}
+function unlockHTML(u){if(!u)return "";
+  return `<div class="unl ${S.spoil?"":"spoil"}" title="${S.spoil?"":"tap to reveal this unlock"}">🔒 ${esc(u)}</div>`}
 function tile(j,sim){const cost=j.cost!==""&&j.cost!=null&&!isNaN(+j.cost)?"$"+Math.round(+j.cost):"";
   const tags=String(j.tags||"").split("|").filter(t=>t&&t!=="nan").slice(0,4);
-  return `<div class="tile" style="--rar:${RAR[j.rarity]}">
+  const compat=[j.copyable==0?"not copyable":"",j.eternal==0?"never eternal":"",j.perishable==0?"never perishable":""].filter(Boolean);
+  const meta=[j.type,j.activation&&j.activation!=="N/A (Passive)"?j.activation:(j.activation?"passive":""),j.probability?"odds "+j.probability:""].filter(Boolean).join(" · ");
+  return `<div class="tile ${j.image?"art":""}" style="--rar:${RAR[j.rarity]}" data-j="${esc(j.name)}">
+    ${art(j.image)}
     <div class="cost">${cost}</div>
     <div class="nm">${sim!=null?`<span class="sim">${Math.round(sim*100)}%</span>`:""}${esc(j.name)}</div>
     <div class="eff">${esc(j.effect)}</div>
     <div style="margin-top:7px"><span class="pill rar" style="background:${RAR[j.rarity]}">${j.rarity}</span>
       <span class="pill arch">${esc(j.archetype||"")}</span>
       ${tags.map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</div>
+    ${meta?`<div class="meta">${esc(meta)}${compat.length?" · "+esc(compat.join(", ")):""}</div>`:""}
     ${benchLine(j)?`<div style="margin-top:6px;font-size:11.5px;color:var(--chip)">${benchLine(j)}</div>`:""}
+    ${unlockHTML(j.unlock)}
     ${j.strategy?`<details><summary>Strategy</summary>
       <div class="strat">${esc(j.strategy)}</div>
-      ${j.test_idea?`<div class="test">🧪 ${esc(j.test_idea)}</div>`:""}</details>`:""}</div>`}
+      ${j.test_idea?`<div class="test">🧪 ${esc(j.test_idea)}</div>`:""}</details>`:""}
+    <details class="wikid"><summary>Wiki synergies</summary><div class="wiki">loading…</div></details></div>`}
+/* generic tile for every non-joker card set */
+function ctile(c,set){const cost=c.cost!==""&&c.cost!=null&&!isNaN(+c.cost)?"$"+Math.round(+c.cost):"";
+  const sq=/tags|stakes|blinds/.test(set)?" sq":"";
+  const col=set==="blinds"?(c.kind==="Showdown"?"var(--legendary)":c.kind==="Boss"?"var(--mult)":"var(--fade)"):
+    set==="vouchers"?(c.tier==="Upgraded"?"var(--rare)":"var(--uncommon)"):"var(--chip)";
+  let pills="";
+  if(set==="blinds")pills=`<span class="pill">${esc(c.kind)}</span><span class="pill">×${(+c.score_mult||1)} score</span><span class="pill">$${c.reward}</span>${c.min_ante&&c.min_ante!=="Any"?`<span class="pill">ante ${esc(c.min_ante)}+</span>`:""}`;
+  else if(set==="vouchers")pills=`<span class="pill">${esc(c.tier)}</span>`+(c.requires?`<span class="pill">needs ${esc(c.requires.replace(/^Redeem /,"").replace(/ \d+ total times?$/,""))}</span>`:"");
+  else if(set==="tags")pills=c.min_ante&&c.min_ante!=="Any"?`<span class="pill">ante ${esc(c.min_ante)}+</span>`:"";
+  else if(c.kind)pills=`<span class="pill">${esc(c.kind)}</span>`+(c.shop==0?`<span class="pill">not in shop</span>`:"");
+  else if(c.hand)pills=`<span class="pill">${esc(c.hand)}</span>`;
+  const nm=set==="decks"?c.name+" Deck":set==="tags"?c.name+" Tag":c.name;
+  return `<div class="tile ${c.image?"art":""}" style="--rar:${col}">
+    ${art(c.image,"cimg"+sq)}
+    <div class="cost">${cost}</div>
+    <div class="nm">${esc(nm)}</div>
+    <div class="eff">${esc(c.effect||"")}</div>
+    ${pills?`<div style="margin-top:7px">${pills}</div>`:""}
+    ${unlockHTML(c.unlock)}</div>`}
+const SETS={consumables:["tarots","planets","spectrals"],vouchers:["vouchers"],tags:["tags"],decks:["decks"],
+  blinds:["blinds"],mods:["editions","seals","enhancements","stakes"]};
+const SET_LABEL={tarots:"Tarot",planets:"Planet",spectrals:"Spectral",vouchers:"Voucher",tags:"Tag",decks:"Deck",
+  blinds:"Blind",editions:"Edition",seals:"Seal",enhancements:"Enhancement",stakes:"Stake"};
+S.codexSet="jokers";S.spoil=false;try{S.spoil=localStorage.getItem("bs_spoil")==="1"}catch(e){}
+function renderSet(){const sets=SETS[S.codexSet]||[];let html="",n=0;
+  for(const s of sets){const rows=(S.boot.cards||{})[s]||[];n+=rows.length;
+    if(sets.length>1)html+=`<div class="hint" style="grid-column:1/-1;margin:6px 0 0;color:var(--gold);font-weight:800;letter-spacing:1px;text-transform:uppercase">${SET_LABEL[s]}s · ${rows.length}</div>`;
+    html+=rows.map(c=>ctile(c,s)).join("")}
+  $("#codexCount").textContent=`${n} cards`;$("#codexGrid").innerHTML=html}
+$("#codexNav").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.id==="spoilTog"){S.spoil=!S.spoil;b.classList.toggle("on",S.spoil);b.textContent=S.spoil?"🔓 unlocks":"🔒 unlocks";
+    try{localStorage.setItem("bs_spoil",S.spoil?"1":"0")}catch(e){}
+    $$("#codexGrid .unl").forEach(u=>u.classList.toggle("spoil",!S.spoil));return}
+  S.codexSet=b.dataset.set;$$("#codexNav button[data-set]").forEach(x=>x.classList.toggle("on",x===b));
+  $("#codexJokerTools").style.display=S.codexSet==="jokers"?"":"none";
+  S.codexSet==="jokers"?renderCodex():renderSet();window.scrollTo({top:0})});
+/* tap a blurred unlock to reveal just that one; open "Wiki synergies" to fetch the wiki prose once */
+document.addEventListener("click",e=>{const u=e.target.closest(".unl.spoil");if(u){u.classList.remove("spoil");return}});
+document.addEventListener("toggle",async e=>{const d=e.target;if(!d.classList||!d.classList.contains("wikid")||!d.open)return;
+  const t=d.closest(".tile"),name=t&&t.dataset.j,box=d.querySelector(".wiki");if(!name||d.dataset.done)return;d.dataset.done="1";
+  try{const r=await api(`/api/joker/${encodeURIComponent(name)}/notes`);
+    if(!r.notes.length){box.innerHTML=`<span style="color:var(--fade)">the wiki has no synergy notes for this one yet.</span>`;return}
+    let cur="",h="";for(const n of r.notes){if(n.section!==cur){cur=n.section;h+=`<div class="sec">${esc(cur)}</div>`}h+=`<div>• ${esc(n.text)}</div>`}
+    box.innerHTML=h+`<div class="credit" style="text-align:left;padding:8px 0 0">${esc(r.credit)} · <a href="${esc(r.source)}" target="_blank" rel="noopener">source page ↗</a></div>`}
+  catch(err){box.textContent="couldn't load wiki notes: "+err.message}},true);
 
 let codexHits=null;
-async function renderCodex(){let list=S.jokers,sims=null;
+async function renderCodex(){if(S.codexSet!=="jokers")return renderSet();let list=S.jokers,sims=null;
   const q=$("#csearch").value.trim();
   if(q&&codexHits){sims={};codexHits.forEach(h=>sims[h.name]=h.sim);
     list=codexHits.map(h=>S.byName[h.name]).filter(Boolean)}
@@ -853,7 +962,7 @@ async function renderWeb(center){try{
       text-anchor="middle">${esc(r.center.name)}</text></g></svg>`;
   const list=`<div class="syn-list">${r.neighbors.map(nb=>`
     <div class="nrow" data-jt="${esc(nb.name)}" data-sh="${esc(nb.shared.join("|"))}"
-      style="--rar:${varColor(nb.rarity)}"><div class="w">${nb.w}</div>
+      style="--rar:${varColor(nb.rarity)}"><div class="w">${nb.w}</div>${art((S.byName[nb.name]||{}).image,"mini")}
       <div><b>${esc(nb.name)}</b><div style="margin-top:2px">${nb.shared.slice(0,3)
         .map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</div></div></div>`).join("")}</div>`;
   $("#webOut").innerHTML=`<div class="panel">${svg}${list}
@@ -967,7 +1076,8 @@ $("#cAsk").onclick=async()=>{
     question:$("#cQ").value,ante:+$("#cAnte").value,money:+$("#cMoney").value,
     hands_left:+$("#cHands").value,discards_left:+$("#cDisc").value,shop:$("#cShop").value,
     lineup:S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"})),levels:S.levels,
-    last_plays:S.lastPlays||[],hand_text:S.lastCtx.hand_text||"",blind_req:S.lastCtx.blind_req||0})});
+    last_plays:S.lastPlays||[],hand_text:S.lastCtx.hand_text||"",blind_req:S.lastCtx.blind_req||0,
+    boss:(bossInfo()||{}).name||""})});
     $("#answerWrap").style.display="block";
     let html=`<div style="line-height:1.55">${mdLite(r.answer||"")}</div>`;
     if(r.tool_trace&&r.tool_trace.length){
@@ -1035,6 +1145,8 @@ $("#gQ").addEventListener("keydown",e=>{if(e.key==="Enter")askGenie()});
   load();
   try{S.boot=await api("/api/bootstrap")}catch(e){toast("backend unreachable: "+e.message);return}
   S.jokers=S.boot.jokers;S.jokers.forEach(j=>S.byName[j.name]=j);
+  if(S.spoil){$("#spoilTog").classList.add("on");$("#spoilTog").textContent="🔓 unlocks"}
+  $("#credit").innerHTML=`${esc(S.boot.credit||"")} · <a href="https://balatrowiki.org" target="_blank" rel="noopener">balatrowiki.org ↗</a> · effects re-verified against the wiki on every data build`;
   navH();renderTray();renderLineup();levelsUI();filterChips();renderCodex();renderRunbar();
   $("#rDeck").innerHTML=["Red",...S.boot.decks.filter(d=>d!=="Red")].map(d=>`<option>${esc(d)}</option>`).join("");
   $("#diagView").textContent=JSON.stringify(S.boot.diag,null,2)
