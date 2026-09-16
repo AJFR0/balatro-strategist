@@ -172,8 +172,13 @@ async def main():
 
         # B. next hand mid-run: one tap says "I played these", then only the
         #    replacements get entered. Start a run first so counters are checked.
-        await pg.tap("#runStart")
+        await pg.tap("#runStart")                         # opens the run sheet (v1.9)
         await pg.wait_for_timeout(400)
+        if await pg.locator("#rsNew").count():
+            await pg.tap("#rsNew")
+            await pg.wait_for_timeout(400)
+        else:
+            finding("HIGH", "runmode", "Start run did not offer a New run action")
         n_before = len(await pg.locator("#tray .mcard").all())
         taps = Taps()
         await taps.tap(pg, "#lPlayed")
@@ -211,15 +216,16 @@ async def main():
             toss = await pg.locator("#discOut button[data-toss]").first.get_attribute("data-toss")
             k = len(toss.split())
             n_before = len(await pg.locator("#tray .mcard").all())
+            d_before = await pg.evaluate("S.run?S.run.discards:null")
             await pg.screenshot(path=f"{SHOTS}/02c_discard.png")
             await taps.tap(pg, "#discOut button[data-toss] >> nth=0")
             await pg.wait_for_timeout(500)
             n_after = len(await pg.locator("#tray .mcard").all())
             if n_after != n_before - k:
                 finding("HIGH", "play", f"'I tossed these' should drop {k} cards (tray {n_before}→{n_after})")
-            bar = await pg.locator("#runbar").inner_text()
-            if "🗑2" not in bar:
-                finding("MED", "runmode", "discards-left counter did not decrement after a toss", bar[:80])
+            d_after = await pg.evaluate("S.run?S.run.discards:null")
+            if d_before is None or d_after != d_before - 1:
+                finding("MED", "runmode", "discards-left counter did not decrement after a toss", f"{d_before}→{d_after}")
             for i, r in enumerate("Q J 10 9 8".split()[:k]):
                 await taps.tap(pg, f"#ranks button[data-r='{r}']")
             if not await wait_live(pg):
@@ -244,10 +250,43 @@ async def main():
             finding("MED", "play", f"{len(m1b['smallTargets'])} tap targets under 40px with results shown",
                     ", ".join(m1b["smallTargets"][:8]))
         await pg.screenshot(path=f"{SHOTS}/02d_runbar.png")
-        await pg.tap("#runEnd")
-        await pg.wait_for_timeout(800)
+        await pg.tap("#runEnd")                           # opens the End run sheet (v1.9)
+        await pg.wait_for_timeout(400)
+        if not await pg.locator("#rsWon").count() or not await pg.locator("#rsLost").count():
+            finding("HIGH", "runmode", "End run flow does not ask Won / Lost explicitly")
+        else:
+            await pg.fill("#rsNotes", "walkthrough: ended from the run bar")
+            await pg.tap("#rsLost")
+        await pg.wait_for_timeout(1000)
         if await pg.locator("#runbar").is_visible():
             finding("MED", "runmode", "End run does not dismiss the run bar")
+
+        # ---------- journey 2b (v1.9): join a run in progress + one shared context ----------
+        await pg.tap("#runStart")
+        await pg.wait_for_timeout(400)
+        await pg.fill("#rsAnte", "3")
+        await pg.select_option("#rsBlind", "1")
+        await pg.fill("#rsMoney", "11")
+        await pg.fill("#rsHands", "3")
+        await pg.fill("#rsDisc", "1")
+        await pg.select_option("#rsDeck", "Blue")
+        await pg.tap("#rsOk")
+        await pg.wait_for_timeout(500)
+        run = await pg.evaluate("JSON.stringify(S.run)")
+        if '"ante":3' not in run or '"blind":1' not in run or '"hands":3' not in run or '"discards":1' not in run or '"deck":"Blue"' not in run:
+            finding("HIGH", "runmode", "joining a run did not keep the values entered", run[:120])
+        if (await pg.locator("#blind").input_value()) != "3000":
+            finding("HIGH", "runmode", "joined run did not set the optimizer target (ante 3 big blind = 3,000)")
+        await pg.click("#nav button[data-t='coach']")
+        await pg.wait_for_timeout(300)
+        ctxt = await pg.locator("#cCtx").inner_text()
+        if "Ante 3" not in ctxt or "$11" not in ctxt or "Blue" not in ctxt:
+            finding("HIGH", "coach", "coach context does not reflect the active run", ctxt[:100])
+        if await pg.locator("#cAnte").count():
+            finding("MED", "coach", "coach still has its own editable context fields")
+        await pg.click("#nav button[data-t='play']")
+        await pg.wait_for_timeout(300)
+        await pg.evaluate("S.run=null;save();renderRunbar();$('#blind').value=0")
 
         # ---------- journey 2: Codex ----------
         await pg.click("#nav button[data-t='codex']")
@@ -394,6 +433,47 @@ async def main():
             finding("MED", "codex", "no-match state has no explanation or clear action")
         await pg.unroute("**/api/search")
         await pg.evaluate("clearSearch()")
+
+        # ---------- journey 9 (v1.9): keyboard + screen-reader semantics ----------
+        await pg.click("#nav button[data-t='play']")
+        await pg.wait_for_timeout(300)
+        await pg.evaluate("S.lineup=[];renderLineup()")
+        await pg.focus("#jsearch")
+        await pg.keyboard.type("bloodst")
+        await pg.wait_for_timeout(400)
+        await pg.keyboard.press("ArrowDown")
+        await pg.keyboard.press("Enter")
+        await pg.wait_for_timeout(400)
+        if "Bloodstone" not in (await pg.evaluate("S.lineup.map(d=>d.name).join(',')")):
+            finding("HIGH", "a11y", "joker autocomplete is not keyboard-operable (ArrowDown + Enter)")
+        if (await pg.evaluate("$('#jsearch').getAttribute('role')")) != "combobox":
+            finding("MED", "a11y", "joker search lacks combobox semantics")
+        if (await pg.evaluate("$('#tray .mcard').tagName")) != "BUTTON":
+            finding("HIGH", "a11y", "hand cards are not buttons (no tab stop / role)")
+        await pg.focus("#tray .mcard")
+        await pg.keyboard.press("Enter")
+        await pg.wait_for_timeout(300)
+        if not await pg.evaluate("$('#sheet').classList.contains('on')") or \
+                (await pg.evaluate("$('#sheetBody').getAttribute('role')")) != "dialog" or \
+                not await pg.evaluate("$('#sheetBody').contains(document.activeElement)"):
+            finding("HIGH", "a11y", "modifier sheet is not a focused dialog when opened from the keyboard")
+        for _ in range(6):
+            await pg.keyboard.press("Tab")
+        if not await pg.evaluate("$('#sheetBody').contains(document.activeElement)"):
+            finding("MED", "a11y", "focus escapes the modifier sheet while it is open")
+        await pg.keyboard.press("Escape")
+        await pg.wait_for_timeout(200)
+        if await pg.evaluate("$('#sheet').classList.contains('on')"):
+            finding("HIGH", "a11y", "Escape does not close the modifier sheet")
+        if not await pg.evaluate("document.activeElement.classList.contains('mcard')"):
+            finding("MED", "a11y", "focus is not returned to the card after closing the sheet")
+        if (await pg.evaluate("$$('#suits button').filter(b=>b.getAttribute('aria-pressed')==='true').length")) != 1:
+            finding("MED", "a11y", "suit selection does not expose aria-pressed")
+        if not await pg.evaluate("$('#nav button[aria-current=page]')"):
+            finding("MED", "a11y", "navigation does not expose the selected tab")
+        unlabeled = await pg.evaluate("""[...document.querySelectorAll('input:not([type=checkbox]),select')].filter(el=>el.offsetParent&&!(el.labels&&el.labels.length)&&!el.getAttribute('aria-label')&&!el.getAttribute('aria-labelledby')).map(el=>el.id||el.placeholder||el.className).slice(0,6)""")
+        if unlabeled:
+            finding("MED", "a11y", "form fields without an accessible label", ", ".join(map(str, unlabeled)))
 
         # ---------- journey 6: PWA ----------
         pwa = await pg.evaluate("""async () => {
