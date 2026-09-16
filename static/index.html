@@ -345,6 +345,11 @@ body.live #snack{bottom:calc(var(--navh,58px) + 100px + env(safe-area-inset-bott
   border:1px dashed var(--line);border-radius:12px;font-size:13.5px;line-height:1.5}
 .techline{color:var(--fade);font-size:11px;text-align:center;padding:4px 8px 0}
 
+.mcard{font-family:inherit;padding:0}button.mcard{cursor:pointer}
+.mcard:focus-visible,.nrow:focus-visible,.aclist [role=option].act{outline:3px solid var(--gold);outline-offset:2px}
+.aclist [role=option].act{background:rgba(255,213,74,.14)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
 /* mobile ergonomics — must stay last to win the cascade */
 @media(max-width:819px){
   input,select,textarea{font-size:16px}
@@ -369,7 +374,7 @@ body.live #snack{bottom:calc(var(--navh,58px) + 100px + env(safe-area-inset-bott
 </header>
 
 <nav id="nav">
-  <button data-t="play" class="on"><span class="ico">🎯</span>Play</button>
+  <button data-t="play" class="on" aria-current="page"><span class="ico">🎯</span>Play</button>
   <button data-t="codex"><span class="ico">📖</span>Codex</button>
   <button data-t="web"><span class="ico">🕸️</span>Synergies</button>
   <button data-t="runs"><span class="ico">📒</span>Runs</button>
@@ -407,7 +412,7 @@ body.live #snack{bottom:calc(var(--navh,58px) + 100px + env(safe-area-inset-bott
   <div class="panel">
     <h2>Jokers <span style="color:var(--fade);font-size:11px;letter-spacing:0">(order matters — left to right)</span></h2>
     <div class="acwrap">
-      <input id="jsearch" placeholder="Add a joker — type to search…" autocomplete="off" style="width:100%">
+      <input id="jsearch" placeholder="Add a joker — type to search…" autocomplete="off" style="width:100%" aria-label="add a joker — type to search">
       <div class="aclist" id="aclist"></div>
     </div>
     <div class="qchips" id="jquick"></div>
@@ -418,7 +423,7 @@ body.live #snack{bottom:calc(var(--navh,58px) + 100px + env(safe-area-inset-bott
     <details><summary style="cursor:pointer;color:var(--gold);font-weight:700;font-size:13px">⚙️ Hand levels & run context</summary>
       <div id="levels" class="ctxgrid" style="margin-top:10px"></div>
       <div class="row" style="margin-top:12px">
-        <div><label class="f">Blind target</label><input id="blind" type="number" min="0" value="0" style="width:110px"></div>
+        <div><label class="f" for="blind">Blind target</label><input id="blind" type="number" min="0" value="0" style="width:110px"></div>
         <label style="font-size:13px"><input type="checkbox" id="optimist"> Optimist mode</label>
         <label style="font-size:13px"><input type="checkbox" id="finalHand"> Final hand</label>
       </div>
@@ -482,7 +487,8 @@ body.live #snack{bottom:calc(var(--navh,58px) + 100px + env(safe-area-inset-bott
 <section id="t-runs">
   <div class="stats" id="runStats"></div>
   <div class="panel">
-    <h2>Log a run</h2>
+    <h2>Log a past run</h2>
+    <div class="hint">A run in progress is logged from its 🏁 End button; use this for games you played without the app.</div>
     <div class="ctxgrid">
       <div><label class="f">Ante reached</label><input id="rAnte" type="number" min="1" max="39" value="8" style="width:100%"></div>
       <div><label class="f">Outcome</label><select id="rOut" style="width:100%"><option>lost</option><option>won</option><option>in-progress</option></select></div>
@@ -491,7 +497,7 @@ body.live #snack{bottom:calc(var(--navh,58px) + 100px + env(safe-area-inset-bott
         <option>White</option><option>Red</option><option>Green</option><option>Black</option>
         <option>Blue</option><option>Purple</option><option>Orange</option><option>Gold</option></select></div>
     </div>
-    <input id="rNotes" placeholder="what killed you / what carried you" style="width:100%;margin-top:9px">
+    <input id="rNotes" placeholder="what killed you / what carried you" style="width:100%;margin-top:9px" aria-label="notes">
     <label style="font-size:12.5px;display:block;margin:9px 0"><input type="checkbox" id="rLineup" checked> attach current joker lineup</label>
     <button class="b gold" id="rSave">📒 Log this run</button>
     <span class="hint" id="rStatus"></span>
@@ -503,13 +509,8 @@ body.live #snack{bottom:calc(var(--navh,58px) + 100px + env(safe-area-inset-bott
 <section id="t-coach">
   <div class="panel">
     <div class="filters" id="modes"></div>
-    <div class="ctxgrid" style="margin-top:6px">
-      <div><label class="f">Ante</label><input id="cAnte" type="number" value="4" min="1" style="width:100%"></div>
-      <div><label class="f">Money $</label><input id="cMoney" type="number" value="12" min="0" style="width:100%"></div>
-      <div><label class="f">Hands left</label><input id="cHands" type="number" value="3" min="0" style="width:100%"></div>
-      <div><label class="f">Discards left</label><input id="cDisc" type="number" value="2" min="0" style="width:100%"></div>
-    </div>
-    <input id="cShop" placeholder="what's in the shop (optional)" style="width:100%;margin-top:9px">
+    <div class="hint" id="cCtx" style="margin-top:6px;line-height:2"></div>
+    <input id="cShop" placeholder="what's in the shop (optional)" style="width:100%;margin-top:9px" aria-label="what's in the shop">
     <textarea id="cQ" rows="4" style="width:100%;margin-top:9px"></textarea>
     <button class="b primary" id="cAsk" style="margin-top:9px">🧠 ASK THE STRATEGIST</button>
   </div>
@@ -537,8 +538,9 @@ body.live #snack{bottom:calc(var(--navh,58px) + 100px + env(safe-area-inset-bott
 </main>
 <div id="jtip" class="jtip" hidden></div>
 
-<div id="sheet"><div class="body" id="sheetBody"></div></div>
-<div id="live" role="status" aria-live="polite">
+<div id="sheet"><div class="body" id="sheetBody" role="dialog" aria-modal="true" tabindex="-1"></div></div>
+<div id="liveAnnounce" class="sr" role="status" aria-live="polite"></div>
+<div id="live">
   <div class="lt" id="liveText"></div>
   <button class="b gold" id="lPlayed" aria-label="I played the best play">✓ Played</button>
   <button class="b" id="lDisc" aria-label="ask the discard advisor">🗑 Discard?</button>
@@ -555,6 +557,9 @@ const RANKS=["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
 const ENH=["none","bonus","mult","wild","glass","steel","stone","gold","lucky"];
 const EDS=["none","foil","holo","polychrome"];
 const SEALS=["none","red","gold","blue","purple"];
+const SUITN={H:"Hearts",D:"Diamonds",S:"Spades",C:"Clubs"};const RANKN={A:"Ace",K:"King",Q:"Queen",J:"Jack"};
+function cardName(c){return `${RANKN[c.rank]||c.rank} of ${SUITN[c.suit]}`}
+let _sheetReturn=null;
 const S={jokers:[],byName:{},hand:[],lineup:[],suit:"H",levels:{},lastPlays:null,lastCtx:{},
   boot:{},rarSel:new Set(),archSel:new Set(),semantic:true,recent:[],run:null,_syn:{}};
 function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms||8)}catch(e){}}
@@ -615,60 +620,128 @@ function runTarget(){if(!S.run)return 0;const a=Math.min(S.run.ante,8);
   return b?Math.round(base*(+b.score_mult||2)/2):base}   // boss slot already holds the ×2 boss value
 function bossOptions(){const ante=Math.min(S.run.ante,8);
   return ((S.boot.cards||{}).blinds||[]).filter(b=>(b.kind==="Boss"&&(b.min_ante==="Any"||+b.min_ante<=ante))||(b.kind==="Showdown"&&ante>=8))}
+/* deck / stake starting values (Balatro base game) — shown explicitly in the run sheet */
+const DECK_DEF={Red:{discards:1},Blue:{hands:1},Yellow:{money:10},Painted:{},Abandoned:{},Checkered:{},Zodiac:{},Ghost:{},Magic:{},Nebula:{},Erratic:{},Green:{},Black:{},Plasma:{},Anaglyph:{}};
+const STAKE_DEF={White:{},Red:{},Green:{},Black:{},Blue:{discards:-1},Purple:{},Orange:{},Gold:{}};
+const STAKES=["White","Red","Green","Black","Blue","Purple","Orange","Gold"];
+function runDefaults(deck,stake){const d=DECK_DEF[deck]||{},st=STAKE_DEF[stake]||{};
+  return {hands:4+(d.hands||0)+(st.hands||0),discards:3+(d.discards||0)+(st.discards||0),money:4+(d.money||0)}}
+function runNeed(){if(!S.run)return 0;return Math.max(0,runTarget()-(S.run.scored||0))}
 function renderRunbar(){const bar=$("#runbar");
-  if(!S.run){bar.style.display="none";$("#runStart").textContent="🎮 Start run";return}
+  if(!S.run){bar.style.display="none";$("#runStart").textContent="🎮 Start run";renderCoachCtx();return}
   $("#runStart").textContent="🎮 Run active";
-  const won=S.run.ante>8, tgt=runTarget(), boss=bossInfo();
+  const won=S.run.ante>8, tgt=runTarget(), boss=bossInfo(), need=runNeed(), scored=S.run.scored||0;
   bar.style.display="block";
   bar.innerHTML=`<div class="r1">
     <div class="seg"><span class="k">Ante</span><span class="v">${Math.min(S.run.ante,8)}${won?"+":""}</span></div>
     <div class="seg"><span class="v ${S.run.blind===2?"boss":""}">${won?"🏆 ENDLESS":S.run.blind===2&&boss?boss.name.toUpperCase():BLIND_NAMES[S.run.blind]}</span></div>
     <div class="seg"><span class="k">Target</span><span class="v">${tgt.toLocaleString()}</span></div>
-    <div class="seg"><span class="k">Best</span><span class="v">${(S.run.best||0).toLocaleString()}</span></div>
     <div class="seg" title="hands · discards left this blind"><span class="v">✋${S.run.hands??4}</span><span class="v" style="color:var(--mult)">🗑${S.run.discards??3}</span></div>
+    <div class="seg"><span class="k">${esc(S.run.deck||"Red")} · ${esc(S.run.stake||"White")}</span></div>
+    <button class="b" id="runEdit" aria-label="edit run context" title="Edit ante, blind, money, hands, discards, deck, stake" style="padding:10px 12px;font-size:12px;min-height:40px">✎ edit</button>
    </div><div class="r2">
     <div class="seg"><span class="k">$</span><input id="runMoney" type="number" min="0" value="${S.run.money}" aria-label="money"></div>
-    <button class="b gold" id="runNext">${S.run.blind<2?"Next blind ▸":"Beat boss ▸ ante "+Math.min(S.run.ante+1,9)}</button>
-    <button class="b" id="runEnd" aria-label="end run" title="End run" style="background:#5b1f1a;color:#ffb3ac">🏁</button>
+    <div class="seg" title="points scored this blind so far — edit if a chance-based play landed differently"><span class="k">scored</span><input id="runScored" type="number" min="0" value="${scored}" aria-label="points scored this blind" style="width:84px"></div>
+    <div class="seg"><span class="k">${need>0?"need":"cleared"}</span><span class="v" style="${need>0?"":"color:#3fd08a"}">${need>0?need.toLocaleString():"✔ +"+(scored-tgt).toLocaleString()}</span></div>
+    <button class="b gold" id="runNext" style="${need>0?"":"box-shadow:0 0 0 2px rgba(63,208,138,.6)"}">${S.run.blind<2?"Next blind ▸":"Beat boss ▸ ante "+Math.min(S.run.ante+1,9)}</button>
+    <button class="b" id="runEnd" aria-label="end run" title="End run" style="background:#5b1f1a;color:#ffb3ac">🏁 End</button>
    </div>${S.run.blind===2&&!won?`<div class="bossrow">
     ${art(boss?boss.image:"","mini")}
     <select id="runBoss" aria-label="which boss blind"><option value="">which boss?</option>${bossOptions().map(b=>
       `<option ${b.name===S.run.boss?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
     <span class="bossfx">${boss?esc(boss.effect)+(+boss.score_mult!==2?` · ×${boss.score_mult} blind`:"")+` · $${boss.reward}`:"pick it and the target + coach adjust"}</span>
    </div>`:""}`;
-  const prevBlind=$("#blind").value;$("#blind").value=won?0:tgt;
+  const prevBlind=$("#blind").value;$("#blind").value=won?0:(need>0?need:tgt);   // optimizer targets what's still needed
   if(String(prevBlind)!==String($("#blind").value))scheduleOpt();
-  $("#cAnte").value=Math.min(S.run.ante,8);$("#cMoney").value=S.run.money;
-  $("#cHands").value=S.run.hands??4;$("#cDisc").value=S.run.discards??3;
-  $("#runMoney").onchange=e=>{S.run.money=Math.max(0,+e.target.value||0);save()};
+  renderCoachCtx();
+  $("#runMoney").onchange=e=>{S.run.money=Math.max(0,+e.target.value||0);save();renderCoachCtx()};
+  $("#runScored").onchange=e=>{S.run.scored=Math.max(0,+e.target.value||0);save();renderRunbar()};
+  $("#runEdit").onclick=()=>openRunSheet("edit");
   const rb=$("#runBoss");if(rb)rb.onchange=e=>{S.run.boss=e.target.value||null;
     const b=bossInfo();if(b&&b.name==="The Water"){S.run.discards=0}if(b&&b.name==="The Needle"){S.run.hands=1}
     buzz();save();renderRunbar()};
   $("#runNext").onclick=()=>undoable(S.run.blind<2?"advanced to the next blind":"beat the boss → next ante",()=>{
-    S.run.cleared=(S.run.cleared||0)+1;S.run.hands=4;S.run.discards=3;S.run.boss=null;
+    const d=runDefaults(S.run.deck,S.run.stake);
+    S.run.cleared=(S.run.cleared||0)+1;S.run.hands=d.hands;S.run.discards=d.discards;S.run.boss=null;S.run.scored=0;
     if(S.run.blind<2)S.run.blind++;else{S.run.ante++;S.run.blind=0;
       if(S.run.ante>8)toast("🏆 Ante 8 beaten — that's the win. Endless awaits.")}
     buzz(12);save();renderRunbar()});
-  $("#runEnd").onclick=endRun}
-async function endRun(){const r=S.run;if(!r)return;
-  const won=r.ante>8, ante=Math.min(r.ante,won?39:8);
-  const notes=`Run Mode: ${won?"WON — into endless":"ended"} at ante ${Math.min(r.ante,9)} `+
-    `${won?"":BLIND_NAMES[r.blind].toLowerCase()+" "}· ${r.cleared||0} blinds cleared · $${r.money}`;
-  S.run=null;save();renderRunbar();$("#blind").value=0;
+  $("#runEnd").onclick=()=>openRunSheet("end")}
+
+/* one sheet for New run / Join a run in progress / Edit the context / End run */
+function openRunSheet(mode){const r=S.run||{};const deck=r.deck||"Red",stake=r.stake||"White";
+  const d=runDefaults(deck,stake);const isEnd=mode==="end";
+  const opt=(list,cur)=>list.map(v=>`<option ${v===cur?"selected":""}>${esc(v)}</option>`).join("");
+  const decks=["Red",...(S.boot.decks||[]).filter(x=>x!=="Red")];
+  const title=isEnd?"End this run":mode==="edit"?"Edit run context":"Run";
+  $("#sheetBody").innerHTML=`<div class="grip"></div>
+    <div id="sheetTitle" style="font-weight:800;font-size:16px;margin-bottom:10px">${title}</div>
+    ${!S.run&&!isEnd?`<div class="row" style="margin-bottom:12px"><button class="b gold" id="rsNew" style="flex:1">▶ New run (ante 1)</button><span class="hint" style="align-self:center">or join one in progress below</span></div>`:""}
+    ${isEnd?`<div class="row" style="margin-bottom:10px">
+        <button class="b" id="rsWon" style="flex:1;color:#3fd08a;font-weight:800">🏆 Won</button>
+        <button class="b" id="rsLost" style="flex:1;color:var(--mult);font-weight:800">💀 Lost</button></div>
+      <div class="hint" style="margin-bottom:8px">Logs ante ${Math.min(r.ante||1,39)}, ${esc(deck)} deck, ${esc(stake)} stake, $${r.money||0}, your current joker lineup and best score ${(r.best||0).toLocaleString()}.</div>
+      <input id="rsNotes" placeholder="what killed you / what carried you (optional)" style="width:100%;margin-bottom:10px" aria-label="run notes">`:""}
+    <div class="ctxgrid">
+      <div><label class="f" for="rsAnte">Ante</label><input id="rsAnte" type="number" min="1" max="39" value="${r.ante||1}" style="width:100%"></div>
+      <div><label class="f" for="rsBlind">Blind</label><select id="rsBlind" style="width:100%">${["Small Blind","Big Blind","Boss"].map((n,i)=>`<option value="${i}" ${(r.blind??0)===i?"selected":""}>${n}</option>`).join("")}</select></div>
+      <div><label class="f" for="rsMoney">Money $</label><input id="rsMoney" type="number" min="0" value="${r.money??d.money}" style="width:100%"></div>
+      <div><label class="f" for="rsScored">Scored this blind</label><input id="rsScored" type="number" min="0" value="${r.scored||0}" style="width:100%"></div>
+      <div><label class="f" for="rsHands">Hands left</label><input id="rsHands" type="number" min="0" max="12" value="${r.hands??d.hands}" style="width:100%"></div>
+      <div><label class="f" for="rsDisc">Discards left</label><input id="rsDisc" type="number" min="0" max="12" value="${r.discards??d.discards}" style="width:100%"></div>
+      <div><label class="f" for="rsDeck">Deck</label><select id="rsDeck" style="width:100%">${opt(decks,deck)}</select></div>
+      <div><label class="f" for="rsStake">Stake</label><select id="rsStake" style="width:100%">${opt(STAKES,stake)}</select></div>
+    </div>
+    <div class="hint" id="rsDef" style="margin-top:8px"></div>
+    ${isEnd?"":`<div class="row" style="margin-top:14px">
+      <button class="b gold" id="rsOk" style="flex:1">${S.run?"Save":"▶ Join this run"}</button>
+      ${S.run?`<button class="b" id="rsAbandon" style="background:#5b1f1a;color:#ffb3ac">Abandon (don't log)</button>`:""}
+      <button class="b" id="rsCancel">Cancel</button></div>`}
+    ${isEnd?`<div class="row" style="margin-top:12px"><button class="b" id="rsCancel" style="flex:1">Cancel — keep playing</button></div>`:""}`;
+  const showDef=()=>{const dd=runDefaults($("#rsDeck").value,$("#rsStake").value);
+    $("#rsDef").textContent=`${$("#rsDeck").value} deck on ${$("#rsStake").value} stake starts each blind with ${dd.hands} hands, ${dd.discards} discards${dd.money!==4?` and $${dd.money}`:""} — the counters above are yours to correct.`};
+  showDef();let prevDef=runDefaults($("#rsDeck").value,$("#rsStake").value);
+  $("#rsDeck").onchange=$("#rsStake").onchange=()=>{const dd=runDefaults($("#rsDeck").value,$("#rsStake").value);
+    // only move a counter that still holds the previous default — never overwrite what the player typed
+    if(!S.run){for(const [id,k] of [["rsHands","hands"],["rsDisc","discards"],["rsMoney","money"]]){if(+$("#"+id).value===prevDef[k])$("#"+id).value=dd[k]}}
+    prevDef=dd;showDef()};
+  openSheetDialog("sheetTitle");
+  const read=()=>({ante:Math.max(1,+$("#rsAnte").value||1),blind:+$("#rsBlind").value||0,money:Math.max(0,+$("#rsMoney").value||0),
+    scored:Math.max(0,+$("#rsScored").value||0),hands:Math.max(0,+$("#rsHands").value||0),discards:Math.max(0,+$("#rsDisc").value||0),
+    deck:$("#rsDeck").value,stake:$("#rsStake").value});
+  const n=$("#rsNew");if(n)n.onclick=()=>{const dk=$("#rsDeck").value,st=$("#rsStake").value,dd=runDefaults(dk,st);
+    S.run={ante:1,blind:0,money:dd.money,best:0,cleared:0,hands:dd.hands,discards:dd.discards,scored:0,deck:dk,stake:st,boss:null};
+    closeSheet();save();renderRunbar();toast(`🎮 Run started — ${dk} deck, ${st} stake, ante 1 small blind.`)};
+  const ok=$("#rsOk");if(ok)ok.onclick=()=>{const v=read();
+    if(S.run)undoable("edited run context",()=>{Object.assign(S.run,v);save();renderRunbar()});
+    else{S.run={...v,best:0,cleared:(v.ante-1)*3+v.blind,boss:null};save();renderRunbar();toast(`🎮 Joined at ante ${v.ante} · ${["small blind","big blind","boss"][v.blind]}.`)}
+    closeSheet()};
+  const ab=$("#rsAbandon");if(ab)ab.onclick=()=>{closeSheet();undoable("abandoned the run",()=>{S.run=null;save();renderRunbar();$("#blind").value=0;scheduleOpt()})};
+  const c=$("#rsCancel");if(c)c.onclick=closeSheet;
+  const w=$("#rsWon"),l=$("#rsLost");if(w)w.onclick=()=>endRun("won",$("#rsNotes").value);if(l)l.onclick=()=>endRun("lost",$("#rsNotes").value)}
+async function endRun(outcome,userNotes){const r=S.run;if(!r)return;closeSheet();
+  const won=outcome==="won", ante=Math.min(r.ante,39);
+  const notes=(userNotes||"").trim()||`Run Mode: ${won?"WON":"lost"} at ante ${ante} `+
+    `${BLIND_NAMES[r.blind].toLowerCase()} · ${r.cleared||0} blinds cleared · $${r.money}`;
+  pushUndo("ended the run");S.run=null;save();renderRunbar();$("#blind").value=0;scheduleOpt();
   try{await api("/api/runs",{method:"POST",body:JSON.stringify({
-    ante,outcome:won?"won":"lost",deck:($("#rDeck").value||"Red"),stake:($("#rStake").value||"White"),
+    ante,outcome,deck:r.deck||"Red",stake:r.stake||"White",
     lineup:S.lineup.map(d=>d.name),best_hand:S.lastPlays&&S.lastPlays[0]?S.lastPlays[0].hand:null,
     best_score:r.best||null,notes})});
-    toast(won?"🏆 run logged — a winner is you":"📒 run logged");loadRuns()}
+    snack(won?"🏆 run logged — a winner is you":"📒 run logged — field research continues","↶ Undo end",undo);loadRuns()}
   catch(e){toast("run over, but logging failed: "+e.message)}}
-$("#runStart").onclick=()=>{
-  if(S.run){$("#runbar").scrollIntoView({behavior:"smooth"});return}
-  S.run={ante:1,blind:0,money:4,best:0,cleared:0,hands:4,discards:3};save();renderRunbar();
-  toast("🎮 Run started — ante 1 small blind. The bar tracks your targets.")};
+$("#runStart").onclick=()=>{if(S.run){$("#runbar").scrollIntoView({behavior:"smooth"});return}openRunSheet("start")};
+/* the Coach reads the same run object — no second set of fields */
+function coachCtx(){const r=S.run;if(r)return {ante:Math.min(r.ante,39),money:r.money,hands_left:r.hands??4,discards_left:r.discards??3,boss:(bossInfo()||{}).name||"",deck:r.deck||"Red",stake:r.stake||"White"};
+  return {ante:4,money:12,hands_left:3,discards_left:2,boss:"",deck:"Red",stake:"White"}}
+function renderCoachCtx(){const el=$("#cCtx");if(!el)return;const c=coachCtx();
+  el.innerHTML=S.run?`<b>Ante ${c.ante}</b> · ${esc(S.run.blind===2&&c.boss?c.boss:BLIND_NAMES[S.run.blind])} · $${c.money} · ✋${c.hands_left} 🗑${c.discards_left} · ${esc(c.deck)} deck, ${esc(c.stake)} stake <button class="chipbtn" id="cEdit" style="padding:5px 10px;font-size:11.5px">✎ edit</button>`
+    :`No run in progress — the coach assumes ante ${c.ante}, $${c.money}, ${c.hands_left} hands, ${c.discards_left} discards. <button class="chipbtn" id="cEdit" style="padding:5px 10px;font-size:11.5px">▶ set up a run</button>`;
+  $("#cEdit").onclick=()=>openRunSheet(S.run?"edit":"start")}
 
 /* ---------------- nav ---------------- */
 $("#nav").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
-  $$("#nav button").forEach(x=>x.classList.toggle("on",x===b));
+  $$("#nav button").forEach(x=>{x.classList.toggle("on",x===b);x.setAttribute("aria-current",x===b?"page":"false")});
   $$("main section").forEach(x=>x.classList.toggle("on",x.id==="t-"+b.dataset.t));
   showLive();window.scrollTo({top:0})});
 function navH(){const n=$("#nav");if(n)document.documentElement.style.setProperty("--navh",n.offsetHeight+"px")}
@@ -688,10 +761,14 @@ function recIndices(){if(S.optState!=="current"||!S.lastPlays||!S.lastPlays[0])r
 function cardHTML(c,i,extra){const enh=c.enh&&c.enh!=="none"?` enh" data-enh="${ENHB[c.enh]||c.enh}`:"";
   const ed=c.ed&&c.ed!=="none"?` ed-${c.ed}`:"";
   const seal=c.seal&&c.seal!=="none"?`<span class="seal" style="background:${SEALC[c.seal]}"></span>`:"";
-  return `<div class="mcard suit-${c.suit}${ed}${enh}${extra||""}" ${i!=null?`data-i="${i}"`:""}>
-      <span class="r">${c.rank}</span><span class="s">${SUITG[c.suit]}</span>${seal}</div>`}
+  const mods=[c.enh,c.ed,c.seal].filter(x=>x&&x!=="none").join(", ");
+  if(i==null)return `<span class="mcard suit-${c.suit}${ed}${enh}${extra||""}" aria-hidden="true"><span class="r">${c.rank}</span><span class="s">${SUITG[c.suit]}</span>${seal}</span>`;
+  const rec=(extra||"").includes(" rec")?", recommended to play":(extra||"").includes(" keep")?", keep in hand":"";
+  return `<button type="button" class="mcard suit-${c.suit}${ed}${enh}${extra||""}" data-i="${i}" aria-label="${cardName(c)}${mods?" ("+mods+")":""}${rec} — edit modifiers">
+      <span class="r">${c.rank}</span><span class="s">${SUITG[c.suit]}</span>${seal}</button>`}
 /* mini visual cards from engine labels like "AH 10D" — no suit-letter decoding needed */
-function minis(labels){return `<span class="minis">${(labels||[]).map(l=>{const m=/^(10|[AKQJ2-9])([HDSC])/.exec(l);
+function minis(labels){const names=(labels||[]).map(l=>{const m=/^(10|[AKQJ2-9])([HDSC])/.exec(l);return m?cardName({rank:m[1],suit:m[2]}):l});
+  return `<span class="minis" role="img" aria-label="${esc(names.join(", "))}">${(labels||[]).map(l=>{const m=/^(10|[AKQJ2-9])([HDSC])/.exec(l);
   return m?cardHTML({rank:m[1],suit:m[2]},null," mini"):`<span>${esc(l)}</span>`}).join("")}</span>`}
 function renderTray(){const t=$("#tray");const rec=recIndices();
   t.classList.toggle("hasrec",rec.size>0);
@@ -709,7 +786,8 @@ function paintRec(){const rec=recIndices();const t=$("#tray");t.classList.toggle
     el.classList.toggle("keep",rec.size>0&&!rec.has(i))})}
 $("#undoCard").onclick=()=>{if(!S.hand.length)return;S.hand.pop();buzz();renderTray()};
 $("#suits").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
-  S.suit=b.dataset.s;$$("#suits button").forEach(x=>x.classList.toggle("on",x===b))});
+  S.suit=b.dataset.s;$$("#suits button").forEach(x=>{x.classList.toggle("on",x===b);x.setAttribute("aria-pressed",x===b?"true":"false")})});
+$$("#suits button").forEach(x=>{x.setAttribute("aria-label",SUITN[x.dataset.s]);x.setAttribute("aria-pressed",x.classList.contains("on")?"true":"false")});
 $("#ranks").innerHTML=RANKS.map(r=>`<button data-r="${r}">${r}</button>`).join("");
 $("#ranks").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
   if(S.hand.length>=12)return toast("12 cards max");
@@ -722,42 +800,63 @@ $("#demoHand").onclick=()=>undoable("loaded demo hand",()=>{S.hand=[["A","H"],["
 function openCardSheet(i){const c=S.hand[i];
   const opt=(list,cur)=>list.map(v=>`<option ${v===cur?"selected":""}>${v}</option>`).join("");
   $("#sheetBody").innerHTML=`<div class="grip"></div>
-    <div style="font-weight:800;font-size:16px;margin-bottom:10px">${c.rank}${SUITG[c.suit]} — modifiers</div>
+    <div id="sheetTitle" style="font-weight:800;font-size:16px;margin-bottom:10px">${c.rank}${SUITG[c.suit]} — ${cardName(c)} modifiers</div>
     <div class="ctxgrid">
-      <div><label class="f">Enhancement</label><select id="shEnh" style="width:100%">${opt(ENH,c.enh)}</select></div>
-      <div><label class="f">Edition</label><select id="shEd" style="width:100%">${opt(EDS,c.ed)}</select></div>
-      <div><label class="f">Seal</label><select id="shSeal" style="width:100%">${opt(SEALS,c.seal)}</select></div>
+      <div><label class="f" for="shEnh">Enhancement</label><select id="shEnh" style="width:100%">${opt(ENH,c.enh)}</select></div>
+      <div><label class="f" for="shEd">Edition</label><select id="shEd" style="width:100%">${opt(EDS,c.ed)}</select></div>
+      <div><label class="f" for="shSeal">Seal</label><select id="shSeal" style="width:100%">${opt(SEALS,c.seal)}</select></div>
     </div>
     <div class="row" style="margin-top:14px">
       <button class="b gold" id="shOk" style="flex:1">Done</button>
       <button class="b" id="shDel" style="background:#5b1f1a;color:#ffb3ac">Remove card</button>
     </div>`;
-  $("#sheet").classList.add("on");
+  openSheetDialog("sheetTitle");
   $("#shOk").onclick=()=>{c.enh=$("#shEnh").value;c.ed=$("#shEd").value;c.seal=$("#shSeal").value;
     closeSheet();renderTray()};
   $("#shDel").onclick=()=>{closeSheet();undoable(`removed ${c.rank}${SUITG[c.suit]}`,()=>{S.hand.splice(i,1);renderTray()})}}
-function closeSheet(){$("#sheet").classList.remove("on")}
+/* the bottom sheet is a real dialog: labelled, focus moves in, Tab is trapped, Escape closes, focus returns */
+function openSheetDialog(labelId){const body=$("#sheetBody");_sheetReturn=document.activeElement;
+  body.setAttribute("aria-labelledby",labelId);$("#sheet").classList.add("on");
+  const f=body.querySelector("select,input,button,textarea");(f||body).focus()}
+function closeSheet(){if(!$("#sheet").classList.contains("on"))return;$("#sheet").classList.remove("on");
+  if(_sheetReturn&&_sheetReturn.focus&&document.contains(_sheetReturn))_sheetReturn.focus();_sheetReturn=null}
 $("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
+$("#sheet").addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();closeSheet();return}
+  if(e.key!=="Tab")return;const f=[...$("#sheetBody").querySelectorAll("select,input,button,textarea,[tabindex='0']")].filter(x=>!x.disabled&&x.offsetParent);
+  if(!f.length)return;const first=f[0],last=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}});
 
 /* ---------------- joker autocomplete + lineup ---------------- */
-function acSetup(inputSel,listSel,onPick){const inp=$(inputSel),list=$(listSel);
+function acSetup(inputSel,listSel,onPick){const inp=$(inputSel),list=$(listSel);const lid=list.id;let act=-1;
+  inp.setAttribute("role","combobox");inp.setAttribute("aria-autocomplete","list");inp.setAttribute("aria-expanded","false");
+  inp.setAttribute("aria-controls",lid);list.setAttribute("role","listbox");
+  const close=()=>{list.style.display="none";inp.setAttribute("aria-expanded","false");inp.removeAttribute("aria-activedescendant");act=-1};
+  const setActive=(i)=>{const opts=[...list.querySelectorAll("[role=option]")];if(!opts.length)return;act=(i+opts.length)%opts.length;
+    opts.forEach((o,k)=>{o.setAttribute("aria-selected",k===act?"true":"false");o.classList.toggle("act",k===act)});
+    inp.setAttribute("aria-activedescendant",opts[act].id);opts[act].scrollIntoView({block:"nearest"})};
+  const pick=(n)=>{inp.value="";close();onPick(n)};
   inp.addEventListener("input",()=>{const q=inp.value.toLowerCase().trim();
-    if(!q){list.style.display="none";return}
+    if(!q){close();return}
     const hits=S.jokers.filter(j=>j.name.toLowerCase().includes(q)||String(j.effect).toLowerCase().includes(q)).slice(0,8);
-    list.innerHTML=hits.map(j=>`<div data-n="${esc(j.name)}"><b>${esc(j.name)}</b>
+    list.innerHTML=hits.map((j,k)=>`<div role="option" id="${lid}-o${k}" aria-selected="false" data-n="${esc(j.name)}"><b>${esc(j.name)}</b>
       <span class="r" style="color:${RAR[j.rarity]}">${j.rarity}</span></div>`).join("");
-    list.style.display=hits.length?"block":"none"});
-  list.addEventListener("mousedown",e=>{const d=e.target.closest("div[data-n]");if(!d)return;
-    e.preventDefault();inp.value="";list.style.display="none";onPick(d.dataset.n)});
-  inp.addEventListener("blur",()=>setTimeout(()=>list.style.display="none",150))}
+    list.style.display=hits.length?"block":"none";inp.setAttribute("aria-expanded",hits.length?"true":"false");act=-1});
+  inp.addEventListener("keydown",e=>{const open=list.style.display==="block";
+    if(e.key==="ArrowDown"){e.preventDefault();if(!open&&inp.value){inp.dispatchEvent(new Event("input"))}setActive(act+1)}
+    else if(e.key==="ArrowUp"){e.preventDefault();setActive(act-1)}
+    else if(e.key==="Enter"){const opts=[...list.querySelectorAll("[role=option]")];if(!open||!opts.length)return;e.preventDefault();pick(opts[act>=0?act:0].dataset.n)}
+    else if(e.key==="Escape"){if(open){e.preventDefault();close()}}});
+  list.addEventListener("mousedown",e=>{const d=e.target.closest("[role=option]");if(!d)return;e.preventDefault();pick(d.dataset.n)});
+  inp.addEventListener("blur",()=>setTimeout(close,150))}
 
 function renderLineup(){const el=$("#lineup");
   el.innerHTML=S.lineup.map((d,i)=>{const j=S.byName[d.name]||{};
     const ctrl = j.kind==="state"
       ? `<div><label class="f">current ${j.stat==="xmult"?"×Mult":j.stat==="mult"?"+Mult":"+Chips"}</label>
          <input type="number" step="${j.stat==="xmult"?"0.25":"1"}" value="${d.value??(j.stat==="xmult"?1:0)}"
-           data-i="${i}" class="jval" style="width:86px"></div>`
-      : `<div><label class="f">edition</label><select data-i="${i}" class="jed">
+           data-i="${i}" class="jval" style="width:86px" aria-label="${esc(d.name)} current ${j.stat==="xmult"?"times mult":j.stat==="mult"?"plus mult":"plus chips"}"></div>`
+      : `<div><label class="f">edition</label><select data-i="${i}" class="jed" aria-label="${esc(d.name)} edition">
          ${EDS.map(e=>`<option ${e===d.ed?"selected":""}>${e}</option>`).join("")}</select></div>`;
     return `<div class="jrow" style="--rar:${RAR[j.rarity]||"#4fa8ff"}">
       <div class="mv"><button data-i="${i}" class="jup" aria-label="move joker up">▲</button><button data-i="${i}" class="jdn" aria-label="move joker down">▼</button></div>
@@ -806,7 +905,7 @@ $("#lineup").addEventListener("change",e=>{const t=e.target,i=+t.dataset.i;
 function levelsUI(){const hands=S.boot.hands||[];
   $("#levels").innerHTML=hands.map(h=>`<div><label class="f">${h.hand}</label>
     <input type="number" min="1" max="30" value="${S.levels[h.hand]||1}" data-h="${esc(h.hand)}"
-      class="lvl" style="width:100%"></div>`).join("")}
+      class="lvl" style="width:100%" aria-label="${esc(h.hand)} level"></div>`).join("")}
 $("#levels").addEventListener("change",e=>{if(e.target.classList.contains("lvl"))
   S.levels[e.target.dataset.h]=+e.target.value||1;save();scheduleOpt()});
 
@@ -880,22 +979,18 @@ async function optimize(auto){
         ${modeHTML(b)}
         ${b.unknown.length?`<div class="hint">not in the math (economy/utility): ${b.unknown.join(", ")}</div>`:""}
         <div class="stateline"></div>
-        <div class="quicklog"><span style="color:var(--fade);font-size:12px">log outcome:</span>
-          <button class="b" id="qWin" style="color:#3fd08a">🏆 Won</button>
-          <button class="b" id="qLose" style="color:var(--mult)">💀 Lost</button>
-          <input id="qAnte" type="number" min="1" max="39" value="${S.run?Math.min(S.run.ante,39):8}" style="width:70px" title="ante" aria-label="ante"></div>
       </div>`+
       r.plays.map((p,i)=>`<details class="play" ${i===0?"open":""}>
         <summary>#${i+1} ${p.hand} — ${minis(p.played)} → <b>${p.total.toLocaleString()}</b>${p.mode&&p.mode!=="deterministic"?` <span class="hint" style="display:inline">(${p.mode})</span>`:""}</summary>
         <pre>${esc(p.steps.join("\n"))}</pre>
         <div class="act"><button class="b" data-played="${p.played.join(" ")}" data-total="${p.total}">✓ I played this</button></div></details>`).join("");
-    $("#qWin").onclick=()=>quickLog("won");$("#qLose").onclick=()=>quickLog("lost");
     const vs=r.verdict==="ok"?'<span class="vok">✔ clears</span>':r.verdict==="expected"?'<span class="vexp">≈ clears on expectation</span>'
       :r.verdict==="lucky"?'<span class="vlucky">🎲 clears only if lucky</span>':r.verdict?`<span class="vno">✘ ${esc(r.verdict)}</span>`:"";
     $("#liveText").innerHTML=`<div class="lh">${esc(b.hand)} · ${b.total.toLocaleString()}${b.mode&&b.mode!=="deterministic"?` <small>${esc(b.mode)}</small>`:""}</div>
       <div class="lm">${minis(b.played).replace(/class="mcard/g,'class="mcard xs')}${vs}</div>
       <div class="lv" id="liveState"></div>`;
     setOptState("current");
+    $("#liveAnnounce").textContent=`Best play ${b.hand}, ${b.total.toLocaleString()} ${b.mode&&b.mode!=="deterministic"?b.mode+" ":""}points: ${(b.played||[]).map(l=>{const m=/^(10|[AKQJ2-9])([HDSC])/.exec(l);return m?cardName({rank:m[1],suit:m[2]}):l}).join(", ")}${r.verdict?". "+(r.verdict==="ok"?"Clears the blind":r.verdict==="expected"?"Expected to clear":r.verdict==="lucky"?"Clears only if lucky":r.verdict):""}`;
     showLive();const lv=$("#live");lv.classList.remove("pulse");void lv.offsetWidth;lv.classList.add("pulse");
     $("#discPanel").style.display=S.hand.length>=2?"":"none";
     if(!auto){$("#result").scrollIntoView({behavior:"smooth",block:"start"});buzz();
@@ -914,8 +1009,9 @@ function removeCards(labels){for(const lab of labels){
   const m=/^(10|[AKQJ2-9])([HDSC])/.exec(lab);if(!m)continue;
   const i=S.hand.findIndex(c=>c.rank===m[1]&&c.suit===m[2]);if(i>=0)S.hand.splice(i,1)}}
 function markPlayed(labels,total){if(S.optState!=="current")return toast("that recommendation is out of date — wait for the recompute");
-  undoable(`played ${labels.join(" ")}`,()=>{removeCards(labels);
-    if(S.run){S.run.hands=Math.max(0,(S.run.hands??4)-1);if(total>(S.run.best||0))S.run.best=total;save();renderRunbar()}
+  const mode=S.lastCtx&&S.lastCtx.mode;
+  undoable(`played ${labels.join(" ")}${mode&&mode!=="deterministic"?` (${mode} ${total.toLocaleString()} — correct “scored” in the run bar if it landed differently)`:""}`,()=>{removeCards(labels);
+    if(S.run){S.run.hands=Math.max(0,(S.run.hands??4)-1);S.run.scored=(S.run.scored||0)+(total||0);if(total>(S.run.best||0))S.run.best=total;save();renderRunbar()}
     buzz(15);renderTray();$("#discOut").innerHTML=""});
   $("#tray").scrollIntoView({behavior:"smooth",block:"center"})}
 function markTossed(labels){undoable(`tossed ${labels.join(" ")}`,()=>{removeCards(labels);
@@ -955,12 +1051,6 @@ $("#discGo").onclick=async()=>{
   }catch(e){toast(e.message)}
   $("#discGo").innerHTML="🗑️ DISCARD ADVISOR — what should I toss?"};
 
-async function quickLog(outcome){const b=S.lastPlays&&S.lastPlays[0];
-  try{await api("/api/runs",{method:"POST",body:JSON.stringify({
-    ante:+$("#qAnte").value||8,outcome,deck:"Red",stake:"White",
-    lineup:S.lineup.map(d=>d.name),best_hand:b?b.hand:null,best_score:b?b.total:null,notes:"quick-logged from optimizer"})});
-    toast(outcome==="won"?"🏆 logged":"💀 logged — field research continues");loadRuns()}
-  catch(e){toast(e.message)}}
 
 /* ---------------- codex ---------------- */
 /* card art: wiki thumbnails through the same-origin /img/ proxy; lazy, and the
@@ -1122,7 +1212,7 @@ async function renderWeb(center){try{
     <text x="${cx}" y="${cy+7}" fill="#ffd54a" font-size="20" font-weight="800"
       text-anchor="middle">${esc(r.center.name)}</text></g></svg>`;
   const list=`<div class="syn-list">${r.neighbors.map(nb=>`
-    <div class="nrow" data-jt="${esc(nb.name)}" data-sh="${esc(nb.shared.join("|"))}"
+    <div class="nrow" role="button" tabindex="0" data-jt="${esc(nb.name)}" data-sh="${esc(nb.shared.join("|"))}"
       style="--rar:${varColor(nb.rarity)}" title="${nb.w} shared tag${nb.w>1?"s":""}"><div class="w" aria-label="${nb.w} shared tags">${nb.w}</div>${art((S.byName[nb.name]||{}).image,"mini")}
       <div><b>${esc(nb.name)}</b> <span class="hint" style="display:inline;font-size:11px">${nb.w} shared tag${nb.w>1?"s":""}</span><div style="margin-top:2px">${nb.shared.slice(0,3)
         .map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</div></div></div>`).join("")}</div>`;
@@ -1172,9 +1262,9 @@ $("#webOut").addEventListener("mouseover",e=>{if(COARSE)return;
 $("#webOut").addEventListener("mousemove",e=>{if(!COARSE)tipMove(e)});
 $("#webOut").addEventListener("mouseleave",()=>{$("#jtip").hidden=true});
 
-function closeSheet(){const s=$("#jsheet"),v=$("#jveil");if(s)s.remove();if(v)v.remove()}
+function closeJSheet(){const s=$("#jsheet"),v=$("#jveil");if(s)s.remove();if(v)v.remove()}
 function openSheet(name,shared){
-  closeSheet();const j=S.byName[name];if(!j)return;
+  closeJSheet();const j=S.byName[name];if(!j)return;
   const veil=document.createElement("div");veil.id="jveil";veil.className="jsheet-veil";
   const sh=document.createElement("div");sh.id="jsheet";sh.className="jsheet";
   sh.style.setProperty("--rar",varColor(j.rarity));
@@ -1184,12 +1274,14 @@ function openSheet(name,shared){
     <button class="b" id="shTry" ${inL||S.lineup.length>=5?"disabled":""}>${inL?"✓ in lineup":"➕ Try in lineup"}</button>
     <button class="b" id="shClose" aria-label="close">Close</button></div>`;
   document.body.append(veil,sh);
-  veil.onclick=closeSheet;
-  $("#shClose").onclick=closeSheet;
-  const t=$("#shTry");if(t&&!t.disabled)t.onclick=()=>{closeSheet();addJoker(name);
+  veil.onclick=closeJSheet;
+  $("#shClose").onclick=closeJSheet;
+  const t=$("#shTry");if(t&&!t.disabled)t.onclick=()=>{closeJSheet();addJoker(name);
     $$("#nav button").forEach(x=>x.classList.toggle("on",x.dataset.t==="play"));$$("main section").forEach(x=>x.classList.toggle("on",x.id==="t-play"));
     showLive();$("#lineup").scrollIntoView({behavior:"smooth",block:"center"});toast(`${name} added — the best play is recomputing`)};
-  const c=$("#shCenter");if(c)c.onclick=()=>{closeSheet();S._webCenter=name;renderWeb(name)};}
+  const c=$("#shCenter");if(c)c.onclick=()=>{closeJSheet();S._webCenter=name;renderWeb(name)};}
+$("#webOut").addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const n=e.target.closest(".nrow[data-jt]");if(!n)return;e.preventDefault();
+  openSheet(n.dataset.jt,(n.dataset.sh||"").split("|").filter(Boolean))});
 $("#webOut").addEventListener("click",e=>{const n=e.target.closest("[data-jt]");
   if(!n)return;
   if(COARSE){openSheet(n.dataset.jt,(n.dataset.sh||"").split("|").filter(Boolean));return}
@@ -1240,12 +1332,12 @@ $("#modes").onclick=e=>{const b=e.target.closest("button");if(!b)return;
   $$("#modes button").forEach(x=>x.classList.toggle("on",x===b));$("#cQ").value=MODES[b.dataset.m]};
 $("#cAsk").onclick=async()=>{
   $("#cAsk").innerHTML='<span class="spin"></span> consulting…';
-  try{const r=await api("/api/chat",{method:"POST",body:JSON.stringify({
-    question:$("#cQ").value,ante:+$("#cAnte").value,money:+$("#cMoney").value,
-    hands_left:+$("#cHands").value,discards_left:+$("#cDisc").value,shop:$("#cShop").value,
+  try{const c=coachCtx();const r=await api("/api/chat",{method:"POST",body:JSON.stringify({
+    question:$("#cQ").value,ante:c.ante,money:c.money,hands_left:c.hands_left,discards_left:c.discards_left,
+    shop:$("#cShop").value,deck:c.deck,stake:c.stake,
     lineup:S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"})),levels:S.levels,
     last_plays:S.lastPlays||[],hand_text:S.lastCtx.hand_text||"",blind_req:S.lastCtx.blind_req||0,
-    boss:(bossInfo()||{}).name||""})});
+    boss:c.boss})});
     $("#answerWrap").style.display="block";
     let html=`<div style="line-height:1.55">${mdLite(r.answer||"")}</div>`;
     if(r.tool_trace&&r.tool_trace.length){
