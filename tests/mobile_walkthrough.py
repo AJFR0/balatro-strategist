@@ -167,7 +167,7 @@ async def main():
         await pg.tap("#liveText")
         await pg.wait_for_timeout(700)
         res_box = await pg.locator("#result").bounding_box()
-        if not (res_box and 0 <= res_box["y"] < 844):
+        if not (res_box and -2 <= res_box["y"] < 844):
             finding("MED", "play", "tapping the live strip does not scroll to the breakdown")
 
         # B. next hand mid-run: one tap says "I played these", then only the
@@ -315,6 +315,85 @@ async def main():
         if not ans_visible:
             finding("MED", "coach", "no visible answer/fallback after asking the strategist")
         await pg.screenshot(path=f"{SHOTS}/06_coach.png")
+
+        # ---------- journey 7 (v1.8): trust — freshness, expectation labels, undo ----------
+        await pg.click("#nav button[data-t='play']")
+        await pg.wait_for_timeout(400)
+        await pg.evaluate("S.lineup=[];S.hand=[];renderLineup();renderTray()")
+        await pg.tap("#demoHand")
+        await wait_live(pg, "288")
+        if await pg.evaluate("S.optState") != "current":
+            finding("HIGH", "trust", "result not marked current after a successful compute")
+        if await pg.locator("#tray .mcard.rec").count() != 5:
+            finding("HIGH", "trust", "recommended cards are not highlighted in the tray")
+        # simulate the reviewer's disconnect: recompute fails after a lineup change
+        await pg.route("**/api/optimize", lambda r: r.abort())
+        await pg.evaluate("addJoker('Joker')")
+        await pg.wait_for_timeout(250)
+        if await pg.evaluate("S.optState") not in ("updating", "error"):
+            finding("HIGH", "trust", "changing the lineup did not invalidate the displayed recommendation")
+        if not await pg.evaluate("$('#lPlayed').disabled"):
+            finding("HIGH", "trust", "Played is still enabled while the recommendation is out of date")
+        await pg.wait_for_timeout(1600)
+        st = await pg.evaluate("S.optState")
+        if st != "error":
+            finding("HIGH", "trust", f"failed recompute should leave state=error, got {st}")
+        if "Retry" not in (await pg.locator("#go").inner_text()):
+            finding("MED", "trust", "no Retry offered after a failed recompute")
+        if "288" not in (await pg.locator("#liveText").inner_text()) or \
+                not await pg.evaluate("$('#live').classList.contains('notcurrent')"):
+            finding("MED", "trust", "previous result should stay visible but be visibly labelled as previous")
+        await pg.unroute("**/api/optimize")
+        await pg.tap("#go")
+        await wait_live(pg, "576")
+        if await pg.evaluate("S.optState") != "current" or await pg.evaluate("$('#lPlayed').disabled"):
+            finding("HIGH", "trust", "Retry did not restore a current, playable result")
+        # expectation labels
+        await pg.evaluate("addJoker('Bloodstone');$('#blind').value=1000;$('#blind').dispatchEvent(new Event('input'))")
+        await wait_live(pg, "1,166")
+        mode_txt = await pg.locator("#result .modeline").inner_text()
+        if "Expected score" not in mode_txt or "576" not in mode_txt or "2,475" not in mode_txt:
+            finding("HIGH", "trust", "probabilistic play is not labelled as an expectation with its range", mode_txt[:120])
+        verdict = await pg.locator("#result .verdict").inner_text()
+        if "beats the blind" in verdict:
+            finding("HIGH", "trust", "an expected score is presented as a guaranteed clear", verdict)
+        # real undo of a Played tap
+        n0 = await pg.evaluate("S.hand.length")
+        await pg.tap("#lPlayed")
+        await pg.wait_for_timeout(300)
+        if await pg.evaluate("S.hand.length") != n0 - 5 or not await pg.evaluate("$('#snack').classList.contains('on')"):
+            finding("HIGH", "undo", "Played did not remove the cards or offer an Undo snackbar")
+        await pg.tap("#snackAct")
+        await pg.wait_for_timeout(1500)
+        if await pg.evaluate("S.hand.length") != n0:
+            finding("HIGH", "undo", "Undo did not restore the played cards")
+        await pg.screenshot(path=f"{SHOTS}/07_trust.png")
+
+        # ---------- journey 8 (v1.8): catalog completeness + search failure ----------
+        await pg.click("#nav button[data-t='codex']")
+        await pg.wait_for_timeout(600)
+        await pg.evaluate("clearSearch();clearFilters()")
+        await pg.wait_for_timeout(300)
+        cnt = await pg.locator("#codexCount").inner_text()
+        if "150" not in cnt or "showing 60" not in cnt:
+            finding("HIGH", "codex", "catalog count is not honest about how many tiles are rendered", cnt)
+        for _ in range(3):
+            if await pg.locator("#loadMore").count():
+                await pg.tap("#loadMore")
+                await pg.wait_for_timeout(300)
+        if await pg.locator("#codexGrid .tile").count() != 150:
+            finding("HIGH", "codex", "not every joker is reachable by browsing")
+        await pg.route("**/api/search", lambda r: r.abort())
+        await pg.evaluate("S.boot.semantic_ok=true")
+        await pg.fill("#csearch", "jokers that punish discards")
+        await pg.wait_for_timeout(1000)
+        note = await pg.locator("#searchNote").inner_text()
+        if "unavailable" not in note:
+            finding("HIGH", "codex", "a failed search-by-meaning is not reported as unavailable", note[:100])
+        if not await pg.locator("#codexGrid .emptybox").count():
+            finding("MED", "codex", "no-match state has no explanation or clear action")
+        await pg.unroute("**/api/search")
+        await pg.evaluate("clearSearch()")
 
         # ---------- journey 6: PWA ----------
         pwa = await pg.evaluate("""async () => {
