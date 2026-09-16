@@ -519,6 +519,8 @@ class ChatReq(BaseModel):
     hand_text: str = ""
     blind_req: int = 0
     boss: str = ""          # current boss blind name (run mode), e.g. "The Wall"
+    deck: str = ""
+    stake: str = ""
 
 
 # --- agentic coach: the model can call the deterministic engine -----------
@@ -691,7 +693,9 @@ def chat(req: ChatReq, request: Request) -> dict:
              "unlock conditions or secret content — coach the strategy, not the "
              "checklist. If information is missing, say what you'd need."]
     lines.append(f"\n## Run context\nAnte {req.ante}, ${req.money}, "
-                 f"{req.hands_left} hands left, {req.discards_left} discards left.")
+                 f"{req.hands_left} hands left, {req.discards_left} discards left"
+                 + (f", {req.deck} deck" if req.deck else "")
+                 + (f", {req.stake} stake" if req.stake else "") + ".")
     if req.shop:
         lines.append(f"Shop: {req.shop}")
     if req.boss and "blinds" in TABLES:
