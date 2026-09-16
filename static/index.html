@@ -981,7 +981,7 @@ async function optimize(auto){
         <div class="stateline"></div>
       </div>`+
       r.plays.map((p,i)=>`<details class="play" ${i===0?"open":""}>
-        <summary>#${i+1} ${p.hand} — ${minis(p.played)} → <b>${p.total.toLocaleString()}</b>${p.mode&&p.mode!=="deterministic"?` <span class="hint" style="display:inline">(${p.mode})</span>`:""}</summary>
+        <summary>#${i+1} ${p.hand} — ${minis(p.played)} → <b>${p.total.toLocaleString()}</b>${p.mode&&p.mode!=="deterministic"?` <span class="hint" style="display:inline">(${p.mode})</span>`:""}${i>0?` <span class="hint" style="display:inline;color:var(--mult)">−${(b.total-p.total).toLocaleString()} vs #1</span>`:""}${body.blind_req&&p.total<body.blind_req?` <span class="hint" style="display:inline">· ${(body.blind_req-p.total).toLocaleString()} short of target</span>`:""}${i>0?` <span class="hint" style="display:inline">· keeps ${p.held.length?minis(p.held):"nothing"}</span>`:""}</summary>
         <pre>${esc(p.steps.join("\n"))}</pre>
         <div class="act"><button class="b" data-played="${p.played.join(" ")}" data-total="${p.total}">✓ I played this</button></div></details>`).join("");
     const vs=r.verdict==="ok"?'<span class="vok">✔ clears</span>':r.verdict==="expected"?'<span class="vexp">≈ clears on expectation</span>'
@@ -1008,7 +1008,13 @@ $("#liveText").onclick=()=>$("#result").scrollIntoView({behavior:"smooth",block:
 function removeCards(labels){for(const lab of labels){
   const m=/^(10|[AKQJ2-9])([HDSC])/.exec(lab);if(!m)continue;
   const i=S.hand.findIndex(c=>c.rank===m[1]&&c.suit===m[2]);if(i>=0)S.hand.splice(i,1)}}
-function markPlayed(labels,total){if(S.optState!=="current")return toast("that recommendation is out of date — wait for the recompute");
+function recordDecision(chosen){if(!S.run||!S.lastPlays||!S.lastPlays[0])return;const rec=S.lastPlays[0];
+  const pick=p=>({hand:p.hand,played:p.played,total:p.total,mode:p.mode||"deterministic"});
+  api("/api/decisions",{method:"POST",body:JSON.stringify({ante:S.run.ante,blind:S.run.blind===2?(S.run.boss||"Boss"):BLIND_NAMES[S.run.blind],
+    hand:S.hand.map(cardToken).join(" "),lineup:S.lineup.map(d=>d.name),target:runTarget(),scored_before:S.run.scored||0,
+    options:S.lastPlays.slice(0,3).map(pick),recommended:pick(rec),chosen:pick(chosen||rec),kind:"play"})}).catch(()=>{})}
+function markPlayed(labels,total,play){if(S.optState!=="current")return toast("that recommendation is out of date — wait for the recompute");
+  recordDecision(play);
   const mode=S.lastCtx&&S.lastCtx.mode;
   undoable(`played ${labels.join(" ")}${mode&&mode!=="deterministic"?` (${mode} ${total.toLocaleString()} — correct “scored” in the run bar if it landed differently)`:""}`,()=>{removeCards(labels);
     if(S.run){S.run.hands=Math.max(0,(S.run.hands??4)-1);S.run.scored=(S.run.scored||0)+(total||0);if(total>(S.run.best||0))S.run.best=total;save();renderRunbar()}
@@ -1018,10 +1024,10 @@ function markTossed(labels){undoable(`tossed ${labels.join(" ")}`,()=>{removeCar
     if(S.run){S.run.discards=Math.max(0,(S.run.discards??3)-1);save();renderRunbar()}
     buzz(15);renderTray();$("#discOut").innerHTML=""});
   $("#tray").scrollIntoView({behavior:"smooth",block:"center"})}
-$("#lPlayed").onclick=()=>{const b=S.lastPlays&&S.lastPlays[0];if(b)markPlayed(b.played,b.total)};
+$("#lPlayed").onclick=()=>{const b=S.lastPlays&&S.lastPlays[0];if(b)markPlayed(b.played,b.total,b)};
 $("#lDisc").onclick=()=>{$("#discGo").click();$("#discPanel").scrollIntoView({behavior:"smooth",block:"start"})};
 $("#result").addEventListener("click",e=>{const b=e.target.closest("button[data-played]");
-  if(b)markPlayed(b.dataset.played.split(" "),+b.dataset.total||0)});
+  if(b){const p=(S.lastPlays||[]).find(x=>x.played.join(" ")===b.dataset.played);markPlayed(b.dataset.played.split(" "),+b.dataset.total||0,p)}});
 $("#discOut").addEventListener("click",e=>{const b=e.target.closest("button[data-toss]");
   if(b)markTossed(b.dataset.toss.split(" "))});
 
@@ -1220,7 +1226,11 @@ async function renderWeb(center){try{
   $("#webOut").innerHTML=`<div class="panel"><h2 style="margin-bottom:8px">Synergies for ${esc(r.center.name)}</h2>
     <div class="hint" style="margin-bottom:8px">${esc(r.center.effect)}</div>${svg}${list}
     <div class="hint">${isTouch?"tap a joker for its card and stats · tap “explore” to re-center on it":"hover a joker for stats · click to re-center on it"} · the number is how many synergy tags it shares with ${esc(r.center.name)} · border colour = rarity</div></div>`
-    +`<div class="grid">${tile(S.byName[center])}</div>`}
+    +`<div class="grid">${tile(S.byName[center])}</div>
+    <div class="panel" style="margin-top:10px"><div class="row"><button class="b" id="wPreview">🔍 Preview ${esc(center)} on my hand</button>
+      <button class="b" id="wAdd" ${S.lineup.some(d=>d.name===center)||S.lineup.length>=5?"disabled":""}>➕ Add to lineup</button></div><div id="wPrev" style="margin-top:8px"></div></div>`;
+  $("#wPreview").onclick=()=>previewJoker(center,$("#wPrev"));
+  const wa=$("#wAdd");if(wa&&!wa.disabled)wa.onclick=()=>{addJoker(center);toast(`${center} added — the best play is recomputing`)}}
   catch(e){toast(e.message)}}
 
 /* hover stat-cards for the synergy web */
@@ -1262,6 +1272,32 @@ $("#webOut").addEventListener("mouseover",e=>{if(COARSE)return;
 $("#webOut").addEventListener("mousemove",e=>{if(!COARSE)tipMove(e)});
 $("#webOut").addEventListener("mouseleave",()=>{$("#jtip").hidden=true});
 
+/* "what would this joker do for me right now": re-run the optimizer with the
+   candidate added (or, when the lineup is full, replacing each slot) and show
+   before → after on the hand that's actually in the tray. */
+async function previewJoker(name,box){const j=S.byName[name];if(!j)return;
+  if(!S.hand.length){box.innerHTML=`<div class="hint">enter your hand on the Play tab first — the preview scores ${esc(name)} against the cards you're holding.</div>`;return}
+  if(!j.supported){box.innerHTML=`<div class="hint">${esc(name)} doesn't change a played hand's score (economy / utility) — its value is the effect text, not a number the engine can preview.</div>`;return}
+  box.innerHTML=`<div class="hint"><span class="spin" style="width:12px;height:12px;vertical-align:-2px"></span> scoring your hand with ${esc(name)}…</div>`;
+  const base={hand:S.hand.map(cardToken).join(" "),levels:S.levels,optimist:$("#optimist").checked,final_hand:$("#finalHand").checked,blind_req:S.run?runNeed():(+$("#blind").value||0)};
+  const cur=S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"}));
+  const cand={name,value:null,edition:"none"};
+  try{
+    const before=(S.optState==="current"&&S.lastPlays&&S.lastPlays[0])?S.lastPlays[0]:(await api("/api/optimize",{method:"POST",body:JSON.stringify({...base,lineup:cur})})).plays[0];
+    let best=null;
+    if(cur.length<5){const r=await api("/api/optimize",{method:"POST",body:JSON.stringify({...base,lineup:[...cur,cand]})});best={play:r.plays[0],replace:null,lineup:[...cur,cand]}}
+    else{for(let i=0;i<cur.length;i++){const lu=cur.map((x,k)=>k===i?cand:x);const r=await api("/api/optimize",{method:"POST",body:JSON.stringify({...base,lineup:lu})});
+        if(!best||r.plays[0].total>best.play.total)best={play:r.plays[0],replace:cur[i].name,lineup:lu}}}
+    const a=best.play,delta=a.total-before.total,cost=+j.cost||0,money=S.run?S.run.money:null;
+    const afford=money==null?"":(money>=cost?`<span class="vok">$${cost} of your $${money}</span>`:`<span class="vno">$${cost} — you have $${money}</span>`);
+    box.innerHTML=`<div class="playline"><span class="lab">now</span><b>${before.total.toLocaleString()}</b><span class="lab">→ with ${esc(name)}${best.replace?` replacing ${esc(best.replace)}`:""}</span><b style="color:${delta>0?"#3fd08a":delta<0?"var(--mult)":"var(--soft)"}">${a.total.toLocaleString()}</b>
+      <span style="color:${delta>0?"#3fd08a":delta<0?"var(--mult)":"var(--soft)"};font-weight:800">${delta>=0?"+":"−"}${Math.abs(delta).toLocaleString()}</span>${afford?` · ${afford}`:""}</div>
+      <div class="hint">${esc(a.hand)} ${a.mode&&a.mode!=="deterministic"?"("+a.mode+") ":""}on the cards you're holding${best.replace?"; the best slot to give up is "+esc(best.replace):""}. ${a.total===before.total?"No change on this hand — its value would be on other hands or later antes.":""}</div>
+      <div class="row" style="margin-top:8px"><button class="b gold" id="pvAdd">${best.replace?`Swap in for ${esc(best.replace)}`:"Add to lineup"}</button><button class="b" id="pvNo">Cancel</button></div>`;
+    $("#pvAdd").onclick=()=>{undoable(best.replace?`swapped ${name} in for ${best.replace}`:`added ${name}`,()=>{S.lineup=best.lineup.map(x=>({name:x.name,value:x.value,ed:x.edition||"none"}));S.recent=[name,...(S.recent||[]).filter(x=>x!==name)].slice(0,12);renderLineup()});
+      closeJSheet();$$("#nav button").forEach(x=>x.classList.toggle("on",x.dataset.t==="play"));$$("main section").forEach(x=>x.classList.toggle("on",x.id==="t-play"));showLive();$("#lineup").scrollIntoView({behavior:"smooth",block:"center"})};
+    $("#pvNo").onclick=()=>{box.innerHTML=""}}
+  catch(e){box.innerHTML=`<div class="hint" style="color:var(--mult)">couldn't preview: ${esc(e.message)}</div>`}}
 function closeJSheet(){const s=$("#jsheet"),v=$("#jveil");if(s)s.remove();if(v)v.remove()}
 function openSheet(name,shared){
   closeJSheet();const j=S.byName[name];if(!j)return;
@@ -1269,13 +1305,15 @@ function openSheet(name,shared){
   const sh=document.createElement("div");sh.id="jsheet";sh.className="jsheet";
   sh.style.setProperty("--rar",varColor(j.rarity));
   const inL=S.lineup.some(d=>d.name===name);
-  sh.innerHTML=tipHTML(name,shared)+`<div class="sheetbtns">
-    ${name!==S._webCenter?`<button class="b gold" id="shCenter">🕸️ Explore its synergies</button>`:""}
-    <button class="b" id="shTry" ${inL||S.lineup.length>=5?"disabled":""}>${inL?"✓ in lineup":"➕ Try in lineup"}</button>
+  sh.innerHTML=tipHTML(name,shared)+`<div id="shPrev" style="margin-top:8px"></div><div class="sheetbtns">
+    ${name!==S._webCenter?`<button class="b gold" id="shCenter">🕸️ Explore</button>`:""}
+    <button class="b" id="shPreview" ${inL?"disabled":""}>${inL?"✓ in lineup":"🔍 Preview on my hand"}</button>
+    <button class="b" id="shTry" ${inL||S.lineup.length>=5?"disabled":""}>➕ Add</button>
     <button class="b" id="shClose" aria-label="close">Close</button></div>`;
   document.body.append(veil,sh);
   veil.onclick=closeJSheet;
   $("#shClose").onclick=closeJSheet;
+  const pv=$("#shPreview");if(pv&&!pv.disabled)pv.onclick=()=>previewJoker(name,$("#shPrev"));
   const t=$("#shTry");if(t&&!t.disabled)t.onclick=()=>{closeJSheet();addJoker(name);
     $$("#nav button").forEach(x=>x.classList.toggle("on",x.dataset.t==="play"));$$("main section").forEach(x=>x.classList.toggle("on",x.id==="t-play"));
     showLive();$("#lineup").scrollIntoView({behavior:"smooth",block:"center"});toast(`${name} added — the best play is recomputing`)};
@@ -1330,25 +1368,60 @@ $("#modes").innerHTML=Object.keys(MODES).map((m,i)=>
 $("#cQ").value=MODES["🎯 Best line"];
 $("#modes").onclick=e=>{const b=e.target.closest("button");if(!b)return;
   $$("#modes button").forEach(x=>x.classList.toggle("on",x===b));$("#cQ").value=MODES[b.dataset.m]};
-$("#cAsk").onclick=async()=>{
-  $("#cAsk").innerHTML='<span class="spin"></span> consulting…';
-  try{const c=coachCtx();const r=await api("/api/chat",{method:"POST",body:JSON.stringify({
-    question:$("#cQ").value,ante:c.ante,money:c.money,hands_left:c.hands_left,discards_left:c.discards_left,
-    shop:$("#cShop").value,deck:c.deck,stake:c.stake,
-    lineup:S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"})),levels:S.levels,
-    last_plays:S.lastPlays||[],hand_text:S.lastCtx.hand_text||"",blind_req:S.lastCtx.blind_req||0,
-    boss:c.boss})});
-    $("#answerWrap").style.display="block";
-    let html=`<div style="line-height:1.55">${mdLite(r.answer||"")}</div>`;
-    if(r.tool_trace&&r.tool_trace.length){
-      const tt=r.tool_trace.map(t=>`▸ ${t.tool}(${esc(JSON.stringify(t.args))})\n${esc(JSON.stringify(t.result,null,1).slice(0,900))}`).join("\n\n");
-      html+=`<details style="margin-top:12px"><summary style="cursor:pointer;color:var(--gold);font-size:12.5px">🔧 what the engine computed (${r.tool_trace.length} tool call${r.tool_trace.length>1?"s":""}${r.model?` · ${esc(String(r.model).replace("databricks-",""))}`:""})</summary>
-        <pre style="white-space:pre-wrap;font-size:11px;color:var(--soft)">${tt}</pre></details>`}
+/* The coach is a decision aid: the deterministic summary renders instantly from
+   engine data, the model fills Why / Main risk / Next upgrade underneath. */
+function coachSummaryHTML(){const b=S.lastPlays&&S.lastPlays[0];const c=coachCtx();
+  const tgt=S.run?runTarget():(+$("#blind").value||0);const need=S.run?runNeed():tgt;
+  const ctxLine=`<div class="hint" style="margin-top:6px">${S.run?`Ante ${c.ante} · ${esc(S.run.blind===2&&c.boss?c.boss:BLIND_NAMES[S.run.blind])} · $${c.money} · ✋${c.hands_left} 🗑${c.discards_left} · ${esc(c.deck)}/${esc(c.stake)}`:`no run — assuming ante ${c.ante}, $${c.money}, ${c.hands_left} hands, ${c.discards_left} discards`} <button class="chipbtn" data-ctxedit style="padding:3px 9px;font-size:11px">✎ edit</button></div>`;
+  if(!b||S.optState!=="current")return `<div class="score" style="margin:0 0 10px"><div class="hand">No current hand</div>
+    <div class="modeline">Enter your 8 cards on Play and the coach gets a scored decision to reason about. Right now it can only talk builds and shopping.</div>${ctxLine}</div>`;
+  const clears=need>0?(b.total>=need):true;const mode=b.mode&&b.mode!=="deterministic"?b.mode:"deterministic";
+  const verdict=need<=0?`<span class="vok">this blind is already cleared — bank it and move on</span>`
+    :b.mode==="deterministic"?(clears?`<span class="vok">✔ clears (needs ${need.toLocaleString()})</span>`:`<span class="vno">✘ short by ${(need-b.total).toLocaleString()} — needs ${need.toLocaleString()}</span>`)
+    :(b.floor!=null&&b.floor>=need?`<span class="vok">✔ clears even if every roll misses</span>`:clears?`<span class="vexp">≈ clears on expectation — floor ${(b.floor||0).toLocaleString()} would not (needs ${need.toLocaleString()})</span>`:(b.ceiling||0)>=need?`<span class="vlucky">🎲 clears only if the rolls hit (needs ${need.toLocaleString()})</span>`:`<span class="vno">✘ short by ${(need-b.total).toLocaleString()} even on expectation</span>`);
+  return `<div class="score" style="margin:0 0 10px"><div class="hand">Play ${esc(b.hand)}</div>
+    <div class="playline">${minis(b.played)}<span class="lab">for</span><b style="font-family:var(--px);color:var(--gold);font-size:15px">${b.total.toLocaleString()}</b><span class="lab">${mode==="deterministic"?"deterministic":mode}</span></div>
+    <div class="verdict">${verdict}</div>
+    ${mode!=="deterministic"?`<div class="modeline">${esc((b.random_sources||[]).join(", "))} at expected value · range ${(b.floor||0).toLocaleString()}–${(b.ceiling||b.total).toLocaleString()}</div>`:""}
+    ${ctxLine}</div>`}
+let _coachAbort=null,_coachTimer=null,_lastAnswer="";
+function coachDiagHTML(r){let h="";
+  if(r.tool_trace&&r.tool_trace.length){
+    const tt=r.tool_trace.map(t=>`▸ ${t.tool}(${esc(JSON.stringify(t.args))})\n${esc(JSON.stringify(t.result,null,1).slice(0,900))}`).join("\n\n");
+    h+=`<details style="margin-top:12px"><summary style="cursor:pointer;color:var(--fade);font-size:12px">🔧 under the hood — ${r.tool_trace.length} engine call${r.tool_trace.length>1?"s":""}${r.model?` · ${esc(String(r.model).replace("databricks-",""))}`:""}</summary>
+      <pre style="white-space:pre-wrap;font-size:11px;color:var(--soft)">${tt}</pre></details>`}
+  return h}
+async function askCoach(continueFrom){
+  if(_coachAbort){_coachAbort.abort();_coachAbort=null}
+  const btn=$("#cAsk");const ac=new AbortController();_coachAbort=ac;const t0=Date.now();
+  $("#answerWrap").style.display="block";
+  $("#answer").innerHTML=coachSummaryHTML()+`<div id="coachWait" class="hint" style="display:flex;align-items:center;gap:10px"><span class="spin"></span><span id="coachElapsed">consulting the strategist… 0s</span><button class="b" id="coachCancel" style="padding:6px 10px;font-size:12px">Cancel</button></div>`
+    +(continueFrom?`<div id="coachPrev" style="line-height:1.55;opacity:.8">${mdLite(continueFrom)}</div>`:"");
+  $("#coachCancel").onclick=()=>{ac.abort()};
+  clearInterval(_coachTimer);_coachTimer=setInterval(()=>{const e=$("#coachElapsed");if(e)e.textContent=`consulting the strategist… ${Math.round((Date.now()-t0)/1000)}s (usually 10–30s)`},1000);
+  btn.innerHTML='<span class="spin"></span> consulting…';btn.disabled=true;
+  try{const c=coachCtx();
+    const res=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},signal:ac.signal,body:JSON.stringify({
+      question:$("#cQ").value,ante:c.ante,money:c.money,hands_left:c.hands_left,discards_left:c.discards_left,
+      shop:$("#cShop").value,deck:c.deck,stake:c.stake,continue_from:continueFrom||"",
+      lineup:S.lineup.map(d=>({name:d.name,value:d.value,edition:d.ed||"none"})),levels:S.levels,
+      last_plays:S.lastPlays||[],hand_text:S.lastCtx.hand_text||"",blind_req:S.run?runNeed():(S.lastCtx.blind_req||0),
+      boss:c.boss})});
+    if(!res.ok){let m="request failed";try{m=(await res.json()).detail||m}catch(e){}throw new Error(m)}
+    const r=await res.json();
+    const full=(continueFrom||"")+(continueFrom&&r.answer?"\n":"")+(r.answer||"");_lastAnswer=full;
+    let html=coachSummaryHTML()+`<div style="line-height:1.55">${mdLite(full)}</div>`;
+    if(r.truncated)html+=`<div class="hint" style="margin-top:8px;color:#ffb86b">⚠ the answer was cut off mid-way. <button class="b" id="coachMore" style="padding:6px 10px;font-size:12px">Continue</button></div>`;
+    html+=coachDiagHTML(r);
     $("#answer").innerHTML=html;
+    const more=$("#coachMore");if(more)more.onclick=()=>askCoach(_lastAnswer);
     $("#promptView").textContent=r.prompt||"";
     if(!r.ok&&r.error)toast("endpoint: "+r.error)}
-  catch(e){toast(e.message)}
-  $("#cAsk").innerHTML="🧠 ASK THE STRATEGIST"};
+  catch(e){if(e.name==="AbortError"){$("#answer").innerHTML=coachSummaryHTML()+`<div class="hint">cancelled — the decision above still stands; ask again when you want the reasoning.</div>`}
+    else{$("#answer").innerHTML=coachSummaryHTML()+`<div class="hint" style="color:var(--mult)">⚠ ${esc(e.message)} <button class="b" id="coachRetry" style="padding:6px 10px;font-size:12px">↻ Retry</button></div>`;const rb=$("#coachRetry");if(rb)rb.onclick=()=>askCoach(continueFrom)}}
+  clearInterval(_coachTimer);btn.innerHTML="🧠 ASK THE STRATEGIST";btn.disabled=false;_coachAbort=null}
+$("#cAsk").onclick=()=>askCoach("");
+document.addEventListener("click",e=>{if(e.target.closest("[data-ctxedit]"))openRunSheet(S.run?"edit":"start")});
 
 /* ---------------- genie ---------------- */
 async function askGenie(){

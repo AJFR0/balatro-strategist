@@ -1,5 +1,5 @@
 /* Balatro Strategist service worker — cache-first shell, fresh API. */
-const CACHE = "bs-v190";
+const CACHE = "bs-v200";
 const PRECACHE = ["/", "/manifest.json", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {
