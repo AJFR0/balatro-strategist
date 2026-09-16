@@ -337,17 +337,37 @@ def optimize(req: OptimizeReq) -> dict:
     out = []
     for p in plays:
         r = p["result"]
-        out.append({
+        row = {
             "played": [c.label() for c in p["played"]],
             "held": [c.label() for c in p["held"]],
             "hand": r.hand, "level": r.level, "chips": r.chips, "mult": r.mult,
             "total": r.total, "steps": r.steps, "unknown": r.unknown_jokers,
-        })
+            "mode": r.mode, "random_sources": r.random_sources,
+        }
+        if r.random_sources:
+            # the same play scored with every chance effect missing / hitting:
+            # an honest floor and ceiling around the expectation
+            lo = score_hand(p["played"], p["held"], jokers, req.levels,
+                            Rules(pessimist=True), extra)
+            hi = score_hand(p["played"], p["held"], jokers, req.levels,
+                            Rules(optimist=True), extra)
+            row["floor"], row["ceiling"] = lo.total, hi.total
+        out.append(row)
     best = out[0]
     verdict = ""
     if req.blind_req:
-        verdict = "ok" if best["total"] >= req.blind_req \
-            else f"short by {req.blind_req - best['total']:,}"
+        if best["mode"] == "deterministic":
+            verdict = "ok" if best["total"] >= req.blind_req \
+                else f"short by {req.blind_req - best['total']:,}"
+        else:
+            if best.get("floor", 0) >= req.blind_req:
+                verdict = "ok"                       # clears even if every roll misses
+            elif best["total"] >= req.blind_req:
+                verdict = "expected"                 # expected score clears; floor does not
+            elif best.get("ceiling", 0) >= req.blind_req:
+                verdict = "lucky"                    # only clears if the rolls hit
+            else:
+                verdict = f"short by {req.blind_req - best['total']:,}"
     return {"plays": out, "verdict": verdict}
 
 

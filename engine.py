@@ -121,6 +121,7 @@ class Rules:
     splash: bool = False           # every played card scores
     pareidolia: bool = False       # every card counts as a face card
     optimist: bool = False         # probabilistic effects always hit (else EV)
+    pessimist: bool = False        # probabilistic effects never hit (floor of the range)
 
 
 def _suit_group(c: Card, rules: Rules) -> str:
@@ -353,8 +354,9 @@ for _n, _k in [("Ride the Bus", "mult"), ("Green Joker", "mult"), ("Red Card", "
         _reg(_n, kind="state", stat=_k)
 # Some flat notes for well-known defaults
 J["Stuntman"] = dict(kind="flat", chips=250, note="-2 hand size")
-J["Misprint"] = dict(kind="dynamic",
-                     fn=lambda ctx: (0, 23 if ctx["rules"].optimist else 11.5, 1, "0–23 Mult (EV 11.5)"))
+J["Misprint"] = dict(kind="dynamic", random=True,
+                     fn=lambda ctx: (0, 23 if ctx["rules"].optimist else (0 if ctx["rules"].pessimist else 11.5), 1,
+                                     "0–23 Mult (EV 11.5)"))
 J["Abstract Joker"] = dict(kind="dynamic",
                            fn=lambda ctx: (0, 3 * len(ctx["jokers"]), 1, f"+3 per joker"))
 J["Acrobat"] = dict(kind="dynamic",
@@ -424,6 +426,14 @@ class ScoreResult:
     steps: list[str] = field(default_factory=list)
     scoring_idx: list[int] = field(default_factory=list)
     unknown_jokers: list[str] = field(default_factory=list)
+    random_sources: list[str] = field(default_factory=list)   # what made this an expectation
+
+    @property
+    def mode(self) -> str:
+        """'deterministic' when no chance-based effect contributed, otherwise
+        'expected' (scored at expected value) or 'best-case' (optimist mode)."""
+        return "deterministic" if not self.random_sources else self._mode
+    _mode: str = "expected"
 
 
 def _resolve_copy_idx(jokers: list[JokerState], idx: int) -> Optional[int]:
@@ -448,6 +458,11 @@ def _resolve_copy(jokers: list[JokerState], idx: int) -> Optional[str]:
     return jokers[ridx].name if ridx is not None else None
 
 
+def _rand(sources: list[str], label: str) -> None:
+    if label not in sources:
+        sources.append(label)
+
+
 def score_hand(played: list[Card], held: list[Card], jokers: list[JokerState],
                levels: dict[str, int] | None = None, rules: Rules | None = None,
                extra: dict | None = None) -> ScoreResult:
@@ -457,6 +472,7 @@ def score_hand(played: list[Card], held: list[Card], jokers: list[JokerState],
     rules = rules or Rules()
     levels = levels or {}
     extra = extra or {}
+    random_sources: list[str] = []
 
     # passive rule jokers modify detection
     active_names = [j.name for j in jokers]
@@ -513,7 +529,8 @@ def score_hand(played: list[Card], held: list[Card], jokers: list[JokerState],
             if c.enhancement == "mult": add_m += 4
             if c.enhancement == "glass": x_m *= 2
             if c.enhancement == "lucky":
-                add_m += 20 if r.optimist else 20 * 0.2
+                add_m += 20 if r.optimist else (0 if r.pessimist else 20 * 0.2)
+                _rand(random_sources, "Lucky card (1 in 5 for +20 Mult)")
             if c.edition == "foil": add_c += 50
             if c.edition == "holo": add_m += 10
             if c.edition == "polychrome": x_m *= 1.5
@@ -529,12 +546,14 @@ def score_hand(played: list[Card], held: list[Card], jokers: list[JokerState],
                     if spec.get("face") and not _face(c, r): ok = False
                     if ok:
                         p = spec.get("prob")
-                        scale = 1.0 if (p is None or r.optimist) else p
+                        if p is not None:
+                            _rand(random_sources, f"{name} ({int(round(p * 100))}% per card)")
+                        scale = 1.0 if (p is None or r.optimist) else (0.0 if r.pessimist else p)
                         add_c += spec.get("chips", 0) * scale
                         add_m += spec.get("mult", 0) * scale
                         if spec.get("xmult"):
                             xm = spec["xmult"]
-                            x_m *= xm if (p is None or r.optimist) else (1 + (xm - 1) * p)
+                            x_m *= xm if (p is None or r.optimist) else (1.0 if r.pessimist else 1 + (xm - 1) * p)
                 elif name == "Photograph" and not first_face_done and _face(c, r):
                     x_m *= 2
                 elif name == "The Idol":
@@ -615,6 +634,8 @@ def score_hand(played: list[Card], held: list[Card], jokers: list[JokerState],
                 out = spec["fn"](ctx)
                 if out:
                     add_c, add_m, x_m, note = out
+                    if spec.get("random"):
+                        _rand(random_sources, f"{name} ({note})")
             if add_c or add_m or x_m != 1:
                 chips += add_c
                 mult += add_m
@@ -634,7 +655,9 @@ def score_hand(played: list[Card], held: list[Card], jokers: list[JokerState],
 
     total = int(chips * mult)
     steps.append(f"TOTAL: {chips:g} × {mult:g} = {total:,}")
-    return ScoreResult(hand, lvl, chips, mult, total, steps, scoring_idx, unknown)
+    res = ScoreResult(hand, lvl, chips, mult, total, steps, scoring_idx, unknown, random_sources)
+    res._mode = "best-case" if rules.optimist else ("floor" if rules.pessimist else "expected")
+    return res
 
 
 # ---------------------------------------------------------------------------
