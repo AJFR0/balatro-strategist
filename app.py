@@ -161,23 +161,33 @@ def lakebase_reconnect_status() -> dict:
 # ---------------------------------------------------------------------------
 # Static
 # ---------------------------------------------------------------------------
+# The shell and manifest are served with `no-cache` so browsers always
+# revalidate (a 304 via ETag is cheap). Without it, Chrome applies heuristic
+# freshness from Last-Modified and a new release can sit behind a stale copy in
+# the HTTP cache for hours — the service worker's precache and background
+# refresh both read through that cache, so they inherit the stale shell too.
+_NO_CACHE = {"Cache-Control": "no-cache"}
+
+
 @app.get("/")
 def index() -> FileResponse:
-    return FileResponse(os.path.join(HERE, "static", "index.html"))
+    return FileResponse(os.path.join(HERE, "static", "index.html"),
+                        headers=_NO_CACHE)
 
 
 # --- PWA assets -----------------------------------------------------------
 @app.get("/manifest.json")
 def manifest() -> FileResponse:
     return FileResponse(os.path.join(HERE, "static", "manifest.json"),
-                        media_type="application/manifest+json")
+                        media_type="application/manifest+json",
+                        headers=_NO_CACHE)
 
 
 @app.get("/sw.js")
 def service_worker() -> FileResponse:
     return FileResponse(os.path.join(HERE, "static", "sw.js"),
                         media_type="application/javascript",
-                        headers={"Cache-Control": "no-cache"})
+                        headers=_NO_CACHE)
 
 
 @app.get("/icon-192.png")
