@@ -495,6 +495,59 @@ def log_run(req: RunReq) -> dict:
     return {"ok": True}
 
 
+class DecisionReq(BaseModel):
+    ante: int = 0
+    blind: str = ""
+    hand: str = ""
+    lineup: list[str] = []
+    target: int = 0
+    scored_before: int = 0
+    options: list[dict] = []        # [{hand, played, total, mode}] — top plays on the table
+    recommended: Optional[dict] = None   # {hand, played, total, mode}
+    chosen: Optional[dict] = None        # {hand, played, total, mode}
+    kind: str = "play"              # play | discard
+    note: str = ""
+
+
+@app.post("/api/decisions")
+def log_decision(req: DecisionReq) -> dict:
+    if not _lakebase_ok():
+        raise HTTPException(503, "run log unavailable — decision not persisted")
+    doc = req.model_dump() if hasattr(req, "model_dump") else req.dict()
+    db.save_decision(req.ante, req.blind, doc)
+    return {"ok": True}
+
+
+@app.get("/api/decisions")
+def decisions(limit: int = 40) -> dict:
+    if not _lakebase_ok():
+        return {"ok": False, "decisions": []}
+    return {"ok": True, "decisions": db.list_decisions(max(1, min(200, limit)))}
+
+
+def _decision_lines(limit: int = 12) -> list[str]:
+    """Recorded decision moments for the coach's post-mortem, most recent first."""
+    try:
+        rows = db.list_decisions(limit)
+    except Exception:
+        return []
+    out = []
+    for r in rows:
+        d = r.get("doc") or {}
+        rec, ch = d.get("recommended") or {}, d.get("chosen") or {}
+        same = rec.get("played") == ch.get("played")
+        line = (f"- {str(r.get('ts',''))[:16]} ante {r.get('ante')} {r.get('blind','')}: "
+                f"hand {d.get('hand','?')} | lineup {', '.join(d.get('lineup') or []) or 'none'} | "
+                f"engine #1 {rec.get('hand','?')} {' '.join(rec.get('played') or [])} = {rec.get('total',0):,}"
+                f"{' ('+rec.get('mode')+')' if rec.get('mode') and rec.get('mode')!='deterministic' else ''}"
+                f" | played {'the same' if same else ch.get('hand','?')+' '+' '.join(ch.get('played') or [])+' = '+format(ch.get('total',0),',')}"
+                f" | target {d.get('target',0):,}, scored before this hand {d.get('scored_before',0):,}")
+        if d.get("note"):
+            line += f" | note: {d['note']}"
+        out.append(line)
+    return out
+
+
 @app.delete("/api/runs/{run_id}")
 def del_run(run_id: str) -> dict:
     if not _lakebase_ok():
@@ -521,6 +574,7 @@ class ChatReq(BaseModel):
     boss: str = ""          # current boss blind name (run mode), e.g. "The Wall"
     deck: str = ""
     stake: str = ""
+    continue_from: str = ""  # a truncated previous answer to carry on from
 
 
 # --- agentic coach: the model can call the deterministic engine -----------
@@ -637,19 +691,28 @@ _TOOL_NOTE = ("\n\n## Tools\nYou can call the deterministic engine directly: "
               "use it before asserting what a card does.")
 
 
+_TRUNC: dict[str, bool] = {}     # last call's finish_reason == "length", per thread-less app
+
+
 def _agentic_chat(prompt: str, req: "ChatReq", endpoint: str | None = None):
     msgs = [{"role": "user", "content": prompt + _TOOL_NOTE}]
+    if req.continue_from:
+        msgs.append({"role": "assistant", "content": req.continue_from})
+        msgs.append({"role": "user", "content": "Your previous answer was cut off. Continue "
+                     "exactly where it stopped — do not repeat anything already written."})
     trace: list[dict] = []
     model = endpoint
+    _TRUNC["last"] = False
     with db.span("coach", {"question": req.question[:300]}, kind="AGENT") as root:
         for _ in range(3):
             with db.span("llm", {"messages": len(msgs)}, kind="LLM") as ls:
-                m = db.chat_with_tools(msgs, _COACH_TOOLS, endpoint=endpoint)
+                m = db.chat_with_tools(msgs, _COACH_TOOLS, endpoint=endpoint, max_tokens=1400)
                 model = m.get("_endpoint", model)
                 ls.out({"endpoint": model, "tool_calls": len(m.get("tool_calls") or [])})
             calls = m.get("tool_calls") or []
             if not calls:
                 ans = (m.get("content") or "").strip()
+                _TRUNC["last"] = m.get("_finish") == "length"
                 root.out({"answer": ans[:500], "tools": len(trace), "model": model})
                 return ans, trace, model
             msgs.append({"role": "assistant", "content": m.get("content") or "",
@@ -672,8 +735,9 @@ def _agentic_chat(prompt: str, req: "ChatReq", endpoint: str | None = None):
                              "content": json.dumps(result)[:4000]})
         msgs.append({"role": "user",
                      "content": "No more tool calls — answer now with what you have."})
-        m = db.chat_with_tools(msgs, [], endpoint=endpoint)
+        m = db.chat_with_tools(msgs, [], endpoint=endpoint, max_tokens=1400)
         ans = (m.get("content") or "").strip()
+        _TRUNC["last"] = m.get("_finish") == "length"
         root.out({"answer": ans[:500], "tools": len(trace), "model": m.get("_endpoint", model)})
         return ans, trace, m.get("_endpoint", model)
 
@@ -691,7 +755,16 @@ def chat(req: ChatReq, request: Request) -> dict:
              "history as evidence, and if evidence is missing, design the concrete "
              "experiment (exact cards, jokers, order) they should run. Avoid spoiling "
              "unlock conditions or secret content — coach the strategy, not the "
-             "checklist. If information is missing, say what you'd need."]
+             "checklist. If information is missing, say what you'd need.\n"
+             "FORMAT: the player already sees a summary card with the engine's best play, "
+             "its score, the target and whether it clears — do NOT repeat that arithmetic "
+             "and do NOT produce tables of scores. Answer in exactly three short blocks, "
+             "each under 90 words, with these bold headings: **Why** (why this line, or why "
+             "a different one — if you recommend anything other than the engine's #1 play, "
+             "say so explicitly and give its purpose and the assumption it rests on), "
+             "**Main risk** (what goes wrong and how likely), **Next upgrade** (the single "
+             "most valuable shop/lineup change). Lead with the decision; if the best play "
+             "falls short of the target, say that first."]
     lines.append(f"\n## Run context\nAnte {req.ante}, ${req.money}, "
                  f"{req.hands_left} hands left, {req.discards_left} discards left"
                  + (f", {req.deck} deck" if req.deck else "")
@@ -742,6 +815,17 @@ def chat(req: ChatReq, request: Request) -> dict:
                              "killing me or carrying me.")
         except Exception:
             pass
+    if _lakebase_ok():
+        dl = _decision_lines(12)
+        if dl:
+            lines.append("\n## Recorded decisions (what was on the table, what the engine "
+                         "recommended, what I actually played)")
+            lines.extend(dl)
+            lines.append("For post-mortems, cite these moments specifically (date, ante, "
+                         "hand) and only draw a lesson the records support — e.g. a "
+                         "repeated choice of a lower-scoring play, an expected score that "
+                         "missed the target, a lineup order that cost mult. Do not infer "
+                         "the whole run from its final lineup.")
     lines.append(f"\n## Question\n{req.question}")
     prompt = "\n".join(lines)
     if db.ai_ok():
@@ -749,7 +833,8 @@ def chat(req: ChatReq, request: Request) -> dict:
             answer, trace, model = _agentic_chat(prompt, req)
             if answer:
                 return {"ok": True, "answer": answer, "prompt": prompt,
-                        "tool_trace": trace, "model": model}
+                        "tool_trace": trace, "model": model,
+                        "truncated": bool(_TRUNC.get("last"))}
         except Exception:
             pass                    # endpoint may not support tools — fall back
     try:

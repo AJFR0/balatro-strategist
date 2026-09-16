@@ -239,6 +239,14 @@ def init_schema() -> dict:
             outcome     TEXT,           -- won | lost | in-progress
             notes       TEXT
         )""")
+    _exec(f"""
+        CREATE TABLE IF NOT EXISTS {SCHEMA}.decisions (
+            id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+            ts          TIMESTAMPTZ NOT NULL DEFAULT now(),
+            ante        INT,
+            blind       TEXT,
+            doc         JSONB NOT NULL     -- hand, lineup, options, recommended, chosen, target, mode
+        )""")
     if _state["pgvector"]:
         _exec(f"""
             CREATE TABLE IF NOT EXISTS {SCHEMA}.joker_embeddings (
@@ -325,6 +333,78 @@ def _sqlite():
         ante       INTEGER, deck TEXT, stake TEXT, lineup TEXT,
         best_hand  TEXT, best_score INTEGER, outcome TEXT, notes TEXT)""")
     return conn
+
+
+def _sqlite_dec():
+    c = _sqlite()
+    c.execute("""CREATE TABLE IF NOT EXISTS decisions (
+        id   INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+        ante INTEGER, blind TEXT, doc TEXT NOT NULL)""")
+    return c
+
+
+def save_decision(ante: int, blind: str, doc: dict) -> bool:
+    """One recorded moment: the choices on the table, what the engine
+    recommended, what the player did, and what it was expected to score.
+    Post-mortems cite these instead of guessing from the final lineup."""
+    if DEMO:
+        if _use_dynamo():
+            try:
+                import datetime
+                import uuid as _uuid
+                now = datetime.datetime.now(datetime.timezone.utc)
+                _dynamo().put_item(Item={
+                    "pk": "decisions",
+                    "id": now.strftime("%Y%m%dT%H%M%S") + "-" + _uuid.uuid4().hex[:6],
+                    "ts": now.isoformat(timespec="seconds"),
+                    "ante": int(ante or 0), "blind": blind or "", "doc": json.dumps(doc)})
+                return True
+            except Exception:
+                _ddb_state["ok"] = False
+        with _sqlite_dec() as c:
+            c.execute("INSERT INTO decisions (ante, blind, doc) VALUES (?,?,?)",
+                      (ante, blind, json.dumps(doc)))
+        return True
+    _exec(f"INSERT INTO {SCHEMA}.decisions (ante, blind, doc) VALUES (%s,%s,%s)",
+          (ante, blind, json.dumps(doc)))
+    return True
+
+
+def list_decisions(limit: int = 40):
+    cols = ["id", "ts", "ante", "blind", "doc"]
+    if DEMO:
+        if _use_dynamo():
+            try:
+                r = _dynamo().query(KeyConditionExpression="pk = :p",
+                                    ExpressionAttributeValues={":p": "decisions"},
+                                    ScanIndexForward=False, Limit=limit)
+                out = []
+                for it in r.get("Items", []):
+                    d = it.get("doc", "{}")
+                    out.append({"id": it["id"], "ts": it.get("ts", ""), "ante": int(it.get("ante", 0)),
+                                "blind": it.get("blind", ""),
+                                "doc": json.loads(d) if isinstance(d, str) else d})
+                return out
+            except Exception:
+                _ddb_state["ok"] = False
+        with _sqlite_dec() as c:
+            rows = c.execute("SELECT id, ts, ante, blind, doc FROM decisions "
+                             "ORDER BY ts DESC, id DESC LIMIT ?", (limit,)).fetchall()
+        out = [dict(zip(cols, r)) for r in rows]
+    else:
+        rows = _exec(f"SELECT id, ts, ante, blind, doc FROM {SCHEMA}.decisions "
+                     f"ORDER BY ts DESC LIMIT %s", (limit,), fetch=True)
+        out = [dict(zip(cols, r)) for r in rows]
+    for o in out:
+        if isinstance(o["doc"], str):
+            try:
+                o["doc"] = json.loads(o["doc"])
+            except Exception:
+                o["doc"] = {}
+        if hasattr(o["ts"], "isoformat"):
+            o["ts"] = o["ts"].isoformat()
+    return out
 
 
 def save_run(ante, deck, stake, lineup, best_hand, best_score, outcome, notes) -> bool:
@@ -779,6 +859,7 @@ def chat_with_tools(messages: list[dict], tools: list[dict],
         try:
             resp = w.api_client.do("POST", f"/serving-endpoints/{ep}/invocations", body=body)
             msg = dict(resp["choices"][0]["message"])
+            msg["_finish"] = (resp["choices"][0].get("finish_reason") or "")
             c = msg.get("content")
             if isinstance(c, list):       # reasoning models return content parts
                 msg["content"] = "".join(
