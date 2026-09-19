@@ -796,9 +796,10 @@ function cardHTML(c,i,extra){const enh=c.enh&&c.enh!=="none"?` enh" data-enh="${
   const ed=c.ed&&c.ed!=="none"?` ed-${c.ed}`:"";
   const seal=c.seal&&c.seal!=="none"?`<span class="seal" style="background:${SEALC[c.seal]}"></span>`:"";
   const mods=[c.enh,c.ed,c.seal].filter(x=>x&&x!=="none").join(", ");
-  if(i==null)return `<span class="mcard suit-${c.suit}${ed}${enh}${extra||""}" aria-hidden="true"><span class="r">${c.rank}</span><span class="s">${SUITG[c.suit]}</span>${seal}</span>`;
+  // `enh` closes the class attribute (it carries data-enh), so extra classes go before it
+  if(i==null)return `<span class="mcard suit-${c.suit}${ed}${extra||""}${enh}" aria-hidden="true"><span class="r">${c.rank}</span><span class="s">${SUITG[c.suit]}</span>${seal}</span>`;
   const rec=(extra||"").includes(" rec")?", recommended to play":(extra||"").includes(" keep")?", keep in hand":"";
-  return `<button type="button" class="mcard suit-${c.suit}${ed}${enh}${extra||""}" data-i="${i}" aria-label="${cardName(c)}${mods?" ("+mods+")":""}${rec} — edit modifiers">
+  return `<button type="button" class="mcard suit-${c.suit}${ed}${extra||""}${enh}" data-i="${i}" aria-label="${cardName(c)}${mods?" ("+mods+")":""}${rec} — edit modifiers">
       <span class="r">${c.rank}</span><span class="s">${SUITG[c.suit]}</span>${seal}</button>`}
 /* mini visual cards from engine labels like "AH 10D" — no suit-letter decoding needed */
 function minis(labels){const names=(labels||[]).map(l=>{const m=/^(10|[AKQJ2-9])([HDSC])/.exec(l);return m?cardName({rank:m[1],suit:m[2]}):l});
