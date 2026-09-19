@@ -16,3 +16,5 @@ jobs:
         run: python tests/test_engine.py
       - name: Data audit (tables vs balatrowiki.org extract, engine vs wiki numbers)
         run: python tests/test_data.py
+      - name: Spoken-hand parser (cardspeech.js — homophones, suit grammar, modifiers)
+        run: node tests/test_cardspeech.js
