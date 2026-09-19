@@ -292,6 +292,25 @@ body.live #toast{bottom:calc(var(--navh,58px) + 96px + env(safe-area-inset-botto
 .qchips .lab{color:var(--fade);font-size:11px;white-space:nowrap;text-transform:uppercase;letter-spacing:1px;flex:0 0 auto}
 .trayhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .trayhead .hint{margin:0}
+/* ---- v2.1: voice / dictation entry ---- */
+.voice{margin-top:10px}
+.voicerow{display:flex;gap:8px;align-items:stretch}
+.voicerow input{flex:1;min-width:0}
+.mic{flex:0 0 48px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font-size:20px;cursor:pointer;
+  color:var(--ink);position:relative}
+.mic[aria-pressed="true"]{background:linear-gradient(180deg,#e8483d,#c93227);border-color:#c93227;box-shadow:0 0 0 0 rgba(232,72,61,.6);
+  animation:micpulse 1.4s ease-out infinite}
+@keyframes micpulse{0%{box-shadow:0 0 0 0 rgba(232,72,61,.55)}100%{box-shadow:0 0 0 12px rgba(232,72,61,0)}}
+.heard{display:none;margin-top:8px;padding:9px 10px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.heard.on{display:block}
+.heard .hrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.heard .lab{color:var(--fade);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.heard .flag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11.5px;font-weight:700;margin:2px 4px 0 0}
+.heard .flag.bad{background:rgba(255,92,80,.16);color:#ffb3ac;border:1px solid rgba(255,92,80,.45)}
+.heard .flag.warn{background:rgba(255,184,107,.14);color:#ffd2a6;border:1px solid rgba(255,184,107,.45)}
+.heard .acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.heard .acts .b{padding:9px 14px;font-size:13px}
+.heard .interim{color:var(--fade);font-style:italic;font-size:12.5px}
 .b.jdel{padding:6px 10px}
 .play .act{margin:8px 0 2px}
 #go{width:100%;background:var(--panel2);color:var(--soft);font-size:13px;padding:11px}
@@ -364,6 +383,8 @@ body.live #snack{bottom:calc(var(--navh,58px) + 100px + env(safe-area-inset-bott
   #undoCard,.qchips .chipbtn{padding:12px 14px;font-size:13px}
   #live .b{padding:13px 12px}
   .play .act .b,#result .quicklog .b{padding:12px 16px}
+  .heard .acts .b{padding:12px 16px;min-height:42px}
+  .mic{flex-basis:52px;min-height:44px}
 }
 </style>
 </head>
@@ -389,10 +410,22 @@ body.live #snack{bottom:calc(var(--navh,58px) + 100px + env(safe-area-inset-bott
   <div class="panel">
     <h2>Your hand</h2>
     <div class="trayhead">
-      <div class="hint" id="trayHint">Pick a suit, tap ranks to add cards. Best play updates live below.</div>
+      <div class="hint" id="trayHint">Say your hand, or pick a suit and tap ranks. Best play updates live below.</div>
       <button class="chipbtn" id="undoCard" aria-label="remove last added card">↶ remove last card</button>
     </div>
     <div class="tray" id="tray" style="margin-top:8px"></div>
+    <!-- v2.1: say the hand instead of tapping it. The box takes typing, keyboard
+         dictation (Wispr Flow, the iOS mic key) or the built-in microphone. -->
+    <div class="voice" id="voice">
+      <div class="voicerow">
+        <input id="dictate" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done"
+               placeholder="Say it: “ace king nine five two of hearts, gold king of spades”"
+               aria-label="describe your hand by voice or typing" aria-describedby="voiceHint">
+        <button type="button" class="mic" id="micBtn" aria-pressed="false" aria-label="dictate with the microphone" hidden>🎙</button>
+      </div>
+      <div class="hint" id="voiceHint" style="margin:6px 0 0">Ranks then suit, or suit first. “Gold”, “steel”, “foil”, “red seal” go before a card. Keyboard dictation works here too.</div>
+      <div id="heard" class="heard" aria-live="polite"></div>
+    </div>
     <div class="picker" style="margin-top:10px">
       <div class="suits" id="suits">
         <button data-s="H" class="suit-H on">♥</button>
@@ -548,6 +581,7 @@ body.live #snack{bottom:calc(var(--navh,58px) + 100px + env(safe-area-inset-bott
 <div id="toast"></div>
 <div id="snack" role="status"><span id="snackMsg"></span><button class="b gold" id="snackAct">Undo</button></div>
 
+<script src="/cardspeech.js"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -773,10 +807,10 @@ function minis(labels){const names=(labels||[]).map(l=>{const m=/^(10|[AKQJ2-9])
 function renderTray(){const t=$("#tray");const rec=recIndices();
   t.classList.toggle("hasrec",rec.size>0);
   t.innerHTML=S.hand.map((c,i)=>cardHTML(c,i,rec.size?(rec.has(i)?" rec":" keep"):"")).join("")
-    ||`<span style="color:var(--fade);font-size:12.5px;align-self:center">tap ranks below to add your 8 cards</span>`;
+    ||`<span style="color:var(--fade);font-size:12.5px;align-self:center">say it below, or tap ranks to add your 8 cards</span>`;
   const n=S.hand.length;
   $("#trayHint").innerHTML=n?`<span class="cnt">${n} / 8 cards</span> · tap a card to edit its enhancement, edition or seal`
-    :"Pick a suit, tap ranks to add cards. Best play updates live below.";
+    :"Say your hand, or pick a suit and tap ranks. Best play updates live below.";
   $("#undoCard").style.visibility=n?"visible":"hidden";
   $("#discOut").innerHTML="";                       // advisor output is for the old hand
   save();scheduleOpt()}
@@ -796,6 +830,71 @@ $("#tray").addEventListener("click",e=>{const c=e.target.closest(".mcard");if(!c
 $("#clearHand").onclick=()=>{if(!S.hand.length)return;undoable("cleared hand",()=>{S.hand=[];renderTray()})};
 $("#demoHand").onclick=()=>undoable("loaded demo hand",()=>{S.hand=[["A","H"],["K","H"],["9","H"],["5","H"],["2","H"],["A","S"],["3","C"],["7","D"]]
   .map(([r,s])=>({rank:r,suit:s,enh:"none",ed:"none",seal:"none"}));renderTray()});
+
+/* ---------------- v2.1: say the hand ----------------
+   One text box feeds one parser (cardspeech.js). Text arrives from typing, from a
+   keyboard dictation tool (Wispr Flow, the iOS mic key — they just type here) or
+   from the browser's own recogniser behind the mic button. The parse is previewed
+   as mini cards before anything touches the hand; misheard words are shown, not
+   guessed. A clean recording (every card complete, nothing unrecognised) is
+   committed when the mic stops, so the whole loop is: tap, speak, done. */
+const VOICE={rec:null,on:false,base:"",finals:"",interim:"",parsed:null};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition||null;
+function voiceText(){return (VOICE.base+" "+VOICE.finals+" "+VOICE.interim).replace(/\s+/g," ").trim()}
+function previewVoice(){const txt=$("#dictate").value;const box=$("#heard");
+  if(!txt.trim()){box.classList.remove("on");box.innerHTML="";VOICE.parsed=null;return null}
+  const p=CardSpeech.parse(txt);VOICE.parsed=p;
+  const room=Math.max(0,12-S.hand.length);
+  const cards=p.cards.map(c=>cardHTML(c,null," mini")).join("");
+  const flags=[...p.unsuited.map(c=>`<span class="flag warn" title="no suit heard">${esc(CardSpeech.describe(c))} — which suit?</span>`),
+    ...p.unknown.map(w=>`<span class="flag bad" title="not a card word">${esc(w)}?</span>`),
+    ...p.dangling.map(m=>`<span class="flag warn">“${esc(m)}” with no card after it</span>`)].join("");
+  const n=p.cards.length,clean=n>0&&!p.unsuited.length&&!p.unknown.length&&!p.dangling.length;
+  const names=p.cards.map(CardSpeech.describe).join(", ");
+  box.innerHTML=`<div class="hrow"><span class="lab">Heard</span>${n?`<span class="minis" role="img" aria-label="${esc(names)}">${cards}</span>`:`<span class="interim">${VOICE.on?"listening…":"no cards yet"}</span>`}</div>
+    ${flags?`<div style="margin-top:6px">${flags}</div>`:""}
+    ${n?`<div class="acts"><button type="button" class="b gold" id="heardAdd" ${n>room?"disabled":""}>Add ${n} card${n===1?"":"s"}</button>
+      ${S.hand.length?`<button type="button" class="b" id="heardReplace">Replace hand</button>`:""}
+      <button type="button" class="b" id="heardClear">Clear</button>
+      ${n>room?`<span class="hint" style="margin:0">only ${room} more fit (12 max)</span>`:""}</div>`:""}`;
+  box.classList.add("on");
+  const add=(replace)=>{const got=p.cards.map(c=>({...c}));
+    undoable(`${replace?"replaced hand with":"added"} ${got.length} card${got.length===1?"":"s"} by voice`,()=>{
+      S.hand=replace?got:[...S.hand,...got].slice(0,12);renderTray()});
+    $("#dictate").value="";VOICE.base=VOICE.finals=VOICE.interim="";previewVoice();buzz()};
+  const a=$("#heardAdd");if(a)a.onclick=()=>add(false);
+  const r=$("#heardReplace");if(r)r.onclick=()=>add(true);
+  $("#heardClear").onclick=()=>{$("#dictate").value="";VOICE.base=VOICE.finals=VOICE.interim="";previewVoice()};
+  return {p,clean,room}}
+$("#dictate").addEventListener("input",()=>{if(!VOICE.on){VOICE.base=$("#dictate").value;VOICE.finals=VOICE.interim=""}previewVoice()});
+$("#dictate").addEventListener("keydown",e=>{if(e.key!=="Enter")return;e.preventDefault();const a=$("#heardAdd");if(a&&!a.disabled)a.click()});
+function micStop(){try{VOICE.rec&&VOICE.rec.stop()}catch(e){micDone()}}
+function micSetUI(on){VOICE.on=on;const b=$("#micBtn");b.setAttribute("aria-pressed",on?"true":"false");
+  b.setAttribute("aria-label",on?"stop listening":"dictate with the microphone");b.textContent=on?"■":"🎙"}
+function micDone(){ // recogniser stopped (tap, silence timeout or error) — commit if it heard a clean hand
+  if(!VOICE.on)return;
+  micSetUI(false);VOICE.interim="";$("#dictate").value=voiceText();
+  const v=previewVoice();
+  if(v&&v.clean&&v.p.cards.length<=v.room){$("#heardAdd").click()}
+  else if(v&&v.p.cards.length){$("#liveAnnounce")&&($("#liveAnnounce").textContent="check the heard cards, then tap Add")}
+  VOICE.base=$("#dictate").value;VOICE.finals="";VOICE.rec=null}
+function micStart(){if(!SR||VOICE.on)return;
+  const rec=new SR();VOICE.rec=rec;rec.lang=(navigator.language||"en-US");rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;
+  VOICE.base=$("#dictate").value;VOICE.finals="";VOICE.interim="";
+  rec.onresult=e=>{let fin="",int="";
+    for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=" "+t;else int+=" "+t}
+    if(fin)VOICE.finals+=fin;VOICE.interim=int;$("#dictate").value=voiceText();previewVoice()};
+  rec.onerror=e=>{const k=e.error||"";
+    if(k==="not-allowed"||k==="service-not-allowed")toast("Microphone blocked — use your keyboard's dictation or type the hand");
+    else if(k==="network")toast("Speech service unreachable — keyboard dictation still works here");
+    else if(k==="audio-capture")toast("No microphone found");
+    /* "no-speech" and "aborted" are normal ends; every error is followed by onend */};
+  /* the recogniser ends on tap, on a pause (mobile) or on error — never auto-restart,
+     so a misbehaving service can't loop; the player just taps the mic again */
+  rec.onend=()=>micDone();
+  try{rec.start();micSetUI(true);previewVoice()}catch(e){toast("Couldn't start the microphone");micSetUI(false)}}
+if(SR){const b=$("#micBtn");b.hidden=false;b.onclick=()=>VOICE.on?micStop():micStart()}
+else{$("#voiceHint").textContent="No built-in speech in this browser — use your keyboard's dictation (Wispr Flow, iOS mic) or type: ranks then suit, or suit first."}
 
 function openCardSheet(i){const c=S.hand[i];
   const opt=(list,cur)=>list.map(v=>`<option ${v===cur?"selected":""}>${v}</option>`).join("");

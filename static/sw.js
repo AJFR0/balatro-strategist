@@ -1,6 +1,6 @@
 /* Balatro Strategist service worker — cache-first shell, fresh API. */
-const CACHE = "bs-v201";
-const PRECACHE = ["/", "/manifest.json", "/icon-192.png", "/icon-512.png"];
+const CACHE = "bs-v210";
+const PRECACHE = ["/", "/cardspeech.js", "/manifest.json", "/icon-192.png", "/icon-512.png"];
 
 // Shell requests bypass the browser HTTP cache (revalidate with the server);
 // otherwise a heuristically-fresh stale copy can be precached on a new release
