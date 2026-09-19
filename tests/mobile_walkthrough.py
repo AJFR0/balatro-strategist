@@ -10,6 +10,8 @@ reports measurable UX findings:
   - safe-area padding on the bottom tab bar
   - whether the optimizer result is visible after tapping the CTA
   - what a *tap* does on synergy-web cards (hover-only affordances)
+  - (v2.1) saying the hand: typed dictation preview → add → undo, and a fake
+    microphone that must commit a clean utterance and hold a doubtful one
   - console errors
 
 Usage:  DEMO_MODE=1 uvicorn app:app --port 8009 &
@@ -60,6 +62,21 @@ MEASURE_JS = """() => {
 
 
 TAPS: dict = {}
+
+# A stand-in for the browser's SpeechRecognition: start() emits one interim and one
+# final result for window.__say, then ends — the shape Chrome/Safari produce.
+FAKE_SR_JS = """(() => {
+  class FakeSR {
+    constructor(){ this.continuous=false; this.interimResults=false; this.lang=""; window.__sr=this; }
+    start(){ const s=this, mk=(t,f)=>({resultIndex:0, results:[Object.assign([{transcript:t}],{isFinal:f})]});
+      setTimeout(()=>s.onresult&&s.onresult(mk(window.__say||"", false)), 40);
+      setTimeout(()=>s.onresult&&s.onresult(mk(window.__say||"", true)), 120);
+      setTimeout(()=>s.onend&&s.onend(), 260); }
+    stop(){ const s=this; setTimeout(()=>s.onend&&s.onend(), 20); }
+    abort(){ this.stop(); }
+  }
+  window.SpeechRecognition = FakeSR; window.webkitSpeechRecognition = FakeSR;
+})();"""
 
 
 class Taps:
@@ -474,6 +491,54 @@ async def main():
         unlabeled = await pg.evaluate("""[...document.querySelectorAll('input:not([type=checkbox]),select')].filter(el=>el.offsetParent&&!(el.labels&&el.labels.length)&&!el.getAttribute('aria-label')&&!el.getAttribute('aria-labelledby')).map(el=>el.id||el.placeholder||el.className).slice(0,6)""")
         if unlabeled:
             finding("MED", "a11y", "form fields without an accessible label", ", ".join(map(str, unlabeled)))
+
+        # ---------- journey 10 (v2.1): say the hand — typed dictation + microphone ----------
+        await pg.click("#nav button[data-t='play']")
+        await pg.wait_for_timeout(300)
+        await pg.evaluate("S.hand=[];renderTray()")
+        await pg.fill("#dictate", "ace king nine five two of hearts, gold king of spades, banana")
+        await pg.wait_for_timeout(250)
+        if await pg.locator("#heard .mcard").count() != 6:
+            finding("HIGH", "voice", "dictated hand is not previewed as cards before it is added")
+        if "banana" not in " ".join(await pg.locator("#heard .flag").all_inner_texts()):
+            finding("HIGH", "voice", "an unrecognised word is swallowed silently instead of being flagged")
+        await pg.tap("#heardAdd")
+        await pg.wait_for_timeout(350)
+        hand = await pg.evaluate("S.hand.map(c=>c.rank+c.suit+(c.enh!=='none'?'('+c.enh+')':''))")
+        if hand != ["AH", "KH", "9H", "5H", "2H", "KS(gold)"]:
+            finding("HIGH", "voice", "dictated cards (with a modifier) did not land in the hand as said", str(hand))
+        if "by voice" not in (await pg.locator("#snackMsg").inner_text()):
+            finding("MED", "voice", "adding a dictated hand is not undoable from the snackbar")
+        await pg.tap("#snackAct")
+        await pg.wait_for_timeout(200)
+        if await pg.evaluate("S.hand.length") != 0:
+            finding("HIGH", "voice", "undo did not remove the dictated cards")
+        # microphone path with a fake recogniser installed before the page scripts run:
+        # a clean utterance commits when the mic stops, a doubtful one waits in the preview
+        await ctx.add_init_script(FAKE_SR_JS)
+        await pg.reload()
+        await pg.wait_for_timeout(1500)
+        await pg.evaluate("S.hand=[];renderTray()")
+        if await pg.evaluate("$('#micBtn').hidden"):
+            finding("HIGH", "voice", "mic button hidden although a recogniser exists")
+        await pg.evaluate("window.__say='hearts: ace king nine, spades: five two'")
+        await pg.tap("#micBtn")
+        await pg.wait_for_timeout(120)
+        if (await pg.evaluate("$('#micBtn').getAttribute('aria-pressed')")) != "true":
+            finding("MED", "voice", "mic button does not expose its listening state (aria-pressed)")
+        await pg.wait_for_timeout(600)
+        if (await pg.evaluate("S.hand.map(c=>c.rank+c.suit).join(' ')")) != "AH KH 9H 5S 2S":
+            finding("HIGH", "voice", "a clean spoken hand is not committed when the mic stops",
+                    await pg.evaluate("S.hand.map(c=>c.rank+c.suit).join(' ')"))
+        if (await pg.evaluate("$('#micBtn').getAttribute('aria-pressed')")) != "false":
+            finding("MED", "voice", "mic button still reads as listening after the recogniser ended")
+        await pg.evaluate("window.__say='queen of clubs and a flamingo'")
+        await pg.tap("#micBtn")
+        await pg.wait_for_timeout(700)
+        if await pg.evaluate("S.hand.length") != 5 or not await pg.evaluate("$('#heard').classList.contains('on')"):
+            finding("HIGH", "voice", "a doubtful utterance was committed instead of waiting for confirmation")
+        await pg.screenshot(path=f"{SHOTS}/10_voice.png")
+        await pg.evaluate("S.hand=[];renderTray();$('#dictate').value='';previewVoice()")
 
         # ---------- journey 6: PWA ----------
         pwa = await pg.evaluate("""async () => {
