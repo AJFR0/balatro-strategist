@@ -502,6 +502,10 @@ async def main():
             finding("HIGH", "voice", "dictated hand is not previewed as cards before it is added")
         if "banana" not in " ".join(await pg.locator("#heard .flag").all_inner_texts()):
             finding("HIGH", "voice", "an unrecognised word is swallowed silently instead of being flagged")
+        # an enhanced card must still be a *mini* card in the preview (v2.1.1: enh closed the class attr early)
+        if await pg.locator("#heard .mcard.mini.enh").count() != 1 or \
+                (await pg.evaluate("$('#heard .mcard.enh').dataset.enh")) != "GLD":
+            finding("HIGH", "voice", "enhanced card loses its size/recommendation classes in card markup")
         await pg.tap("#heardAdd")
         await pg.wait_for_timeout(350)
         hand = await pg.evaluate("S.hand.map(c=>c.rank+c.suit+(c.enh!=='none'?'('+c.enh+')':''))")
