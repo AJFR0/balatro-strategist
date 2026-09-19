@@ -190,6 +190,14 @@ def service_worker() -> FileResponse:
                         headers=_NO_CACHE)
 
 
+@app.get("/cardspeech.js")
+def cardspeech_js() -> FileResponse:
+    """Spoken/typed hand parser (v2.1) — shared by the page and its tests."""
+    return FileResponse(os.path.join(HERE, "static", "cardspeech.js"),
+                        media_type="application/javascript",
+                        headers=_NO_CACHE)
+
+
 @app.get("/icon-192.png")
 @app.get("/apple-touch-icon.png")
 def icon_192() -> FileResponse:

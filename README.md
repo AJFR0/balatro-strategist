@@ -13,7 +13,8 @@ built entirely on **Databricks Free Edition**.
 
 | Tab | What you get |
 |-----|--------------|
-| 🎯 **What do I play?** | Type the 8 cards in your hand + your joker lineup (order matters). A deterministic scoring engine enumerates every legal play (all 218 subsets) and ranks them, with the full chips × mult math shown step by step. |
+| 🎯 **What do I play?** | Say or tap the 8 cards in your hand + your joker lineup (order matters). A deterministic scoring engine enumerates every legal play (all 218 subsets) and ranks them, with the full chips × mult math shown step by step. |
+| 🎙 **Say the hand** (v2.1) | "ace king nine five two of hearts, gold king of spades" — the browser's own speech recogniser (Chrome, Safari, Edge; no keys, no cost) or any keyboard dictation tool (Wispr Flow, the iOS mic key) types into one box; `static/cardspeech.js` parses ranks-then-suit or suit-first phrasing, enhancements/editions/seals and common mis-hearings (*for*→4, *to*→2, *hard*→hearts), previews the cards, flags anything it didn't understand, and commits a clean recording when the mic stops. Undoable like every other edit. |
 | 📖 **Joker-pedia** | All 150 jokers — searchable, filterable by rarity / category / synergy tags. Plus hands, planets, tarots, spectrals, vouchers. |
 | 🕸️ **Synergy web** | Pick a joker, see which other jokers share its synergy tags, weighted by overlap. For deciding what to buy next. |
 | 🧠 **AI strategist** | A foundation model (via Databricks Model Serving) reads the engine's output and your run context, then talks strategy. It is explicitly told not to do arithmetic — **AI narrates, math decides.** |
@@ -101,6 +102,7 @@ load the CSVs into Unity Catalog, then create a Genie space over
 ```
 app.py               FastAPI backend (optimizer, codex, search, runs, coach)
 static/index.html    hand-built SPA (5 tabs, mobile-first)
+static/cardspeech.js spoken/typed hand → cards parser (engine-agnostic; node-testable)
 engine.py            deterministic scoring engine + joker effect registry
 db.py                Lakebase/pgvector/model-serving layer + demo-mode fallbacks
 data/*.csv           150 jokers (wiki-verified + tagged), joker_notes (wiki
@@ -110,6 +112,7 @@ data/*.csv           150 jokers (wiki-verified + tagged), joker_notes (wiki
 tools/wiki_enrich.py regenerates data/ from wiki_dump.json (tools/wikitext.py
                      is the wikitext → plain-text normaliser)
 tests/test_engine.py 28 engine tests · tests/test_data.py data audit ·
+                     tests/test_cardspeech.js 39 spoken-hand cases ·
                      tests/mobile_walkthrough.py tap-budget walkthrough
 setup_uc_tables.py   optional: load data/ into Unity Catalog for Genie
 app.yaml             Databricks Apps entry point
